@@ -16,7 +16,7 @@ const ProblemSolution = () => {
   ];
 
   return (
-    <section className="w-full py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
+    <section id="features" className="w-full py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">

@@ -3,6 +3,9 @@ import Hero from "@/components/Hero";
 import ProblemSolution from "@/components/ProblemSolution";
 import KillerFeature from "@/components/KillerFeature";
 import HowItWorks from "@/components/HowItWorks";
+import AIConsultant from "@/components/AIConsultant";
+import UseCases from "@/components/UseCases";
+import Security from "@/components/Security";
 
 const Index = () => {
   return (
@@ -12,6 +15,9 @@ const Index = () => {
       <ProblemSolution />
       <KillerFeature />
       <HowItWorks />
+      <AIConsultant />
+      <UseCases />
+      <Security />
     </div>
   );
 };

@@ -47,6 +47,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        indigo: {
+          600: "hsl(243, 75%, 59%)",
+        },
+        emerald: {
+          500: "hsl(160, 84%, 39%)",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -57,6 +63,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      fontFamily: {
+        manrope: ['Manrope', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

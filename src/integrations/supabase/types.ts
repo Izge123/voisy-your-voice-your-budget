@@ -14,7 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          currency: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          currency?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          currency?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string | null
+          currency: string | null
+          date: string | null
+          description: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

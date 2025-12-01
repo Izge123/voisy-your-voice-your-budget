@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Star, ArrowRight, Mic, Settings, TrendingUp } from "lucide-react";
+import { Star, ArrowRight, Mic, Settings, TrendingUp, Home, PieChart, Plus, Bell, User } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -67,7 +67,7 @@ const Hero = () => {
                 <div className="relative bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 aspect-[9/19.5] overflow-hidden">
                   
                   {/* LAYER 1 - Dashboard Background */}
-                  <div className="absolute inset-0 p-4 md:p-6 pt-10 md:pt-12">
+                  <div className="absolute inset-0 p-4 md:p-6 pt-10 md:pt-12 flex flex-col">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-4 md:mb-6">
                       <div className="flex items-center gap-2">
@@ -93,27 +93,78 @@ const Hero = () => {
                     </div>
 
                     {/* Recent Transactions */}
-                    <div>
+                    <div className="flex-1 overflow-hidden pb-16">
                       <p className="text-xs md:text-sm font-semibold font-manrope text-foreground mb-2 md:mb-3">Сегодня</p>
-                      <div className="space-y-2">
-                        {/* Skeleton 1 */}
-                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-3 flex items-center gap-3 animate-pulse">
-                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-muted/50"></div>
-                          <div className="flex-1">
-                            <div className="h-2 md:h-3 bg-muted/50 rounded w-20 mb-1"></div>
-                            <div className="h-2 bg-muted/30 rounded w-12"></div>
+                      <div className="space-y-2 opacity-40">
+                        {/* Transaction 1 */}
+                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-2.5 flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                            <span className="text-base">🛒</span>
                           </div>
-                          <div className="h-3 bg-muted/50 rounded w-12"></div>
-                        </div>
-                        {/* Skeleton 2 */}
-                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-3 flex items-center gap-3 animate-pulse delay-150">
-                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-muted/50"></div>
                           <div className="flex-1">
-                            <div className="h-2 md:h-3 bg-muted/50 rounded w-24 mb-1"></div>
-                            <div className="h-2 bg-muted/30 rounded w-16"></div>
+                            <p className="text-[10px] md:text-xs font-semibold font-inter text-foreground">Пятерочка</p>
+                            <p className="text-[8px] md:text-[10px] font-medium font-inter text-muted-foreground">Продукты</p>
                           </div>
-                          <div className="h-3 bg-muted/50 rounded w-12"></div>
+                          <p className="text-[10px] md:text-xs font-bold font-inter text-destructive">-$120</p>
                         </div>
+                        {/* Transaction 2 */}
+                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-2.5 flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                            <span className="text-base">🎬</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-[10px] md:text-xs font-semibold font-inter text-foreground">Netflix</p>
+                            <p className="text-[8px] md:text-[10px] font-medium font-inter text-muted-foreground">Подписки</p>
+                          </div>
+                          <p className="text-[10px] md:text-xs font-bold font-inter text-destructive">-$12</p>
+                        </div>
+                        {/* Transaction 3 */}
+                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-2.5 flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                            <span className="text-base">🏋️</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-[10px] md:text-xs font-semibold font-inter text-foreground">Спортзал</p>
+                            <p className="text-[8px] md:text-[10px] font-medium font-inter text-muted-foreground">Спорт</p>
+                          </div>
+                          <p className="text-[10px] md:text-xs font-bold font-inter text-destructive">-$50</p>
+                        </div>
+                        {/* Transaction 4 */}
+                        <div className="bg-white/60 dark:bg-slate-700/30 rounded-xl p-2.5 flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                            <span className="text-base">🍔</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-[10px] md:text-xs font-semibold font-inter text-foreground">Burger King</p>
+                            <p className="text-[8px] md:text-[10px] font-medium font-inter text-muted-foreground">Еда</p>
+                          </div>
+                          <p className="text-[10px] md:text-xs font-bold font-inter text-destructive">-$15</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Tab Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-border/50 px-4 py-2 flex items-center justify-around">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <Home className="h-5 w-5 text-primary" />
+                        <span className="text-[8px] font-inter text-primary">Главная</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <PieChart className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-[8px] font-inter text-muted-foreground">Аналитика</span>
+                      </div>
+                      <div className="relative -top-4">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-600 to-emerald-500 flex items-center justify-center shadow-lg">
+                          <Plus className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <Bell className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-[8px] font-inter text-muted-foreground">Уведомления</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-[8px] font-inter text-muted-foreground">Профиль</span>
                       </div>
                     </div>
                   </div>

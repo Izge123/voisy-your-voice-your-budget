@@ -215,7 +215,7 @@ const Dashboard = () => {
       <header className="flex items-center justify-between p-4 md:p-6 mb-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 md:h-12 md:w-12">
-            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} />
+            <AvatarImage src={profile?.avatar_url || ""} />
             <AvatarFallback className="bg-primary text-primary-foreground font-bold">{userInitial}</AvatarFallback>
           </Avatar>
           <div>

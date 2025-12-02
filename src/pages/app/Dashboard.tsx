@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, Bell, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,14 +22,20 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { cn, formatCurrency, getCurrencySymbol } from "@/lib/utils";
 import { useProfile } from "@/hooks/use-profile";
+import { useNotifications, useUnreadCount, useMarkAsRead } from "@/hooks/use-notifications";
+import { formatDistanceToNow } from "date-fns";
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
-  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { profile } = useProfile();
+  const { notifications: recentNotifications } = useNotifications(5);
+  const { unreadCount } = useUnreadCount();
+  const markAsRead = useMarkAsRead();
   const currency = profile?.currency || 'USD';
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
@@ -226,20 +232,78 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full relative">
+                <Bell className="h-5 w-5 text-muted-foreground" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <div className="p-3 border-b">
+                <h4 className="font-semibold text-sm">Уведомления</h4>
+              </div>
+              {recentNotifications.length === 0 ? (
+                <div className="p-6 text-center">
+                  <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">Нет уведомлений</p>
+                </div>
+              ) : (
+                <div className="max-h-72 overflow-y-auto">
+                  {recentNotifications.map((notification) => (
+                    <button
+                      key={notification.id}
+                      className={cn(
+                        "w-full flex items-start gap-3 p-3 hover:bg-muted/50 transition-colors text-left border-b last:border-b-0",
+                        !notification.is_read && "bg-primary/5"
+                      )}
+                      onClick={() => {
+                        if (!notification.is_read) {
+                          markAsRead.mutate(notification.id);
+                        }
+                      }}
+                    >
+                      <span className="text-xl shrink-0">{notification.icon || "🔔"}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm", !notification.is_read && "font-semibold")}>
+                          {notification.title}
+                        </p>
+                        {notification.message && (
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                            {notification.message}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: ru })}
+                        </p>
+                      </div>
+                      {!notification.is_read && (
+                        <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="p-2 border-t">
+                <Button
+                  variant="ghost"
+                  className="w-full text-sm"
+                  onClick={() => navigate("/app/settings/notifications")}
+                >
+                  Все уведомления
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Link to="/app/settings">
             <Button variant="ghost" size="icon" className="rounded-full">
               <Settings className="h-5 w-5 text-muted-foreground" />
             </Button>
           </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full"
-            onClick={signOut}
-            title="Выйти"
-          >
-            <LogOut className="h-5 w-5 text-muted-foreground" />
-          </Button>
         </div>
       </header>
 

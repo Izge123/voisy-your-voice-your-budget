@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { User, Crown, Wallet, Sparkles, Settings2, ChevronRight } from "lucide-react";
+import { User, Crown, Wallet, Sparkles, Settings2, ChevronRight, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/use-profile";
+import { useUnreadCount } from "@/hooks/use-notifications";
 import { getCurrencySymbol } from "@/lib/utils";
 
 interface SettingsMenuItemProps {
@@ -35,9 +36,11 @@ const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { unreadCount } = useUnreadCount();
 
   const currency = profile?.currency || "USD";
   const currencySymbol = getCurrencySymbol(currency);
+  const notificationsSubtitle = unreadCount > 0 ? `${unreadCount} непрочитанных` : "Всё прочитано";
 
   return (
     <div className="p-4 md:p-6 space-y-6 pb-24">
@@ -75,6 +78,13 @@ const Settings = () => {
           title="AI Профиль"
           subtitle="Персонализация AI"
           onClick={() => navigate("/app/settings/ai-profile")}
+        />
+        <SettingsMenuItem
+          icon={<Bell className="h-5 w-5 text-orange-500" />}
+          iconBg="bg-orange-500/10"
+          title="Уведомления"
+          subtitle={notificationsSubtitle}
+          onClick={() => navigate("/app/settings/notifications")}
         />
       </div>
 

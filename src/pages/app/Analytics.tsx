@@ -433,52 +433,99 @@ const Analytics = () => {
           </CardContent>
         </Card>
 
-        {/* TOP SPENDING */}
+        {/* TOP SPENDING WITH HIERARCHY */}
         <Card className="animate-fade-in" style={{ animationDelay: '250ms' }}>
           <CardHeader>
             <CardTitle className="text-xl font-bold font-manrope">Топ категорий</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {topCategories.map((category, index) => {
-              return (
-                <div
-                  key={index}
-                  className="space-y-2 animate-fade-in"
-                  style={{ animationDelay: `${250 + index * 50}ms` }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div
-                        className="flex items-center justify-center w-10 h-10 rounded-xl text-xl"
-                        style={{ backgroundColor: `${category.color}15` }}
-                      >
-                        {category.icon}
+          <CardContent>
+            <Accordion type="multiple" className="w-full">
+              {hierarchicalExpenses.slice(0, 5).map((parent, index) => {
+                const parentPercentage = totalExpenses > 0 ? Math.round((parent.totalAmount / totalExpenses) * 100) : 0;
+                const hasSubcategories = parent.subcategories.length > 0;
+
+                return (
+                  <AccordionItem 
+                    key={parent.id} 
+                    value={parent.id} 
+                    className="border-b border-border animate-fade-in"
+                    style={{ animationDelay: `${250 + index * 50}ms` }}
+                  >
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div
+                            className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+                            style={{ backgroundColor: `${parent.color}15` }}
+                          >
+                            {parent.icon}
+                          </div>
+                          <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
+                            <span className="text-sm font-semibold font-inter text-foreground truncate">
+                              {parent.name}
+                              {hasSubcategories && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  ({parent.subcategories.length})
+                                </span>
+                              )}
+                            </span>
+                            <Progress
+                              value={parentPercentage}
+                              className="h-1.5 w-full"
+                              style={
+                                {
+                                  '--progress-background': parent.color,
+                                } as React.CSSProperties
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-sm font-bold font-manrope text-muted-foreground">
+                            {parentPercentage}%
+                          </span>
+                          <span className="text-base font-bold font-manrope text-foreground">
+                            ${parent.totalAmount.toFixed(0)}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-semibold font-inter text-foreground">
-                        {category.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold font-manrope text-muted-foreground">
-                        {category.percentage}%
-                      </span>
-                      <span className="text-base font-bold font-manrope text-foreground">
-                        ${category.value.toFixed(0)}
-                      </span>
-                    </div>
-                  </div>
-                  <Progress
-                    value={category.percentage}
-                    className="h-2"
-                    style={
-                      {
-                        '--progress-background': category.color,
-                      } as React.CSSProperties
-                    }
-                  />
-                </div>
-              );
-            })}
+                    </AccordionTrigger>
+                    
+                    {hasSubcategories && (
+                      <AccordionContent className="pb-4">
+                        <div className="space-y-3 pl-4 border-l-2 border-border ml-5">
+                          {parent.subcategories.map((sub) => {
+                            const subPercentage = parent.totalAmount > 0 
+                              ? Math.round((sub.amount / parent.totalAmount) * 100) 
+                              : 0;
+                            
+                            return (
+                              <div key={sub.id} className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <span className="text-muted-foreground shrink-0">↳</span>
+                                  <span className="text-lg shrink-0">{sub.icon}</span>
+                                  <span className="text-sm font-inter text-foreground truncate">
+                                    {sub.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs font-bold font-manrope text-muted-foreground">
+                                    {subPercentage}%
+                                  </span>
+                                  <span className="text-sm font-semibold font-manrope text-foreground">
+                                    ${sub.amount.toFixed(0)}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </AccordionContent>
+                    )}
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
           </CardContent>
         </Card>
         </div>

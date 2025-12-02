@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Loader2, ChevronDown, MoreVertical } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, FolderOpen, CornerDownRight, Folder, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useCategories, Category } from "@/hooks/use-categories";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,12 +20,13 @@ const Categories = () => {
   
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [activeTab, setActiveTab] = useState<'parent' | 'child'>('parent');
   const [categoryType, setCategoryType] = useState<'expense' | 'income'>('expense');
   const [categoryName, setCategoryName] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
-  const [isSubcategory, setIsSubcategory] = useState(false);
   const [parentId, setParentId] = useState<string | null>(null);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const colors = [
     '#ef4444', '#f97316', '#f59e0b', '#eab308', 
@@ -40,9 +40,21 @@ const Categories = () => {
     income: ['💰', '💵', '💼', '📈', '🎯', '💎', '🏆', '💸', '🤝', '📊']
   };
 
+  const toggleCategory = (id: string) => {
+    setOpenCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   const handleSave = () => {
     if (!categoryName.trim()) return;
-    if (isSubcategory && !parentId) return;
+    if (activeTab === 'child' && !parentId) return;
 
     if (editingCategory) {
       updateCategory({
@@ -52,7 +64,7 @@ const Categories = () => {
           icon: categoryIcon,
           color: categoryColor,
           type: categoryType,
-          parent_id: isSubcategory ? parentId : null,
+          parent_id: activeTab === 'child' ? parentId : null,
         }
       });
     } else {
@@ -61,7 +73,7 @@ const Categories = () => {
         type: categoryType,
         icon: categoryIcon,
         color: categoryColor,
-        parent_id: isSubcategory ? parentId : null,
+        parent_id: activeTab === 'child' ? parentId : null,
       });
     }
 
@@ -74,7 +86,7 @@ const Categories = () => {
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
     setCategoryType(category.type as 'expense' | 'income');
-    setIsSubcategory(!!category.parent_id);
+    setActiveTab(category.parent_id ? 'child' : 'parent');
     setParentId(category.parent_id);
     setIsAddOpen(true);
   };
@@ -97,7 +109,7 @@ const Categories = () => {
     setCategoryIcon('');
     setCategoryColor('#6366f1');
     setCategoryType('expense');
-    setIsSubcategory(false);
+    setActiveTab('parent');
     setParentId(null);
   };
 
@@ -108,109 +120,134 @@ const Categories = () => {
 
   const CategoryForm = () => (
     <div className="space-y-6">
-      <Tabs value={categoryType} onValueChange={(v) => {
-        setCategoryType(v as 'expense' | 'income');
-        setParentId(null); // Reset parent when changing type
-      }}>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'parent' | 'child')}>
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="expense">Расход</TabsTrigger>
-          <TabsTrigger value="income">Доход</TabsTrigger>
+          <TabsTrigger value="parent">Новая Группа</TabsTrigger>
+          <TabsTrigger value="child">Подкатегория</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className="space-y-2">
-        <Label>Название</Label>
-        <Input
-          placeholder="Например: Продукты"
-          value={categoryName}
-          onChange={(e) => setCategoryName(e.target.value)}
-        />
-      </div>
+      {activeTab === 'parent' && (
+        <>
+          <Tabs value={categoryType} onValueChange={(v) => setCategoryType(v as 'expense' | 'income')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="expense">Расход</TabsTrigger>
+              <TabsTrigger value="income">Доход</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-      {/* Subcategory Toggle */}
-      <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
-        <div className="space-y-0.5">
-          <Label className="text-base">Это подкатегория</Label>
-          <p className="text-sm text-muted-foreground">
-            Вложенная категория внутри родительской
-          </p>
-        </div>
-        <Switch
-          checked={isSubcategory}
-          onCheckedChange={(checked) => {
-            setIsSubcategory(checked);
-            if (!checked) setParentId(null);
-          }}
-        />
-      </div>
+          <div className="space-y-2">
+            <Label>Название группы</Label>
+            <Input
+              placeholder="Например: Продукты"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+            />
+          </div>
 
-      {/* Parent Category Selection */}
-      {isSubcategory && (
-        <div className="space-y-2">
-          <Label>Родительская категория</Label>
-          <Select value={parentId || undefined} onValueChange={setParentId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Выберите родителя" />
-            </SelectTrigger>
-            <SelectContent>
-              {parentCategories.length === 0 ? (
-                <div className="p-2 text-sm text-muted-foreground text-center">
-                  Нет родительских категорий
-                </div>
-              ) : (
-                parentCategories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{cat.icon}</span>
-                      <span>{cat.name}</span>
-                    </div>
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="space-y-2">
+            <Label>Иконка</Label>
+            <div className="grid grid-cols-7 gap-2">
+              {emojiCategories[categoryType].map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => setCategoryIcon(emoji)}
+                  className={cn(
+                    "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
+                    categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                  )}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Цвет</Label>
+            <div className="grid grid-cols-8 gap-2">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setCategoryColor(color)}
+                  className={cn(
+                    "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
+                    categoryColor === color ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-border'
+                  )}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
-      <div className="space-y-2">
-        <Label>Иконка</Label>
-        <div className="grid grid-cols-7 gap-2">
-          {emojiCategories[categoryType].map((emoji) => (
-            <button
-              key={emoji}
-              onClick={() => setCategoryIcon(emoji)}
-              className={cn(
-                "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
-                categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
-              )}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-      </div>
+      {activeTab === 'child' && (
+        <>
+          <div className="space-y-2">
+            <Label>Родительская категория</Label>
+            <Select value={parentId || undefined} onValueChange={(id) => {
+              setParentId(id);
+              const parent = categories.find(c => c.id === id);
+              if (parent) {
+                setCategoryType(parent.type as 'expense' | 'income');
+              }
+            }}>
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите родителя" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.filter(c => !c.parent_id).length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    Нет родительских категорий
+                  </div>
+                ) : (
+                  categories.filter(c => !c.parent_id).map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{cat.icon}</span>
+                        <span>{cat.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <div className="space-y-2">
-        <Label>Цвет</Label>
-        <div className="grid grid-cols-8 gap-2">
-          {colors.map((color) => (
-            <button
-              key={color}
-              onClick={() => setCategoryColor(color)}
-              className={cn(
-                "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
-                categoryColor === color ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-border'
-              )}
-              style={{ backgroundColor: color }}
+          <div className="space-y-2">
+            <Label>Название подкатегории</Label>
+            <Input
+              placeholder="Например: Алкоголь"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
             />
-          ))}
-        </div>
-      </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Иконка</Label>
+            <div className="grid grid-cols-7 gap-2">
+              {emojiCategories[categoryType].map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => setCategoryIcon(emoji)}
+                  className={cn(
+                    "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
+                    categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                  )}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       <Button
         onClick={handleSave}
         className="w-full h-12 text-base font-semibold rounded-2xl"
-        disabled={!categoryName.trim() || (isSubcategory && !parentId) || isAddingCategory || isUpdatingCategory}
+        disabled={!categoryName.trim() || (activeTab === 'child' && !parentId) || isAddingCategory || isUpdatingCategory}
       >
         {(isAddingCategory || isUpdatingCategory) ? (
           <>
@@ -224,53 +261,101 @@ const Categories = () => {
     </div>
   );
 
-  const CategoryItem = ({ category, isChild = false }: { category: Category; isChild?: boolean }) => (
-    <div className={cn(
-      "flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group",
-      isChild && "ml-8 border-l-2 border-border pl-4"
-    )}>
-      <div
-        className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
-        style={{ backgroundColor: `${category.color}15` }}
-      >
-        {category.icon}
-      </div>
-      
-      <div className="flex-1 min-w-0">
-        <p className={cn(
-          "font-inter truncate",
-          isChild ? "text-sm text-muted-foreground" : "text-base font-semibold text-foreground"
-        )}>
-          {category.name}
-        </p>
-      </div>
+  const ParentCategory = ({ category }: { category: Category }) => {
+    const hasChildren = category.children && category.children.length > 0;
+    const isOpen = openCategories.has(category.id);
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+    return (
+      <div className="border border-border rounded-2xl bg-card overflow-hidden">
+        <div className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors">
+          <div
+            className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl shrink-0"
+            style={{ backgroundColor: `${category.color}20` }}
           >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleEdit(category)}>
-            <Edit2 className="mr-2 h-4 w-4" />
-            Редактировать
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => handleDelete(category)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Удалить
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
+            {category.icon || <FolderOpen className="w-6 h-6" />}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <p className="text-lg font-bold text-foreground font-manrope truncate">
+              {category.name}
+            </p>
+            {hasChildren && (
+              <p className="text-sm text-muted-foreground font-inter">
+                {category.children?.length} {category.children?.length === 1 ? 'подкатегория' : 'подкатегории'}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {hasChildren && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => toggleCategory(category.id)}
+              >
+                <ChevronDown className={cn(
+                  "h-5 w-5 transition-transform",
+                  isOpen && "rotate-180"
+                )} />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(category)}
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDelete(category)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {hasChildren && isOpen && (
+          <div className="border-t border-border bg-muted/30 px-4 py-2">
+            <div className="space-y-1">
+              {category.children?.map((child) => (
+                <div key={child.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-background transition-colors group">
+                  <CornerDownRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-lg text-lg shrink-0"
+                    style={{ backgroundColor: `${child.color || category.color}15` }}
+                  >
+                    {child.icon}
+                  </div>
+                  <p className="flex-1 text-sm font-medium text-foreground font-inter truncate">
+                    {child.name}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shrink-0"
+                    onClick={() => handleEdit(child)}
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive h-8 w-8 shrink-0"
+                    onClick={() => handleDelete(child)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-6">
@@ -327,83 +412,31 @@ const Categories = () => {
             ))}
           </div>
         ) : categoriesTree.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-              <Plus className="h-8 w-8 text-primary" />
+          <div className="text-center py-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+              <Folder className="h-10 w-10 text-primary" />
             </div>
-            <p className="text-lg font-semibold text-foreground font-inter mb-2">Нет категорий</p>
-            <p className="text-sm text-muted-foreground font-inter">
-              Создайте первую категорию для учета расходов и доходов
+            <h2 className="text-2xl font-bold text-foreground font-manrope mb-3">
+              Нет категорий
+            </h2>
+            <p className="text-base text-muted-foreground font-inter mb-6 max-w-sm mx-auto">
+              Создайте свою первую группу расходов, чтобы начать отслеживать финансы
             </p>
+            <Button
+              onClick={() => setIsAddOpen(true)}
+              size="lg"
+              className="rounded-2xl font-semibold"
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Создать группу
+            </Button>
           </div>
         ) : (
-          <Accordion type="multiple" className="space-y-2">
-            {categoriesTree.map((category) => {
-              const hasChildren = category.children && category.children.length > 0;
-              
-              return (
-                <AccordionItem 
-                  key={category.id} 
-                  value={category.id}
-                  className="border border-border rounded-2xl bg-card overflow-hidden"
-                >
-                  {hasChildren ? (
-                    <>
-                      <AccordionTrigger className="hover:no-underline px-4 py-3 hover:bg-muted/50">
-                        <div className="flex items-center gap-3 flex-1">
-                          <div
-                            className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
-                            style={{ backgroundColor: `${category.color}15` }}
-                          >
-                            {category.icon}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <p className="text-base font-semibold text-foreground font-inter">
-                              {category.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {category.children?.length} подкатегор{category.children?.length === 1 ? 'ия' : category.children?.length && category.children.length < 5 ? 'ии' : 'ий'}
-                            </p>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon" className="shrink-0">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEdit(category)}>
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                Редактировать
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDelete(category)}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Удалить
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-3 pt-0">
-                        <div className="space-y-1 border-l-2 border-border ml-5 pl-4">
-                          {category.children?.map((child) => (
-                            <CategoryItem key={child.id} category={child} isChild />
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </>
-                  ) : (
-                    <div className="px-4 py-3">
-                      <CategoryItem category={category} />
-                    </div>
-                  )}
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
+          <div className="space-y-3">
+            {categoriesTree.map((category) => (
+              <ParentCategory key={category.id} category={category} />
+            ))}
+          </div>
         )}
       </div>
     </div>

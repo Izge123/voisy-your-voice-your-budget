@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, Plus, Filter, Calendar as CalendarIcon, Trash2, ChevronDown, Loader2 } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -40,9 +40,15 @@ const Transactions = () => {
     isDeletingTransaction 
   } = useTransactions();
 
-  // Filter categories by transaction type
-  const filteredCategories = useMemo(() => {
-    return categories.filter(cat => cat.type === transactionType);
+  // Filter categories by transaction type and build tree
+  const filteredCategoriesTree = useMemo(() => {
+    const filtered = categories.filter(cat => cat.type === transactionType);
+    const parentCategories = filtered.filter(cat => !cat.parent_id || cat.parent_id === cat.id);
+    
+    return parentCategories.map(parent => ({
+      ...parent,
+      children: filtered.filter(cat => cat.parent_id === parent.id && cat.id !== parent.id)
+    }));
   }, [categories, transactionType]);
 
   // Group transactions by date
@@ -142,35 +148,70 @@ const Transactions = () => {
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : filteredCategories.length === 0 ? (
+        ) : filteredCategoriesTree.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">Нет категорий для {transactionType === 'expense' ? 'расходов' : 'доходов'}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-3">
-            {filteredCategories.map((cat) => {
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                    selectedCategory === cat.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  )}
-                >
-                  <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                    style={{ backgroundColor: `${cat.color}15` }}
-                  >
-                    {cat.icon}
+          <Accordion type="multiple" className="w-full">
+            {filteredCategoriesTree.map((parent) => (
+              <AccordionItem key={parent.id} value={parent.id} className="border-b">
+                <AccordionTrigger className="hover:no-underline py-3">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                      style={{ backgroundColor: `${parent.color}15` }}
+                    >
+                      {parent.icon}
+                    </div>
+                    <span className="text-sm font-semibold">{parent.name}</span>
+                    {parent.children && parent.children.length > 0 && (
+                      <span className="text-xs text-muted-foreground">({parent.children.length})</span>
+                    )}
                   </div>
-                  <span className="text-xs font-medium text-center">{cat.name}</span>
-                </button>
-              );
-            })}
-          </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-2 pl-4 border-l-2 border-border ml-5">
+                    {parent.children && parent.children.length > 0 ? (
+                      parent.children.map((child) => (
+                        <button
+                          key={child.id}
+                          onClick={() => setSelectedCategory(child.id)}
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all w-full text-left",
+                            selectedCategory === child.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/50"
+                          )}
+                        >
+                          <span className="text-muted-foreground shrink-0">↳</span>
+                          <div 
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
+                            style={{ backgroundColor: `${child.color}15` }}
+                          >
+                            {child.icon}
+                          </div>
+                          <span className="text-sm font-medium">{child.name}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <button
+                        onClick={() => setSelectedCategory(parent.id)}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all w-full text-left",
+                          selectedCategory === parent.id
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        )}
+                      >
+                        <span className="text-sm font-medium">Использовать "{parent.name}"</span>
+                      </button>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         )}
       </div>
 
@@ -194,18 +235,6 @@ const Transactions = () => {
             />
           </PopoverContent>
         </Popover>
-      </div>
-
-      {/* Comment */}
-      <div className="space-y-2">
-        <Label className="text-sm text-muted-foreground">Комментарий (опционально)</Label>
-        <Textarea
-          placeholder="Например: Продукты на неделю"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="resize-none"
-          rows={3}
-        />
       </div>
 
       {/* Save Button */}

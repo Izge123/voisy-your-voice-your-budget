@@ -10,9 +10,11 @@ import { useVoiceRecording } from "@/hooks/use-voice-recording";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTransactions } from "@/hooks/use-transactions";
+import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface ParsedTransaction {
   amount: number;
@@ -28,8 +30,10 @@ interface VoiceRecorderProps {
 
 export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { addTransaction } = useTransactions();
+  const { categories } = useCategories();
   const { toast } = useToast();
 
   const [status, setStatus] = useState<'idle' | 'recording' | 'processing' | 'preview' | 'error'>('idle');
@@ -185,58 +189,92 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
         </div>
       )}
 
-      {status === 'preview' && (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Распознано:</p>
-            <Card className="p-4 bg-muted/50">
-              <p className="text-sm">{transcript}</p>
-            </Card>
-          </div>
+      {status === 'preview' && (() => {
+        const missingCategories = parsedTransactions.filter(tx => 
+          tx.category_id && !categories.find(cat => cat.id === tx.category_id)
+        );
+        const hasMissingCategories = missingCategories.length > 0;
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Найдено транзакций: {parsedTransactions.length}
-            </p>
+        return (
+          <div className="space-y-4">
             <div className="space-y-2">
-              {parsedTransactions.map((tx, index) => (
-                <Card key={index} className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">{tx.description}</p>
-                      <Badge variant={tx.type === 'expense' ? 'destructive' : 'default'}>
-                        {tx.type === 'expense' ? 'Расход' : 'Доход'}
-                      </Badge>
-                    </div>
-                    <p className={cn(
-                      "text-lg font-bold font-manrope",
-                      tx.type === 'expense' ? 'text-rose-600' : 'text-secondary'
-                    )}>
-                      {tx.type === 'expense' ? '-' : '+'}${tx.amount}
-                    </p>
-                  </div>
-                  {!tx.category_id && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      ⚠️ Категория не найдена
-                    </p>
-                  )}
-                </Card>
-              ))}
+              <p className="text-sm font-medium text-muted-foreground">Распознано:</p>
+              <Card className="p-4 bg-muted/50">
+                <p className="text-sm">{transcript}</p>
+              </Card>
             </div>
-          </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" onClick={handleCancel} className="flex-1">
-              <X className="h-4 w-4 mr-2" />
-              Отмена
-            </Button>
-            <Button onClick={handleConfirm} className="flex-1">
-              <Check className="h-4 w-4 mr-2" />
-              Подтвердить
-            </Button>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">
+                Найдено транзакций: {parsedTransactions.length}
+              </p>
+              <div className="space-y-2">
+                {parsedTransactions.map((tx, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">{tx.description}</p>
+                        <Badge variant={tx.type === 'expense' ? 'destructive' : 'default'}>
+                          {tx.type === 'expense' ? 'Расход' : 'Доход'}
+                        </Badge>
+                      </div>
+                      <p className={cn(
+                        "text-lg font-bold font-manrope",
+                        tx.type === 'expense' ? 'text-rose-600' : 'text-secondary'
+                      )}>
+                        {tx.type === 'expense' ? '-' : '+'}${tx.amount}
+                      </p>
+                    </div>
+                    {!tx.category_id && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        ⚠️ Категория не найдена
+                      </p>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {hasMissingCategories ? (
+              <div className="space-y-4 pt-4">
+                <Card className="p-4 bg-destructive/10 border-destructive/20">
+                  <div className="flex items-start gap-3">
+                    <X className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-destructive">
+                        Категория не найдена
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Для этой транзакции необходимо создать категорию
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+                <Button 
+                  onClick={() => {
+                    onOpenChange(false);
+                    navigate('/app/categories');
+                  }} 
+                  className="w-full"
+                >
+                  Создать категорию
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline" onClick={handleCancel} className="flex-1">
+                  <X className="h-4 w-4 mr-2" />
+                  Отмена
+                </Button>
+                <Button onClick={handleConfirm} className="flex-1">
+                  <Check className="h-4 w-4 mr-2" />
+                  Подтвердить
+                </Button>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {status === 'error' && (
         <div className="flex flex-col items-center justify-center space-y-4 py-16">

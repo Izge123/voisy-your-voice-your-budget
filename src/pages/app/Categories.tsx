@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Loader2, Folder, ChevronDown } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, Folder, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -17,7 +17,6 @@ const Categories = () => {
   const isMobile = useIsMobile();
   const { 
     categories, 
-    categoriesTree, 
     isLoading, 
     addCategory, 
     updateCategory, 
@@ -35,6 +34,13 @@ const Categories = () => {
   const [categoryColor, setCategoryColor] = useState('#6366f1');
   const [selectedParentId, setSelectedParentId] = useState<string>('');
 
+  // 1. РОДИТЕЛИ (Группы) - категории без parent_id
+  const rootCategories = categories?.filter(c => !c.parent_id && c.parent_id !== c.id) || [];
+
+  // 2. Функция получения ДЕТЕЙ (Подкатегорий)
+  const getSubcategories = (parentId: string) => 
+    categories?.filter(c => c.parent_id === parentId && c.id !== parentId) || [];
+
   const colors = [
     '#ef4444', '#f97316', '#f59e0b', '#eab308', 
     '#84cc16', '#22c55e', '#10b981', '#14b8a6',
@@ -46,9 +52,6 @@ const Categories = () => {
     expense: ['🍔', '🚕', '🏠', '💳', '🛒', '☕', '🎬', '⚡', '💊', '👕', '📱', '🎮', '✈️', '🎁'],
     income: ['💰', '💵', '💼', '📈', '🎯', '💎', '🏆', '💸', '🤝', '📊']
   };
-
-  // Get only parent categories (groups) for selection in subcategory tab
-  const parentGroups = categories.filter(c => !c.parent_id);
 
   const handleSave = () => {
     if (!categoryName.trim()) return;
@@ -86,9 +89,10 @@ const Categories = () => {
   };
 
   const handleDelete = (category: Category) => {
-    const hasChildren = category.children && category.children.length > 0;
+    const children = getSubcategories(category.id);
+    const hasChildren = children.length > 0;
     const message = hasChildren 
-      ? `Удалить группу "${category.name}"?\n\nВнимание: Все подкатегории (${category.children?.length}) также будут удалены.`
+      ? `Удалить группу "${category.name}"?\n\nВнимание: Все подкатегории (${children.length}) также будут удалены.`
       : `Удалить "${category.name}"?`;
     
     if (window.confirm(message)) {
@@ -139,6 +143,7 @@ const Categories = () => {
               {emojiCategories[categoryType].map((emoji) => (
                 <button
                   key={emoji}
+                  type="button"
                   onClick={() => setCategoryIcon(emoji)}
                   className={cn(
                     "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
@@ -157,12 +162,14 @@ const Categories = () => {
               {colors.map((color) => (
                 <button
                   key={color}
+                  type="button"
                   onClick={() => setCategoryColor(color)}
                   className={cn(
                     "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
                     categoryColor === color ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-border'
                   )}
                   style={{ backgroundColor: color }}
+                  aria-label={`Select color ${color}`}
                 />
               ))}
             </div>
@@ -175,7 +182,7 @@ const Categories = () => {
             <Label>Выберите группу</Label>
             <Select value={selectedParentId} onValueChange={(value) => {
               setSelectedParentId(value);
-              const parent = categories.find(c => c.id === value);
+              const parent = categories?.find(c => c.id === value);
               if (parent) {
                 setCategoryType(parent.type as 'expense' | 'income');
               }
@@ -184,12 +191,12 @@ const Categories = () => {
                 <SelectValue placeholder="Выберите родительскую группу" />
               </SelectTrigger>
               <SelectContent>
-                {parentGroups.length === 0 ? (
+                {rootCategories.length === 0 ? (
                   <div className="p-2 text-sm text-muted-foreground text-center">
                     Нет доступных групп. Создайте группу сначала.
                   </div>
                 ) : (
-                  parentGroups.map((group) => (
+                  rootCategories.map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{group.icon}</span>
@@ -217,6 +224,7 @@ const Categories = () => {
               {emojiCategories[categoryType].map((emoji) => (
                 <button
                   key={emoji}
+                  type="button"
                   onClick={() => setCategoryIcon(emoji)}
                   className={cn(
                     "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
@@ -310,7 +318,7 @@ const Categories = () => {
               </div>
             ))}
           </div>
-        ) : categoriesTree.length === 0 ? (
+        ) : rootCategories.length === 0 ? (
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
               <Folder className="h-10 w-10 text-primary" />
@@ -332,8 +340,9 @@ const Categories = () => {
           </div>
         ) : (
           <Accordion type="multiple" className="space-y-3">
-            {categoriesTree.map((group) => {
-              const hasChildren = group.children && group.children.length > 0;
+            {rootCategories.map((group) => {
+              const subcategories = getSubcategories(group.id);
+              const hasChildren = subcategories.length > 0;
               
               return (
                 <AccordionItem 
@@ -341,17 +350,20 @@ const Categories = () => {
                   value={group.id}
                   className="border-2 border-border rounded-2xl bg-card overflow-hidden shadow-sm"
                 >
-                  <div className="flex items-center gap-3 px-4 py-4">
-                    {/* Icon with color */}
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    {/* Color circle with icon */}
                     <div
-                      className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl shrink-0"
-                      style={{ backgroundColor: `${group.color}20` }}
+                      className="flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                      style={{ backgroundColor: group.color || '#6366f1' }}
                     >
-                      {group.icon || <Folder className="w-6 h-6" style={{ color: group.color }} />}
+                      <span className="text-2xl">{group.icon || '📁'}</span>
                     </div>
                     
-                    {/* Group info - clickable to expand */}
-                    <AccordionTrigger className="flex-1 hover:no-underline py-0 [&[data-state=open]>svg]:rotate-180">
+                    {/* Group name + expand trigger */}
+                    <AccordionTrigger 
+                      className="flex-1 hover:no-underline py-0 [&[data-state=open]>svg]:rotate-90"
+                      disabled={!hasChildren}
+                    >
                       <div className="flex items-center justify-between w-full pr-2">
                         <div className="text-left">
                           <p className="text-lg font-bold text-foreground font-manrope">
@@ -359,11 +371,13 @@ const Categories = () => {
                           </p>
                           {hasChildren && (
                             <p className="text-sm text-muted-foreground font-inter">
-                              {group.children?.length} {group.children?.length === 1 ? 'подкатегория' : 'подкатегории'}
+                              {subcategories.length} шт
                             </p>
                           )}
                         </div>
-                        <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-200" />
+                        {hasChildren && (
+                          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-200" />
+                        )}
                       </div>
                     </AccordionTrigger>
 
@@ -375,7 +389,7 @@ const Categories = () => {
                         e.stopPropagation();
                         handleEdit(group);
                       }}
-                      className="shrink-0"
+                      className="shrink-0 h-9 w-9"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -388,7 +402,7 @@ const Categories = () => {
                         e.stopPropagation();
                         handleDelete(group);
                       }}
-                      className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="shrink-0 h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -396,19 +410,16 @@ const Categories = () => {
 
                   {/* Subcategories */}
                   {hasChildren && (
-                    <AccordionContent className="px-4 pb-4 pt-0">
-                      <div className="space-y-2 pl-4 border-l-2 border-border ml-6">
-                        {group.children?.map((subcategory) => (
+                    <AccordionContent className="px-4 pb-3 pt-0">
+                      <div className="space-y-2 pl-8 border-l-2 border-primary/20 ml-6">
+                        {subcategories.map((subcategory) => (
                           <div 
                             key={subcategory.id}
                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
                           >
-                            <div
-                              className="flex items-center justify-center w-8 h-8 rounded-lg text-lg shrink-0"
-                              style={{ backgroundColor: `${subcategory.color || group.color}15` }}
-                            >
+                            <span className="text-xl shrink-0">
                               {subcategory.icon || '📄'}
-                            </div>
+                            </span>
                             
                             <p className="flex-1 text-base font-medium text-foreground font-inter">
                               {subcategory.name}

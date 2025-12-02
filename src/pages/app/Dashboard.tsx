@@ -259,7 +259,7 @@ const Dashboard = () => {
             {/* Stats - Compact for mobile */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3">
               {/* Mobile: Income and Expenses in one row */}
-              <div className="flex items-center justify-between gap-4 mb-3 md:hidden">
+              <div className="flex items-center justify-center gap-4 mb-3 md:hidden">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/20">
                     <TrendingUp className="h-4 w-4 text-secondary" />

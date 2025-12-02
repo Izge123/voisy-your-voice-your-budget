@@ -109,6 +109,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
           currency: 'USD',
           date: today,
           description: tx.description,
+          type: tx.type,
         });
       }
 

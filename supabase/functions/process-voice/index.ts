@@ -82,12 +82,18 @@ ${categoriesContext}
 1. Если пользователь говорит о нескольких тратах в одном высказывании (например "5000 рублей: 3000 на еду, 2000 на такси"), создай несколько транзакций (split transactions).
 2. Для каждой транзакции определи: сумму, тип (income/expense), категорию (матчи по названию из списка), описание.
 3. Если категория не найдена, установи category_id: null.
-4. Если пользователь не указал тип явно, по умолчанию это расход (expense).
+4. ВАЖНО: Определи тип транзакции по смыслу:
+   - ДОХОД (income): получил зарплату, получил деньги, заработал, премия, доход, прибыль
+   - РАСХОД (expense): потратил, купил, оплатил, заплатил, расход, трата
+   - Если тип не ясен из контекста, по умолчанию это расход (expense).
 5. Верни JSON в формате: { "transactions": [{ "amount": number, "category_id": string|null, "type": "income"|"expense", "description": string }] }
 
-Пример:
+Примеры:
 Ввод: "Потратил 5000 рублей: 3000 на продукты, 2000 на такси"
-Вывод: { "transactions": [{ "amount": 3000, "category_id": "<id категории Еда>", "type": "expense", "description": "Продукты" }, { "amount": 2000, "category_id": "<id категории Транспорт>", "type": "expense", "description": "Такси" }] }`;
+Вывод: { "transactions": [{ "amount": 3000, "category_id": "<id категории Еда>", "type": "expense", "description": "Продукты" }, { "amount": 2000, "category_id": "<id категории Транспорт>", "type": "expense", "description": "Такси" }] }
+
+Ввод: "Получил зарплату 50000 рублей"
+Вывод: { "transactions": [{ "amount": 50000, "category_id": "<id категории Зарплата>", "type": "income", "description": "Зарплата" }] }`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

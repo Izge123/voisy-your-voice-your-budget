@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBalance } from "@/hooks/use-transactions";
 import { useTransactions } from "@/hooks/use-transactions";
@@ -11,12 +12,12 @@ import { ru } from "date-fns/locale";
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { balance, isLoading: balanceLoading } = useBalance();
-  const { transactions, isLoading: transactionsLoading } = useTransactions(4);
+  const { transactions, isLoading: transactionsLoading } = useTransactions(5);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();
 
-  // Calculate income and expenses from transactions
+  // Calculate income and expenses from all transactions for stats
   const income = transactions
     .filter(t => t.category?.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -139,23 +140,37 @@ const Dashboard = () => {
         {/* RECENT TRANSACTIONS */}
         <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold font-manrope text-foreground">Сегодня</h3>
+            <h3 className="text-xl font-bold font-manrope text-foreground">Недавние</h3>
             <Link to="/app/transactions">
               <Button variant="ghost" size="sm" className="text-primary font-inter">
-                Все
+                См. все
               </Button>
             </Link>
           </div>
 
           <div className="space-y-3">
             {transactionsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-              </div>
+              <>
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border">
+                    <Skeleton className="w-12 h-12 rounded-2xl" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                ))}
+              </>
             ) : transactions.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground font-inter">Пока нет транзакций</p>
-                <p className="text-sm text-muted-foreground font-inter mt-2">Добавьте первую транзакцию голосом или вручную</p>
+              <div className="text-center py-12 px-4 bg-card rounded-2xl border border-border border-dashed">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <Mic className="h-8 w-8 text-primary" />
+                </div>
+                <p className="text-base font-semibold text-foreground font-inter mb-2">Нет операций</p>
+                <p className="text-sm text-muted-foreground font-inter">
+                  Нажмите на микрофон выше, чтобы добавить первую транзакцию голосом!
+                </p>
               </div>
             ) : (
               transactions.map((transaction, index) => {

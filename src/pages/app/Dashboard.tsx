@@ -1,54 +1,29 @@
 import { Link } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, ShoppingCart, Coffee, Car, Home as HomeIcon, LogOut } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBalance } from "@/hooks/use-transactions";
+import { useTransactions } from "@/hooks/use-transactions";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  
-  // Mock data
-  const balance = 12450.00;
-  const income = 4200;
-  const expenses = 1800;
+  const { balance, isLoading: balanceLoading } = useBalance();
+  const { transactions, isLoading: transactionsLoading } = useTransactions(4);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();
 
-  const recentTransactions = [
-    {
-      id: 1,
-      icon: ShoppingCart,
-      title: "Пятёрочка",
-      category: "Продукты",
-      amount: -1250,
-      color: "bg-rose-500/10 text-rose-600"
-    },
-    {
-      id: 2,
-      icon: Coffee,
-      title: "Starbucks",
-      category: "Кафе",
-      amount: -450,
-      color: "bg-amber-500/10 text-amber-600"
-    },
-    {
-      id: 3,
-      icon: Car,
-      title: "Яндекс Такси",
-      category: "Транспорт",
-      amount: -680,
-      color: "bg-blue-500/10 text-blue-600"
-    },
-    {
-      id: 4,
-      icon: HomeIcon,
-      title: "Аренда",
-      category: "Жильё",
-      amount: -25000,
-      color: "bg-purple-500/10 text-purple-600"
-    }
-  ];
+  // Calculate income and expenses from transactions
+  const income = transactions
+    .filter(t => t.category?.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const expenses = transactions
+    .filter(t => t.category?.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
 
   return (
     <div className="min-h-screen bg-background pb-6">
@@ -94,7 +69,11 @@ const Dashboard = () => {
           <div className="relative z-10">
             <p className="text-sm text-white/70 font-inter mb-2">Общий баланс</p>
             <h2 className="text-4xl md:text-5xl font-extrabold font-manrope text-white mb-6">
-              ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {balanceLoading ? (
+                <span className="animate-pulse">...</span>
+              ) : (
+                `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+              )}
             </h2>
 
             {/* Stats */}
@@ -169,36 +148,56 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {recentTransactions.map((transaction, index) => {
-              const Icon = transaction.icon;
-              return (
-                <div
-                  key={transaction.id}
-                  className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
-                  style={{ animationDelay: `${300 + index * 50}ms` }}
-                >
-                  {/* Icon */}
-                  <div className={`flex items-center justify-center w-12 h-12 rounded-2xl ${transaction.color}`}>
-                    <Icon className="h-6 w-6" />
-                  </div>
+            {transactionsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground font-inter">Пока нет транзакций</p>
+                <p className="text-sm text-muted-foreground font-inter mt-2">Добавьте первую транзакцию голосом или вручную</p>
+              </div>
+            ) : (
+              transactions.map((transaction, index) => {
+                const isExpense = transaction.category?.type === 'expense';
+                const amount = transaction.amount;
+                
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
+                    style={{ animationDelay: `${300 + index * 50}ms` }}
+                  >
+                    {/* Icon */}
+                    <div 
+                      className="flex items-center justify-center w-12 h-12 rounded-2xl text-2xl"
+                      style={{ 
+                        backgroundColor: `${transaction.category?.color || '#6b7280'}15`,
+                      }}
+                    >
+                      {transaction.category?.icon || '💰'}
+                    </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold font-inter text-foreground truncate">
-                      {transaction.title}
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold font-inter text-foreground truncate">
+                        {transaction.description || transaction.category?.name || 'Транзакция'}
+                      </p>
+                      <p className="text-xs text-muted-foreground font-inter">
+                        {transaction.category?.name || 'Без категории'} • {transaction.date ? format(new Date(transaction.date), 'HH:mm', { locale: ru }) : ''}
+                      </p>
+                    </div>
+
+                    {/* Amount */}
+                    <p className={`text-base font-bold font-manrope ${
+                      isExpense ? 'text-rose-600' : 'text-secondary'
+                    }`}>
+                      {isExpense ? '-' : '+'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-xs text-muted-foreground font-inter">{transaction.category}</p>
                   </div>
-
-                  {/* Amount */}
-                  <p className={`text-base font-bold font-manrope ${
-                    transaction.amount < 0 ? 'text-rose-600' : 'text-secondary'
-                  }`}>
-                    {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount)}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

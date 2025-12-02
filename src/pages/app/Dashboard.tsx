@@ -241,14 +241,14 @@ const Dashboard = () => {
 
       <div className="px-4 md:px-6 space-y-6">
         {/* BALANCE CARD */}
-        <div className="relative bg-gradient-to-br from-primary via-indigo-600 to-indigo-700 rounded-3xl p-6 md:p-8 shadow-xl overflow-hidden animate-fade-in">
+        <div className="relative bg-gradient-to-br from-primary via-indigo-600 to-indigo-700 rounded-3xl p-4 md:p-8 shadow-xl overflow-hidden animate-fade-in">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
           <div className="relative z-10">
-            <p className="text-sm text-white/70 font-inter mb-2 capitalize">Баланс за {currentMonthYear}</p>
-            <h2 className="text-4xl md:text-5xl font-extrabold font-manrope text-white mb-6">
+            <p className="text-xs text-white/70 font-inter mb-1 capitalize">Баланс за {currentMonthYear}</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold font-manrope text-white mb-3 md:mb-6">
               {balanceLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
@@ -256,38 +256,75 @@ const Dashboard = () => {
               )}
             </h2>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-              {/* Доходы */}
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary/20">
-                  <TrendingUp className="h-5 w-5 text-secondary" />
+            {/* Stats - Compact for mobile */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3">
+              {/* Mobile: Income and Expenses in one row */}
+              <div className="flex items-center justify-center gap-4 mb-3 md:hidden">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/20">
+                    <TrendingUp className="h-4 w-4 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter">Доходы</p>
+                    <p className="text-sm font-bold font-manrope text-secondary">+${income.toFixed(0)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-white/60 font-inter mb-1">Доходы</p>
-                  <p className="text-lg font-bold font-manrope text-secondary">+${income.toFixed(2)}</p>
+                <div className="w-px h-10 bg-white/20"></div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-500/20">
+                    <TrendingDown className="h-4 w-4 text-rose-300" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter">Расходы</p>
+                    <p className="text-sm font-bold font-manrope text-rose-300">-${expenses.toFixed(0)}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Расходы */}
-              <div className="flex flex-col items-center gap-2 text-center md:border-x md:border-white/20">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-500/20">
-                  <TrendingDown className="h-5 w-5 text-rose-300" />
+              {/* Mobile: Savings centered below */}
+              <div className="flex items-center justify-center gap-2 pt-3 border-t border-white/20 md:hidden">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-400/20">
+                  <PiggyBank className="h-4 w-4 text-amber-300" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60 font-inter mb-1">Расходы</p>
-                  <p className="text-lg font-bold font-manrope text-rose-300">-${expenses.toFixed(2)}</p>
+                  <p className="text-xs text-white/60 font-inter">Экономия</p>
+                  <p className="text-sm font-bold font-manrope text-amber-300">${savings.toFixed(0)}</p>
                 </div>
               </div>
 
-              {/* Экономия */}
-              <div className="col-span-2 md:col-span-1 flex flex-col items-center gap-2 text-center pt-4 md:pt-0 border-t md:border-t-0 border-white/20">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-400/20">
-                  <PiggyBank className="h-5 w-5 text-amber-300" />
+              {/* Desktop: 3 columns grid */}
+              <div className="hidden md:grid md:grid-cols-3 gap-4">
+                {/* Доходы */}
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary/20">
+                    <TrendingUp className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter mb-1">Доходы</p>
+                    <p className="text-lg font-bold font-manrope text-secondary">+${income.toFixed(2)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-white/60 font-inter mb-1">Экономия</p>
-                  <p className="text-lg font-bold font-manrope text-amber-300">${savings.toFixed(2)}</p>
+
+                {/* Расходы */}
+                <div className="flex flex-col items-center gap-2 text-center border-x border-white/20">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-500/20">
+                    <TrendingDown className="h-5 w-5 text-rose-300" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter mb-1">Расходы</p>
+                    <p className="text-lg font-bold font-manrope text-rose-300">-${expenses.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                {/* Экономия */}
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-400/20">
+                    <PiggyBank className="h-5 w-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter mb-1">Экономия</p>
+                    <p className="text-lg font-bold font-manrope text-amber-300">${savings.toFixed(2)}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,7 +332,7 @@ const Dashboard = () => {
         </div>
 
         {/* VOICE ACTION */}
-        <div className="flex flex-col items-center justify-center py-8 md:py-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
+        <div className="flex flex-col items-center justify-center py-6 md:py-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <button 
             className="relative group"
             onClick={() => setIsVoiceOpen(true)}
@@ -304,12 +341,12 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary to-indigo-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse"></div>
             
             {/* Button */}
-            <div className="relative flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary to-indigo-600 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] transition-all duration-300 hover:scale-105 active:scale-95">
-              <Mic className="h-10 w-10 md:h-12 md:w-12 text-white" strokeWidth={2.5} />
+            <div className="relative flex items-center justify-center w-20 h-20 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary to-indigo-600 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] transition-all duration-300 hover:scale-105 active:scale-95">
+              <Mic className="h-9 w-9 md:h-12 md:w-12 text-white" strokeWidth={2.5} />
             </div>
           </button>
 
-          <p className="mt-6 text-center text-sm md:text-base text-muted-foreground font-inter max-w-xs">
+          <p className="mt-4 text-center text-sm md:text-base text-muted-foreground font-inter max-w-xs">
             Нажми и скажи: <span className="font-semibold text-foreground">"Такси 500 рублей"</span>
           </p>
         </div>

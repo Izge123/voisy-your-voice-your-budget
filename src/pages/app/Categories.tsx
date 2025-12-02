@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Loader2, FolderOpen, CornerDownRight, Folder, ChevronDown } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, CornerDownRight, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -26,7 +26,6 @@ const Categories = () => {
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
   const [parentId, setParentId] = useState<string | null>(null);
-  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const colors = [
     '#ef4444', '#f97316', '#f59e0b', '#eab308', 
@@ -38,18 +37,6 @@ const Categories = () => {
   const emojiCategories = {
     expense: ['🍔', '🚕', '🏠', '💳', '🛒', '☕', '🎬', '⚡', '💊', '👕', '📱', '🎮', '✈️', '🎁'],
     income: ['💰', '💵', '💼', '📈', '🎯', '💎', '🏆', '💸', '🤝', '📊']
-  };
-
-  const toggleCategory = (id: string) => {
-    setOpenCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
   };
 
   const handleSave = () => {
@@ -75,15 +62,6 @@ const Categories = () => {
         color: categoryColor,
         parent_id: activeTab === 'child' ? parentId : null,
       });
-      
-      // Automatically open parent category when adding a subcategory
-      if (activeTab === 'child' && parentId) {
-        setOpenCategories(prev => {
-          const newSet = new Set(prev);
-          newSet.add(parentId);
-          return newSet;
-        });
-      }
     }
 
     resetForm();
@@ -270,110 +248,54 @@ const Categories = () => {
     </div>
   );
 
-  const ParentCategory = ({ category }: { category: Category }) => {
-    const hasChildren = category.children && category.children.length > 0;
-    const isOpen = openCategories.has(category.id);
-
-    return (
-      <div className="border border-border rounded-2xl bg-card overflow-hidden shadow-sm">
-        {/* Parent Category Row - Always clickable to expand/collapse */}
-        <button
-          onClick={() => hasChildren && toggleCategory(category.id)}
-          className={cn(
-            "w-full flex items-center gap-3 p-4 transition-colors text-left",
-            hasChildren ? "hover:bg-muted/50 cursor-pointer" : "cursor-default"
-          )}
-        >
-          <div
-            className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl shrink-0"
-            style={{ backgroundColor: `${category.color}20` }}
-          >
-            {category.icon || <FolderOpen className="w-6 h-6" />}
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <p className="text-lg font-bold text-foreground font-manrope truncate">
-              {category.name}
-            </p>
-            {hasChildren && (
-              <p className="text-sm text-muted-foreground font-inter">
-                {category.children?.length} {category.children?.length === 1 ? 'подкатегория' : 'подкатегории'}
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {hasChildren && (
-              <ChevronDown className={cn(
-                "h-5 w-5 text-muted-foreground transition-transform",
-                isOpen && "rotate-180"
-              )} />
-            )}
-          </div>
-        </button>
-
-        {/* Action Buttons - Separate row to avoid click conflicts */}
-        <div className="flex items-center gap-2 px-4 pb-3 pt-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(category)}
-            className="text-xs"
-          >
-            <Edit2 className="h-3 w-3 mr-1" />
-            Редактировать
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(category)}
-            className="text-xs text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-3 w-3 mr-1" />
-            Удалить
-          </Button>
-        </div>
-
-        {/* Subcategories - Collapsible */}
-        {hasChildren && isOpen && (
-          <div className="border-t border-border bg-muted/20 px-4 py-3">
-            <div className="space-y-2">
-              {category.children?.map((child) => (
-                <div key={child.id} className="flex items-center gap-3 p-3 rounded-lg bg-background hover:bg-muted/50 transition-colors group">
-                  <CornerDownRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-lg text-lg shrink-0"
-                    style={{ backgroundColor: `${child.color || category.color}15` }}
-                  >
-                    {child.icon}
-                  </div>
-                  <p className="flex-1 text-sm font-medium text-foreground font-inter truncate">
-                    {child.name}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shrink-0"
-                    onClick={() => handleEdit(child)}
-                  >
-                    <Edit2 className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive h-8 w-8 shrink-0"
-                    onClick={() => handleDelete(child)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
+  // Simple flat list rendering with visual hierarchy
+  const CategoryItem = ({ category, isChild = false }: { category: Category; isChild?: boolean }) => (
+    <div className={cn(
+      "flex items-center gap-3 p-4 rounded-xl hover:bg-muted/50 transition-colors group bg-card border border-border",
+      isChild && "ml-12 border-l-4 border-l-primary/30"
+    )}>
+      {isChild && (
+        <CornerDownRight className="w-4 h-4 text-muted-foreground shrink-0" />
+      )}
+      <div
+        className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+        style={{ backgroundColor: `${category.color}20` }}
+      >
+        {category.icon || (isChild ? '📄' : <Folder className="w-5 h-5" />)}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <p className={cn(
+          "font-manrope truncate",
+          isChild ? "text-base font-medium text-foreground" : "text-lg font-bold text-foreground"
+        )}>
+          {category.name}
+        </p>
+        {!isChild && category.children && category.children.length > 0 && (
+          <p className="text-xs text-muted-foreground font-inter">
+            {category.children.length} {category.children.length === 1 ? 'подкатегория' : 'подкатегории'}
+          </p>
         )}
       </div>
-    );
-  };
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+        onClick={() => handleEdit(category)}
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive shrink-0"
+        onClick={() => handleDelete(category)}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-6">
@@ -450,9 +372,21 @@ const Categories = () => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {categoriesTree.map((category) => (
-              <ParentCategory key={category.id} category={category} />
+              <div key={category.id} className="space-y-2">
+                {/* Parent Category */}
+                <CategoryItem category={category} />
+                
+                {/* Subcategories - Always visible */}
+                {category.children && category.children.length > 0 && (
+                  <>
+                    {category.children.map((child) => (
+                      <CategoryItem key={child.id} category={child} isChild />
+                    ))}
+                  </>
+                )}
+              </div>
             ))}
           </div>
         )}

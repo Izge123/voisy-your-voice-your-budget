@@ -1,13 +1,19 @@
 import { Link } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, ShoppingCart, Coffee, Car, Home as HomeIcon } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, ShoppingCart, Coffee, Car, Home as HomeIcon, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
+  
   // Mock data
   const balance = 12450.00;
   const income = 4200;
   const expenses = 1800;
+
+  const userName = user?.user_metadata?.full_name || "Пользователь";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const recentTransactions = [
     {
@@ -50,21 +56,32 @@ const Dashboard = () => {
       <header className="flex items-center justify-between p-4 md:p-6 mb-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 md:h-12 md:w-12">
-            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" />
-            <AvatarFallback className="bg-primary text-primary-foreground font-bold">А</AvatarFallback>
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} />
+            <AvatarFallback className="bg-primary text-primary-foreground font-bold">{userInitial}</AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-lg md:text-xl font-bold font-manrope text-foreground">
-              Привет, Алекс! 👋
+              Привет, {userName.split(' ')[0]}! 👋
             </h1>
             <p className="text-xs text-muted-foreground font-inter">Сегодня отличный день</p>
           </div>
         </div>
-        <Link to="/app/settings">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Settings className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <Link to="/app/settings">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Settings className="h-5 w-5 text-muted-foreground" />
+            </Button>
+          </Link>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full"
+            onClick={signOut}
+            title="Выйти"
+          >
+            <LogOut className="h-5 w-5 text-muted-foreground" />
           </Button>
-        </Link>
+        </div>
       </header>
 
       <div className="px-4 md:px-6 space-y-6">

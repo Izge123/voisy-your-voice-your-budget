@@ -41,10 +41,17 @@ const Header = () => {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" className="font-inter">
+            <Button 
+              variant="ghost" 
+              className="font-inter"
+              onClick={() => window.location.href = '/auth?tab=login'}
+            >
               Войти
             </Button>
-            <Button className="rounded-full bg-primary hover:bg-primary/90 font-inter">
+            <Button 
+              className="rounded-full bg-primary hover:bg-primary/90 font-inter"
+              onClick={() => window.location.href = '/auth?tab=register'}
+            >
               Начать бесплатно
             </Button>
           </div>
@@ -82,12 +89,25 @@ const Header = () => {
                 {/* Mobile Buttons */}
                 <div className="flex flex-col gap-3 mt-4">
                   <SheetClose asChild>
-                    <Button variant="ghost" className="w-full font-inter" onClick={handleLinkClick}>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full font-inter" 
+                      onClick={() => {
+                        handleLinkClick();
+                        window.location.href = '/auth?tab=login';
+                      }}
+                    >
                       Войти
                     </Button>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Button className="w-full rounded-full bg-primary hover:bg-primary/90 font-inter" onClick={handleLinkClick}>
+                    <Button 
+                      className="w-full rounded-full bg-primary hover:bg-primary/90 font-inter" 
+                      onClick={() => {
+                        handleLinkClick();
+                        window.location.href = '/auth?tab=register';
+                      }}
+                    >
                       Начать бесплатно
                     </Button>
                   </SheetClose>

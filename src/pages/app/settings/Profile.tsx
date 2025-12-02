@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera } from "lucide-react";
+import { Camera, KeyRound, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,8 @@ const ProfileSettings = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isEdited, setIsEdited] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -63,12 +65,38 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!email) return;
+    
+    setIsResetLoading(true);
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+
+    setIsResetLoading(false);
+
+    if (error) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setResetSent(true);
+      toast({
+        title: "Письмо отправлено",
+        description: "Проверьте почту для сброса пароля",
+      });
+    }
+  };
+
   const initials = name
     ? name.split(" ").map((n) => n[0]).join("").toUpperCase()
     : email?.[0]?.toUpperCase() || "?";
 
   return (
-    <div className="p-4 md:p-6 pb-24">
+    <div className="p-4 md:p-6 pb-24 space-y-4">
       <SettingsPageHeader title="Профиль" />
 
       <Card>
@@ -126,6 +154,46 @@ const ProfileSettings = () => {
           {isEdited && (
             <Button onClick={handleSave} className="w-full" disabled={isLoading}>
               {isLoading ? "Сохранение..." : "Сохранить изменения"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Password Reset */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <KeyRound className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium">Сброс пароля</h3>
+              <p className="text-sm text-muted-foreground">
+                Отправим ссылку на вашу почту
+              </p>
+            </div>
+          </div>
+          
+          {resetSent ? (
+            <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg text-sm text-muted-foreground">
+              <Mail className="h-4 w-4 text-primary shrink-0" />
+              <span>Письмо отправлено на {email}</span>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleResetPassword}
+              disabled={isResetLoading}
+              className="w-full"
+            >
+              {isResetLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Отправка...
+                </>
+              ) : (
+                "Отправить ссылку для сброса"
+              )}
             </Button>
           )}
         </CardContent>

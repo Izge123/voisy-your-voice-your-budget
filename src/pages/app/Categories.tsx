@@ -119,10 +119,27 @@ const Categories = () => {
 
   const CategoryDialog = () => (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'group' | 'subcategory')}>
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(v) => {
+          setActiveTab(v as 'group' | 'subcategory');
+          // Reset editing mode when switching tabs
+          if (editingCategory) {
+            setEditingCategory(null);
+            setCategoryName('');
+            setCategoryIcon('');
+            setCategoryColor('#6366f1');
+            setSelectedParentId('');
+          }
+        }}
+      >
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="group">Создать Группу</TabsTrigger>
-          <TabsTrigger value="subcategory">Создать Подкатегорию</TabsTrigger>
+          <TabsTrigger value="group" disabled={!!editingCategory && !!editingCategory.parent_id}>
+            Создать Группу
+          </TabsTrigger>
+          <TabsTrigger value="subcategory" disabled={!!editingCategory && !editingCategory.parent_id}>
+            Создать Подкатегорию
+          </TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Create Group */}

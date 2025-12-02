@@ -13,6 +13,9 @@ import Categories from "./pages/app/Categories";
 import Analytics from "./pages/app/Analytics";
 import AIChat from "./pages/app/AIChat";
 import Settings from "./pages/app/Settings";
+import ProfileSettings from "./pages/app/settings/Profile";
+import SubscriptionSettings from "./pages/app/settings/Subscription";
+import CurrencySettings from "./pages/app/settings/Currency";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -38,6 +41,9 @@ const App = () => (
               <Route path="analytics" element={<Analytics />} />
               <Route path="ai-chat" element={<AIChat />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="settings/profile" element={<ProfileSettings />} />
+              <Route path="settings/subscription" element={<SubscriptionSettings />} />
+              <Route path="settings/currency" element={<CurrencySettings />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

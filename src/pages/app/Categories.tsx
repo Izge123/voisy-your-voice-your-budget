@@ -37,15 +37,15 @@ const Categories = () => {
   
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Keep focus on name input when dialog opens
+  // Keep focus on name input when dialog opens (with delay for drawer animation)
   useEffect(() => {
-    if (isAddOpen && nameInputRef.current) {
+    if (isAddOpen && nameInputRef.current && !isMobile) {
       const timer = setTimeout(() => {
-        nameInputRef.current?.focus();
-      }, 100);
+        nameInputRef.current?.focus({ preventScroll: true });
+      }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isAddOpen, activeTab]);
+  }, [isAddOpen, activeTab, isMobile]);
 
   // 1. РОДИТЕЛИ (Группы) - категории без parent_id, отфильтрованные по типу
   const rootCategories = categories?.filter(c => !c.parent_id && c.parent_id !== c.id && c.type === categoryType) || [];
@@ -212,7 +212,6 @@ const Categories = () => {
               placeholder="Например: Транспорт"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
-              autoFocus
             />
           </div>
 
@@ -278,7 +277,6 @@ const Categories = () => {
                 placeholder="Например: Такси"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
-                autoFocus
               />
             </div>
 
@@ -333,13 +331,13 @@ const Categories = () => {
           <h1 className="text-2xl md:text-3xl font-bold font-manrope text-foreground">Категории</h1>
           
           {isMobile ? (
-            <Drawer open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <Drawer open={isAddOpen} onOpenChange={setIsAddOpen} handleOnly>
               <DrawerTrigger asChild>
                 <Button size="icon" className="rounded-full">
                   <Plus className="h-5 w-5" />
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="max-h-[90vh]">
+              <DrawerContent className="h-[85dvh] max-h-[85dvh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
                     {activeTab === 'subcategory' 
@@ -349,7 +347,7 @@ const Categories = () => {
                       : 'Создать категорию'}
                   </DrawerTitle>
                 </DrawerHeader>
-                <div className="px-4 pb-6 overflow-y-auto">
+                <div className="px-4 pb-6 overflow-y-auto flex-1">
                   <CategoryDialog />
                 </div>
               </DrawerContent>

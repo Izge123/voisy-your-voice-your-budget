@@ -127,7 +127,8 @@ const Categories = () => {
     setSelectedParentId('');
   };
 
-  const CategoryDialog = () => (
+  // Form JSX moved inline to prevent re-mounting on every keystroke
+  const formContent = (
     <div className="space-y-6">
       <Tabs 
         value={activeTab} 
@@ -283,7 +284,6 @@ const Categories = () => {
             <div className="space-y-2">
               <Label>Название подкатегории</Label>
               <Input
-                ref={nameInputRef}
                 placeholder="Например: Такси"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
@@ -358,7 +358,7 @@ const Categories = () => {
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6 overflow-y-auto flex-1">
-                  <CategoryDialog />
+                  {formContent}
                 </div>
               </DrawerContent>
             </Drawer>
@@ -379,7 +379,7 @@ const Categories = () => {
                       : 'Создать категорию'}
                   </DialogTitle>
                 </DialogHeader>
-                <CategoryDialog />
+                {formContent}
               </DialogContent>
             </Dialog>
           )}

@@ -23,12 +23,13 @@ const CurrencySettings = () => {
 
       const { data } = await supabase
         .from("profiles")
-        .select("currency")
+        .select("currency, monthly_budget")
         .eq("id", user.id)
         .single();
 
-      if (data?.currency) {
-        setCurrency(data.currency);
+      if (data) {
+        if (data.currency) setCurrency(data.currency);
+        if (data.monthly_budget) setMonthlyBudget(String(data.monthly_budget));
       }
     };
 
@@ -41,7 +42,10 @@ const CurrencySettings = () => {
 
     const { error } = await supabase
       .from("profiles")
-      .update({ currency })
+      .update({ 
+        currency,
+        monthly_budget: monthlyBudget ? Number(monthlyBudget) : null
+      })
       .eq("id", user.id);
 
     setIsLoading(false);

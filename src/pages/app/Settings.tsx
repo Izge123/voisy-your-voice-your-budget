@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { User, Crown, Wallet, Sparkles, Settings2, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/use-profile";
+import { getCurrencySymbol } from "@/lib/utils";
 
 interface SettingsMenuItemProps {
   icon: React.ReactNode;
@@ -32,6 +34,10 @@ const SettingsMenuItem = ({ icon, iconBg, title, subtitle, onClick, danger }: Se
 const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { profile } = useProfile();
+
+  const currency = profile?.currency || "USD";
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <div className="p-4 md:p-6 space-y-6 pb-24">
@@ -60,7 +66,7 @@ const Settings = () => {
           icon={<Wallet className="h-5 w-5 text-secondary" />}
           iconBg="bg-secondary/10"
           title="Валюта и бюджет"
-          subtitle="USD ($)"
+          subtitle={`${currency} (${currencySymbol})`}
           onClick={() => navigate("/app/settings/currency")}
         />
         <SettingsMenuItem

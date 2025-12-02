@@ -14,6 +14,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -29,26 +31,31 @@ const registerSchema = z.object({
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
+  const isRecovery = searchParams.get("type") === "recovery";
   const defaultTab = searchParams.get("tab") === "register" ? "register" : "login";
   const [activeTab, setActiveTab] = useState(defaultTab);
   
   const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [registerData, setRegisterData] = useState({ fullName: "", email: "", password: "" });
   const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !isRecovery) {
       navigate("/app/dashboard");
     }
-  }, [user, navigate]);
+  }, [user, navigate, isRecovery]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +126,113 @@ const Auth = () => {
     setResetDialogOpen(false);
     setResetEmail("");
   };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (newPassword.length < 6) {
+      setErrors({ newPassword: "Пароль должен содержать минимум 6 символов" });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrors({ confirmPassword: "Пароли не совпадают" });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Успешно",
+        description: "Пароль успешно изменён",
+      });
+      navigate("/app/dashboard");
+    }
+  };
+
+  // Recovery mode - show password update form
+  if (isRecovery) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+
+        <div className="w-full max-w-md relative z-10">
+          <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
+            <AudioWaveform className="h-10 w-10 text-primary" />
+            <span className="text-3xl font-extrabold font-manrope text-primary">Voisy</span>
+          </div>
+
+          <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border/50 p-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <h2 className="text-2xl font-bold font-manrope mb-2">Новый пароль</h2>
+            <p className="text-muted-foreground mb-6 font-inter">Введите новый пароль для вашего аккаунта</p>
+
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password" className="font-inter">Новый пароль</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="new-password"
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10 font-inter"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                {errors.newPassword && <p className="text-sm text-destructive font-inter">{errors.newPassword}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="font-inter">Подтвердите пароль</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="pl-10 font-inter"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.confirmPassword && <p className="text-sm text-destructive font-inter">{errors.confirmPassword}</p>}
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full rounded-full font-inter"
+                disabled={isLoading}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {isLoading ? "Сохранение..." : "Сохранить пароль"}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">

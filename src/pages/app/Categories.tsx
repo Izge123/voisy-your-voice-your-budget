@@ -380,7 +380,7 @@ const Categories = () => {
               <DrawerContent className="max-h-[90vh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать' : `Добавить ${categoryType === 'expense' ? 'расход' : categoryType === 'income' ? 'доход' : 'сбережение'}`}
+                    {editingCategory ? 'Редактировать категорию' : 'Создать категорию'}
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6 overflow-y-auto">
@@ -398,7 +398,7 @@ const Categories = () => {
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать' : `Добавить ${categoryType === 'expense' ? 'расход' : categoryType === 'income' ? 'доход' : 'сбережение'}`}
+                    {editingCategory ? 'Редактировать категорию' : 'Создать категорию'}
                   </DialogTitle>
                 </DialogHeader>
                 <CategoryDialog />

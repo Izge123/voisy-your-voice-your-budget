@@ -141,6 +141,7 @@ const Pricing = () => {
                     ? "bg-gradient-to-r from-indigo-600 to-emerald-500 hover:opacity-90"
                     : ""
                 }`}
+                onClick={() => window.location.href = '/auth?tab=register'}
               >
                 {plan.cta}
               </Button>

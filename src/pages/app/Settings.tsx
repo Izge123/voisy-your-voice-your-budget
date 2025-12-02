@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { User, Crown, Wallet, LogOut, ChevronRight } from "lucide-react";
+import { User, Crown, Wallet, Sparkles, Settings2, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface SettingsMenuItemProps {
@@ -31,12 +31,7 @@ const SettingsMenuItem = ({ icon, iconBg, title, subtitle, onClick, danger }: Se
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
+  const { user } = useAuth();
 
   return (
     <div className="p-4 md:p-6 space-y-6 pb-24">
@@ -68,16 +63,23 @@ const Settings = () => {
           subtitle="USD ($)"
           onClick={() => navigate("/app/settings/currency")}
         />
+        <SettingsMenuItem
+          icon={<Sparkles className="h-5 w-5 text-violet-500" />}
+          iconBg="bg-violet-500/10"
+          title="AI Профиль"
+          subtitle="Персонализация AI"
+          onClick={() => navigate("/app/settings/ai-profile")}
+        />
       </div>
 
-      {/* Account Actions */}
+      {/* Account */}
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
         <SettingsMenuItem
-          icon={<LogOut className="h-5 w-5 text-destructive" />}
-          iconBg="bg-destructive/10"
-          title="Выйти из аккаунта"
-          onClick={handleSignOut}
-          danger
+          icon={<Settings2 className="h-5 w-5 text-muted-foreground" />}
+          iconBg="bg-muted"
+          title="Аккаунт"
+          subtitle="Выход и удаление"
+          onClick={() => navigate("/app/settings/account")}
         />
       </div>
     </div>

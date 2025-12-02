@@ -16,6 +16,8 @@ import Settings from "./pages/app/Settings";
 import ProfileSettings from "./pages/app/settings/Profile";
 import SubscriptionSettings from "./pages/app/settings/Subscription";
 import CurrencySettings from "./pages/app/settings/Currency";
+import AccountSettings from "./pages/app/settings/Account";
+import AIProfileSettings from "./pages/app/settings/AIProfile";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -44,6 +46,8 @@ const App = () => (
               <Route path="settings/profile" element={<ProfileSettings />} />
               <Route path="settings/subscription" element={<SubscriptionSettings />} />
               <Route path="settings/currency" element={<CurrencySettings />} />
+              <Route path="settings/account" element={<AccountSettings />} />
+              <Route path="settings/ai-profile" element={<AIProfileSettings />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

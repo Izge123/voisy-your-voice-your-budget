@@ -101,9 +101,21 @@ All colors MUST be HSL.
 
   html {
     scroll-behavior: smooth;
+    height: 100%;
   }
 
   body {
     @apply bg-background text-foreground;
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile keyboard fixes */
+@supports (height: 100dvh) {
+  .drawer-content-mobile {
+    height: 85dvh;
+    max-height: 85dvh;
   }
 }

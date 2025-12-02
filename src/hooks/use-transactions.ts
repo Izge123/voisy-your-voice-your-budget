@@ -153,44 +153,65 @@ export const useTransactions = (limit?: number) => {
 export const useBalance = () => {
   const { user } = useAuth();
 
-  const { data: balance = 0, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['balance', user?.id],
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // Fetch all transactions with their categories
+      // Get current month date range
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+      // Fetch transactions for current month with their categories
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select(`
           amount,
+          date,
           category:categories!inner (
             type
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .gte('date', startOfMonth.toISOString().split('T')[0])
+        .lte('date', endOfMonth.toISOString().split('T')[0]);
 
       if (error) throw error;
 
-      // Calculate balance: income - expenses
-      const total = transactions.reduce((acc, transaction) => {
+      // Calculate income and expenses for current month
+      let income = 0;
+      let expenses = 0;
+
+      transactions.forEach((transaction) => {
         const amount = transaction.amount;
         const type = (transaction.category as any)?.type;
         
         if (type === 'income') {
-          return acc + amount;
+          income += amount;
         } else if (type === 'expense') {
-          return acc - amount;
+          expenses += amount;
         }
-        return acc;
-      }, 0);
+      });
 
-      return total;
+      const balance = income - expenses;
+      const savings = income - expenses;
+
+      return {
+        balance,
+        income,
+        expenses,
+        savings,
+      };
     },
     enabled: !!user,
   });
 
   return {
-    balance,
+    balance: data?.balance || 0,
+    income: data?.income || 0,
+    expenses: data?.expenses || 0,
+    savings: data?.savings || 0,
     isLoading,
     error,
   };

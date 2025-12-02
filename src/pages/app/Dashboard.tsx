@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut, Loader2, Calendar as CalendarIcon, ChevronDown } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 const Dashboard = () => {
   const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
-  const { balance, isLoading: balanceLoading } = useBalance();
+  const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
   const { categories, isLoading: categoriesLoading } = useCategories();
 
@@ -40,14 +40,8 @@ const Dashboard = () => {
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();
 
-  // Calculate income and expenses from all transactions for stats
-  const income = transactions
-    .filter(t => t.category?.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-  
-  const expenses = transactions
-    .filter(t => t.category?.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+  // Get current month and year for display
+  const currentMonthYear = format(new Date(), "LLLL yyyy", { locale: ru });
 
   const filteredCategoriesTree = useMemo(() => {
     const filtered = categories.filter(cat => cat.type === transactionType);
@@ -253,7 +247,7 @@ const Dashboard = () => {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
           <div className="relative z-10">
-            <p className="text-sm text-white/70 font-inter mb-2">Общий баланс</p>
+            <p className="text-sm text-white/70 font-inter mb-2 capitalize">Баланс за {currentMonthYear}</p>
             <h2 className="text-4xl md:text-5xl font-extrabold font-manrope text-white mb-6">
               {balanceLoading ? (
                 <span className="animate-pulse">...</span>
@@ -263,24 +257,32 @@ const Dashboard = () => {
             </h2>
 
             {/* Stats */}
-            <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-              <div className="flex items-center gap-2 flex-1">
+            <div className="grid grid-cols-3 gap-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/20">
                   <TrendingUp className="h-4 w-4 text-secondary" />
                 </div>
                 <div>
                   <p className="text-xs text-white/70 font-inter">Доходы</p>
-                  <p className="text-sm font-bold font-manrope text-secondary">+${income}</p>
+                  <p className="text-sm font-bold font-manrope text-secondary">+${income.toFixed(2)}</p>
                 </div>
               </div>
-              <div className="w-px h-10 bg-white/20"></div>
-              <div className="flex items-center gap-2 flex-1">
+              <div className="flex flex-col gap-2 border-x border-white/20 px-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-500/20">
                   <TrendingDown className="h-4 w-4 text-rose-300" />
                 </div>
                 <div>
                   <p className="text-xs text-white/70 font-inter">Расходы</p>
-                  <p className="text-sm font-bold font-manrope text-rose-300">-${expenses}</p>
+                  <p className="text-sm font-bold font-manrope text-rose-300">-${expenses.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-400/20">
+                  <PiggyBank className="h-4 w-4 text-amber-300" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/70 font-inter">Экономия</p>
+                  <p className="text-sm font-bold font-manrope text-amber-300">${savings.toFixed(2)}</p>
                 </div>
               </div>
             </div>

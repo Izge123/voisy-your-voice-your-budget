@@ -29,10 +29,14 @@ const buildCategoryTree = (categories: Category[]): Category[] => {
   categories.forEach(category => {
     const node = categoryMap.get(category.id)!;
     
-    if (category.parent_id) {
+    // Fix circular references: if parent_id equals id, treat as root category
+    if (category.parent_id && category.parent_id !== category.id) {
       const parent = categoryMap.get(category.parent_id);
-      if (parent) {
+      if (parent && parent.id !== category.id) {
         parent.children!.push(node);
+      } else {
+        // Parent not found or circular reference - add to root
+        rootCategories.push(node);
       }
     } else {
       rootCategories.push(node);

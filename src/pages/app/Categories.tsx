@@ -27,6 +27,20 @@ const Categories = () => {
   const [categoryColor, setCategoryColor] = useState('#6366f1');
   const [parentId, setParentId] = useState<string | null>(null);
 
+  // Fix broken data: categories where parent_id = id
+  const fixBrokenCategories = async () => {
+    const brokenCategories = categories.filter(c => c.parent_id === c.id);
+    if (brokenCategories.length > 0) {
+      console.log('Fixing broken categories:', brokenCategories);
+      for (const cat of brokenCategories) {
+        await updateCategory({
+          id: cat.id,
+          updates: { parent_id: null }
+        });
+      }
+    }
+  };
+
   const colors = [
     '#ef4444', '#f97316', '#f59e0b', '#eab308', 
     '#84cc16', '#22c55e', '#10b981', '#14b8a6',
@@ -43,6 +57,13 @@ const Categories = () => {
     if (!categoryName.trim()) return;
     if (activeTab === 'child' && !parentId) return;
 
+    // Calculate the correct parent_id value
+    let finalParentId: string | null = null;
+    if (activeTab === 'child' && parentId) {
+      // Never allow a category to be its own parent
+      finalParentId = editingCategory && parentId === editingCategory.id ? null : parentId;
+    }
+
     if (editingCategory) {
       updateCategory({
         id: editingCategory.id,
@@ -51,7 +72,7 @@ const Categories = () => {
           icon: categoryIcon,
           color: categoryColor,
           type: categoryType,
-          parent_id: activeTab === 'child' ? parentId : null,
+          parent_id: finalParentId,
         }
       });
     } else {
@@ -60,7 +81,7 @@ const Categories = () => {
         type: categoryType,
         icon: categoryIcon,
         color: categoryColor,
-        parent_id: activeTab === 'child' ? parentId : null,
+        parent_id: finalParentId,
       });
     }
 
@@ -73,8 +94,11 @@ const Categories = () => {
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
     setCategoryType(category.type as 'expense' | 'income');
-    setActiveTab(category.parent_id ? 'child' : 'parent');
-    setParentId(category.parent_id);
+    
+    // Fix: treat self-referencing parent_id as null (no parent)
+    const hasValidParent = category.parent_id && category.parent_id !== category.id;
+    setActiveTab(hasValidParent ? 'child' : 'parent');
+    setParentId(hasValidParent ? category.parent_id : null);
     setIsAddOpen(true);
   };
 
@@ -301,7 +325,20 @@ const Categories = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-6">
       <header className="p-4 md:p-6 border-b border-border">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold font-manrope text-foreground">Категории</h1>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold font-manrope text-foreground">Категории</h1>
+            {/* Debug: Show if there are broken categories */}
+            {categories.some(c => c.parent_id === c.id) && (
+              <Button
+                onClick={fixBrokenCategories}
+                variant="outline"
+                size="sm"
+                className="mt-2 text-xs"
+              >
+                Исправить поломанные данные
+              </Button>
+            )}
+          </div>
           
           {isMobile ? (
             <Drawer open={isAddOpen} onOpenChange={setIsAddOpen}>

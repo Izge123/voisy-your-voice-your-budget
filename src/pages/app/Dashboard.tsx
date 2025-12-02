@@ -216,6 +216,32 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* VOICE RECORDER MODAL */}
+      <VoiceRecorder open={isVoiceOpen} onOpenChange={setIsVoiceOpen} />
+
+      {/* MANUAL ADD TRANSACTION MODAL */}
+      {isMobile ? (
+        <Drawer open={isManualOpen} onOpenChange={setIsManualOpen}>
+          <DrawerContent className="max-h-[90vh]">
+            <DrawerHeader>
+              <DrawerTitle className="text-2xl font-bold font-manrope">Добавить операцию</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-6 overflow-y-auto">
+              <AddTransactionForm />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold font-manrope">Добавить операцию</DialogTitle>
+            </DialogHeader>
+            <AddTransactionForm />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -12,7 +12,8 @@ import { useTransactions } from "@/hooks/use-transactions";
 import { useCategories } from "@/hooks/use-categories";
 import { startOfMonth, startOfYear, endOfMonth, endOfYear, format, eachDayOfInterval, eachMonthOfInterval } from "date-fns";
 import { ru } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
+import { useProfile } from "@/hooks/use-profile";
 
 const Analytics = () => {
   const [period, setPeriod] = useState<"month" | "year" | "custom">("month");
@@ -25,6 +26,8 @@ const Analytics = () => {
   });
   const { transactions, isLoading } = useTransactions();
   const { categories } = useCategories();
+  const { profile } = useProfile();
+  const currency = profile?.currency || 'USD';
 
   // Handle period change
   const handlePeriodChange = (newPeriod: "month" | "year") => {
@@ -74,11 +77,11 @@ const Analytics = () => {
     const savings = income - expenses;
 
     return [
-      { label: "Доходы", value: `$${income.toFixed(0)}`, icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
-      { label: "Расходы", value: `$${expenses.toFixed(0)}`, icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
-      { label: "Экономия", value: `$${savings.toFixed(0)}`, icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
+      { label: "Доходы", value: formatCurrency(income, currency), icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
+      { label: "Расходы", value: formatCurrency(expenses, currency), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
+      { label: "Экономия", value: formatCurrency(savings, currency), icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
     ];
-  }, [filteredTransactions]);
+  }, [filteredTransactions, currency]);
 
   // Hierarchical expenses by parent categories
   const hierarchicalExpenses = useMemo(() => {
@@ -302,7 +305,7 @@ const Analytics = () => {
       return (
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="text-sm font-semibold text-foreground">{payload[0].name}</p>
-          <p className="text-sm text-primary font-bold">${payload[0].value}</p>
+          <p className="text-sm text-primary font-bold">{formatCurrency(payload[0].value, currency)}</p>
         </div>
       );
     }
@@ -503,7 +506,7 @@ const Analytics = () => {
                               {parentPercentage}%
                             </span>
                             <span className="text-base font-bold font-manrope text-foreground">
-                              ${parent.totalAmount.toFixed(0)}
+                              {formatCurrency(parent.totalAmount, currency)}
                             </span>
                           </div>
                         </div>
@@ -531,7 +534,7 @@ const Analytics = () => {
                                       {subPercentage}%
                                     </span>
                                     <span className="text-sm font-semibold font-manrope text-foreground">
-                                      ${sub.amount.toFixed(0)}
+                                      {formatCurrency(sub.amount, currency)}
                                     </span>
                                   </div>
                                 </div>
@@ -620,7 +623,7 @@ const Analytics = () => {
                               {parentPercentage}%
                             </span>
                             <span className="text-base font-bold font-manrope text-foreground">
-                              ${parent.totalAmount.toFixed(0)}
+                              {formatCurrency(parent.totalAmount, currency)}
                             </span>
                           </div>
                         </div>
@@ -648,7 +651,7 @@ const Analytics = () => {
                                       {subPercentage}%
                                     </span>
                                     <span className="text-sm font-semibold font-manrope text-foreground">
-                                      ${sub.amount.toFixed(0)}
+                                      {formatCurrency(sub.amount, currency)}
                                     </span>
                                   </div>
                                 </div>
@@ -685,7 +688,7 @@ const Analytics = () => {
                     stroke="hsl(var(--muted-foreground))"
                     fontSize={12}
                     tickLine={false}
-                    tickFormatter={(value) => `$${value}`}
+                    tickFormatter={(value) => formatCurrency(value, currency)}
                   />
                   <Tooltip
                     content={({ active, payload }) => {
@@ -693,7 +696,7 @@ const Analytics = () => {
                         return (
                           <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
                             <p className="text-sm font-semibold text-foreground">{payload[0].payload.label}</p>
-                            <p className="text-sm text-primary font-bold">${payload[0].value}</p>
+                            <p className="text-sm text-primary font-bold">{formatCurrency(Number(payload[0].value), currency)}</p>
                           </div>
                         );
                       }
@@ -764,7 +767,7 @@ const Analytics = () => {
                             {parentPercentage}%
                           </span>
                           <span className="text-base font-bold font-manrope text-foreground">
-                            ${parent.totalAmount.toFixed(0)}
+                            {formatCurrency(parent.totalAmount, currency)}
                           </span>
                         </div>
                       </div>
@@ -792,7 +795,7 @@ const Analytics = () => {
                                     {subPercentage}%
                                   </span>
                                   <span className="text-sm font-semibold font-manrope text-foreground">
-                                    ${sub.amount.toFixed(0)}
+                                    {formatCurrency(sub.amount, currency)}
                                   </span>
                                 </div>
                               </div>

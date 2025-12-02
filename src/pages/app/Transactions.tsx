@@ -14,10 +14,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, startOfDay, isSameDay, isYesterday, isToday } from "date-fns";
 import { ru } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency, getCurrencySymbol } from "@/lib/utils";
 import { useCategories } from "@/hooks/use-categories";
 import { useTransactions } from "@/hooks/use-transactions";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/use-profile";
 
 const Transactions = () => {
   const isMobile = useIsMobile();
@@ -39,6 +40,8 @@ const Transactions = () => {
     isAddingTransaction,
     isDeletingTransaction 
   } = useTransactions();
+  const { profile } = useProfile();
+  const currency = profile?.currency || 'USD';
 
   // Filter categories by transaction type and build tree
   const filteredCategoriesTree = useMemo(() => {
@@ -98,7 +101,7 @@ const Transactions = () => {
     addTransaction({
       amount: parseFloat(amount),
       category_id: selectedCategory,
-      currency: 'USD',
+      currency: currency,
       date: format(date, 'yyyy-MM-dd'),
       description: comment || null,
       type: transactionType as 'income' | 'expense',
@@ -131,7 +134,7 @@ const Transactions = () => {
       <div className="space-y-2">
         <Label className="text-sm text-muted-foreground">Сумма</Label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">₽</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">{getCurrencySymbol(currency)}</span>
           <Input
             type="number"
             placeholder="0"
@@ -374,7 +377,7 @@ const Transactions = () => {
                             "text-base font-bold font-manrope",
                             isExpense ? "text-rose-600" : "text-secondary"
                           )}>
-                            {isExpense ? '-' : '+'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {isExpense ? '-' : '+'}{formatCurrency(amount, currency)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {transaction.date ? format(new Date(transaction.date), 'HH:mm', { locale: ru }) : ''}

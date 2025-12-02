@@ -1,54 +1,77 @@
 import { useState, useMemo } from "react";
-import { TrendingDown, TrendingUp, DollarSign, ChevronDown } from "lucide-react";
+import { TrendingDown, TrendingUp, DollarSign, CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useTransactions } from "@/hooks/use-transactions";
 import { useCategories } from "@/hooks/use-categories";
-import { startOfWeek, startOfMonth, startOfYear, format, eachDayOfInterval, subDays } from "date-fns";
+import { startOfMonth, startOfYear, endOfMonth, endOfYear, format, eachDayOfInterval, eachMonthOfInterval } from "date-fns";
 import { ru } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const Analytics = () => {
-  const [period, setPeriod] = useState("month");
+  const [period, setPeriod] = useState<"month" | "year" | "custom">("month");
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>(() => {
+    const now = new Date();
+    return {
+      from: startOfMonth(now),
+      to: endOfMonth(now),
+    };
+  });
   const { transactions, isLoading } = useTransactions();
   const { categories } = useCategories();
 
-  // Filter transactions by period
-  const filteredTransactions = useMemo(() => {
+  // Handle period change
+  const handlePeriodChange = (newPeriod: "month" | "year") => {
+    setPeriod(newPeriod);
     const now = new Date();
-    let startDate: Date;
-
-    switch (period) {
-      case 'week':
-        startDate = startOfWeek(now, { locale: ru });
-        break;
-      case 'year':
-        startDate = startOfYear(now);
-        break;
-      case 'month':
-      default:
-        startDate = startOfMonth(now);
+    
+    if (newPeriod === "month") {
+      setDateRange({
+        from: startOfMonth(now),
+        to: endOfMonth(now),
+      });
+    } else if (newPeriod === "year") {
+      setDateRange({
+        from: startOfYear(now),
+        to: endOfYear(now),
+      });
     }
+  };
 
+  // Handle custom date range selection
+  const handleDateRangeSelect = (range: { from?: Date; to?: Date } | undefined) => {
+    if (range?.from && range?.to) {
+      setDateRange({ from: range.from, to: range.to });
+      setPeriod("custom");
+    }
+  };
+
+  // Filter transactions by date range
+  const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       if (!t.date) return false;
-      return new Date(t.date) >= startDate;
+      const transactionDate = new Date(t.date);
+      return transactionDate >= dateRange.from && transactionDate <= dateRange.to;
     });
-  }, [transactions, period]);
+  }, [transactions, dateRange]);
 
   // Calculate summary stats
   const summaryStats = useMemo(() => {
     const expenses = filteredTransactions
-      .filter(t => t.category?.type === 'expense')
+      .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const expenseCount = filteredTransactions.filter(t => t.category?.type === 'expense').length;
+    const expenseCount = filteredTransactions.filter(t => t.type === 'expense').length;
     const avgExpense = expenseCount > 0 ? expenses / expenseCount : 0;
 
     const income = filteredTransactions
-      .filter(t => t.category?.type === 'income')
+      .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
 
     const saved = income - expenses;
@@ -81,7 +104,7 @@ const Analytics = () => {
 
     // Process transactions
     filteredTransactions
-      .filter(t => t.category?.type === 'expense')
+      .filter(t => t.type === 'expense')
       .forEach(t => {
         if (!t.category) return;
 
@@ -144,29 +167,55 @@ const Analytics = () => {
 
   const totalExpenses = expensesByCategory.reduce((sum, item) => sum + item.value, 0);
 
-  // Daily expenses for bar chart
-  const dailyExpenses = useMemo(() => {
-    const days = eachDayOfInterval({
-      start: subDays(new Date(), 6),
-      end: new Date(),
-    });
+  // Dynamic expenses for bar chart (days or months)
+  const dynamicExpenses = useMemo(() => {
+    const diffInDays = Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // If range is more than 60 days, group by months
+    if (diffInDays > 60) {
+      const months = eachMonthOfInterval({
+        start: dateRange.from,
+        end: dateRange.to,
+      });
 
-    return days.map(day => {
-      const dayExpenses = filteredTransactions
-        .filter(t => {
-          if (!t.date || t.category?.type !== 'expense') return false;
-          const transactionDate = format(new Date(t.date), 'yyyy-MM-dd');
-          const targetDate = format(day, 'yyyy-MM-dd');
-          return transactionDate === targetDate;
-        })
-        .reduce((sum, t) => sum + t.amount, 0);
+      return months.map(month => {
+        const monthExpenses = filteredTransactions
+          .filter(t => {
+            if (!t.date || t.type !== 'expense') return false;
+            const transactionDate = new Date(t.date);
+            return format(transactionDate, 'yyyy-MM') === format(month, 'yyyy-MM');
+          })
+          .reduce((sum, t) => sum + t.amount, 0);
 
-      return {
-        day: format(day, 'EEE', { locale: ru }),
-        amount: dayExpenses,
-      };
-    });
-  }, [filteredTransactions]);
+        return {
+          label: format(month, 'MMM', { locale: ru }),
+          amount: monthExpenses,
+        };
+      });
+    } else {
+      // Group by days
+      const days = eachDayOfInterval({
+        start: dateRange.from,
+        end: dateRange.to,
+      });
+
+      return days.map(day => {
+        const dayExpenses = filteredTransactions
+          .filter(t => {
+            if (!t.date || t.type !== 'expense') return false;
+            const transactionDate = format(new Date(t.date), 'yyyy-MM-dd');
+            const targetDate = format(day, 'yyyy-MM-dd');
+            return transactionDate === targetDate;
+          })
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        return {
+          label: format(day, 'd', { locale: ru }),
+          amount: dayExpenses,
+        };
+      });
+    }
+  }, [filteredTransactions, dateRange]);
 
   // Top parent categories with progress
   const topCategories = useMemo(() => {
@@ -229,14 +278,59 @@ const Analytics = () => {
       <header className="p-4 md:p-6 space-y-4">
         <h1 className="text-2xl md:text-3xl font-bold font-manrope text-foreground">Аналитика</h1>
 
-        {/* Period Tabs */}
-        <Tabs value={period} onValueChange={setPeriod} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="week">Неделя</TabsTrigger>
-            <TabsTrigger value="month">Месяц</TabsTrigger>
-            <TabsTrigger value="year">Год</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Filters Row */}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          {/* Period Tabs */}
+          <Tabs value={period === "custom" ? "" : period} className="w-full sm:w-auto">
+            <TabsList className="grid w-full sm:w-auto grid-cols-2">
+              <TabsTrigger value="month" onClick={() => handlePeriodChange("month")}>
+                Месяц
+              </TabsTrigger>
+              <TabsTrigger value="year" onClick={() => handlePeriodChange("year")}>
+                Год
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Date Range Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full sm:w-auto justify-start text-left font-normal",
+                  !dateRange && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "d MMM", { locale: ru })} -{" "}
+                      {format(dateRange.to, "d MMM yyyy", { locale: ru })}
+                    </>
+                  ) : (
+                    format(dateRange.from, "d MMM yyyy", { locale: ru })
+                  )
+                ) : (
+                  <span>Выбрать даты</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={{ from: dateRange.from, to: dateRange.to }}
+                onSelect={handleDateRangeSelect}
+                numberOfMonths={2}
+                locale={ru}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </header>
 
       {filteredTransactions.length === 0 ? (
@@ -394,10 +488,10 @@ const Analytics = () => {
           <CardContent>
             <div className="h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyExpenses}>
+                <BarChart data={dynamicExpenses}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis
-                    dataKey="day"
+                    dataKey="label"
                     stroke="hsl(var(--muted-foreground))"
                     fontSize={12}
                     tickLine={false}
@@ -413,7 +507,7 @@ const Analytics = () => {
                       if (active && payload && payload.length) {
                         return (
                           <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-                            <p className="text-sm font-semibold text-foreground">{payload[0].payload.day}</p>
+                            <p className="text-sm font-semibold text-foreground">{payload[0].payload.label}</p>
                             <p className="text-sm text-primary font-bold">${payload[0].value}</p>
                           </div>
                         );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Plus, Edit2, Trash2, Loader2, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -33,6 +33,18 @@ const Categories = () => {
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
   const [selectedParentId, setSelectedParentId] = useState<string>('');
+  
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Keep focus on name input when dialog opens
+  useEffect(() => {
+    if (isAddOpen && nameInputRef.current) {
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isAddOpen, activeTab]);
 
   // 1. РОДИТЕЛИ (Группы) - категории без parent_id
   const rootCategories = categories?.filter(c => !c.parent_id && c.parent_id !== c.id) || [];
@@ -131,9 +143,11 @@ const Categories = () => {
           <div className="space-y-2">
             <Label>Название группы</Label>
             <Input
+              ref={nameInputRef}
               placeholder="Например: Транспорт"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
+              autoFocus
             />
           </div>
 
@@ -212,9 +226,11 @@ const Categories = () => {
           <div className="space-y-2">
             <Label>Название подкатегории</Label>
             <Input
+              ref={nameInputRef}
               placeholder="Например: Такси"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
+              autoFocus
             />
           </div>
 

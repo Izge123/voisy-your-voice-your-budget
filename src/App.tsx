@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import AppLayout from "./components/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import Transactions from "./pages/app/Transactions";
+import Categories from "./pages/app/Categories";
 import Analytics from "./pages/app/Analytics";
 import AIChat from "./pages/app/AIChat";
 import Settings from "./pages/app/Settings";
@@ -33,6 +34,7 @@ const App = () => (
               <Route index element={<Navigate to="/app/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="transactions" element={<Transactions />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="ai-chat" element={<AIChat />} />
               <Route path="settings" element={<Settings />} />

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
-import { Home, History, Mic, BarChart3, MessageSquare, Settings } from "lucide-react";
+import { Home, Folder, Mic, BarChart3, MessageSquare, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +16,7 @@ import {
 const AppLayout = () => {
   const navItems = [
     { to: "/app/dashboard", icon: Home, label: "Главная" },
-    { to: "/app/transactions", icon: History, label: "История" },
+    { to: "/app/categories", icon: Folder, label: "Категории" },
     { to: "/app/analytics", icon: BarChart3, label: "Аналитика" },
     { to: "/app/ai-chat", icon: MessageSquare, label: "AI Консультант" },
     { to: "/app/settings", icon: Settings, label: "Настройки" },
@@ -85,12 +85,12 @@ const AppLayout = () => {
             </NavLink>
 
             <NavLink
-              to="/app/transactions"
+              to="/app/categories"
               className="flex flex-col items-center justify-center gap-1 py-2 px-3 text-muted-foreground hover:text-foreground transition-colors"
               activeClassName="text-primary"
             >
-              <History className="h-6 w-6" />
-              <span className="text-xs">История</span>
+              <Folder className="h-6 w-6" />
+              <span className="text-xs">Категории</span>
             </NavLink>
 
             {/* Central Mic Button */}

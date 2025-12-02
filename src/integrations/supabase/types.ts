@@ -70,6 +70,7 @@ export type Database = {
           full_name: string | null
           id: string
           life_tags: string[] | null
+          monthly_budget: number | null
           planning_horizon: string | null
           target_amount: number | null
         }
@@ -84,6 +85,7 @@ export type Database = {
           full_name?: string | null
           id: string
           life_tags?: string[] | null
+          monthly_budget?: number | null
           planning_horizon?: string | null
           target_amount?: number | null
         }
@@ -98,6 +100,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           life_tags?: string[] | null
+          monthly_budget?: number | null
           planning_horizon?: string | null
           target_amount?: number | null
         }

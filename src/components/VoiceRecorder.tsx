@@ -191,7 +191,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
 
       {status === 'preview' && (() => {
         const missingCategories = parsedTransactions.filter(tx => 
-          tx.category_id && !categories.find(cat => cat.id === tx.category_id)
+          !tx.category_id || !categories.find(cat => cat.id === tx.category_id)
         );
         const hasMissingCategories = missingCategories.length > 0;
 

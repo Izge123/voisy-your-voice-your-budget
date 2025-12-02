@@ -9,6 +9,8 @@ interface AuthContextType {
   session: Session | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -110,6 +112,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/app/dashboard`,
+      },
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка входа через Google",
+        description: error.message,
+      });
+    }
+
+    return { error };
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth?reset=true`,
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка сброса пароля",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Проверьте почту",
+        description: "Мы отправили вам ссылку для сброса пароля",
+      });
+    }
+
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     toast({
@@ -120,7 +162,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, signIn, signUp, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, signIn, signUp, signInWithGoogle, resetPassword, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );

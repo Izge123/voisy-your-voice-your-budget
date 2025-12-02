@@ -10,8 +10,9 @@ interface Profile {
   currency: string | null;
   bio: string | null;
   financial_goal: string | null;
-  monthly_income: number | null;
+  target_amount: number | null;
   planning_horizon: string | null;
+  financial_literacy_level: string | null;
   life_tags: string[] | null;
 }
 
@@ -21,8 +22,9 @@ interface UpdateProfileData {
   currency?: string;
   bio?: string;
   financial_goal?: string;
-  monthly_income?: number | null;
+  target_amount?: number | null;
   planning_horizon?: string;
+  financial_literacy_level?: string;
   life_tags?: string[];
 }
 

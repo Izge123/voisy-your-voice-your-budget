@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Target, Clock, Tag } from "lucide-react";
+import { Sparkles, Target, Clock, Tag, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -30,12 +30,19 @@ const PLANNING_HORIZONS = [
   { value: "3years", label: "3+ года" },
 ];
 
+const LITERACY_LEVELS = [
+  { value: "beginner", label: "Новичок", description: "Только начинаю" },
+  { value: "intermediate", label: "Средний", description: "Понимаю базу" },
+  { value: "advanced", label: "Продвинутый", description: "Разбираюсь хорошо" },
+];
+
 const AIProfile = () => {
   const { profile, loading, updateProfile } = useProfile();
   const [bio, setBio] = useState("");
   const [financialGoal, setFinancialGoal] = useState("");
-  const [monthlyIncome, setMonthlyIncome] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
   const [planningHorizon, setPlanningHorizon] = useState("6months");
+  const [literacyLevel, setLiteracyLevel] = useState("beginner");
   const [lifeTags, setLifeTags] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,8 +50,9 @@ const AIProfile = () => {
     if (profile) {
       setBio(profile.bio || "");
       setFinancialGoal(profile.financial_goal || "");
-      setMonthlyIncome(profile.monthly_income?.toString() || "");
+      setTargetAmount(profile.target_amount?.toString() || "");
       setPlanningHorizon(profile.planning_horizon || "6months");
+      setLiteracyLevel(profile.financial_literacy_level || "beginner");
       setLifeTags(profile.life_tags || []);
     }
   }, [profile]);
@@ -63,8 +71,9 @@ const AIProfile = () => {
       await updateProfile({
         bio,
         financial_goal: financialGoal,
-        monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : null,
+        target_amount: targetAmount ? parseFloat(targetAmount) : null,
         planning_horizon: planningHorizon,
+        financial_literacy_level: literacyLevel,
         life_tags: lifeTags,
       });
       toast.success("AI профиль сохранён");
@@ -126,18 +135,22 @@ const AIProfile = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            value={financialGoal}
-            onChange={(e) => setFinancialGoal(e.target.value)}
-            placeholder="Накопить 1 000 000 ₽ на первый взнос"
-          />
           <div>
-            <Label className="text-sm text-muted-foreground">Ежемесячный доход</Label>
+            <Label className="text-sm text-muted-foreground">Опишите цель</Label>
+            <Input
+              value={financialGoal}
+              onChange={(e) => setFinancialGoal(e.target.value)}
+              placeholder="Накопить на первый взнос по ипотеке"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-sm text-muted-foreground">Сумма цели (₽)</Label>
             <Input
               type="number"
-              value={monthlyIncome}
-              onChange={(e) => setMonthlyIncome(e.target.value)}
-              placeholder="100000"
+              value={targetAmount}
+              onChange={(e) => setTargetAmount(e.target.value)}
+              placeholder="1000000"
               className="mt-1"
             />
           </div>
@@ -166,6 +179,37 @@ const AIProfile = () => {
                 className="px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
               >
                 {h.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      {/* Financial Literacy Level */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GraduationCap className="h-4 w-4 text-primary" />
+            Уровень финансовой грамотности
+          </CardTitle>
+          <CardDescription>
+            AI адаптирует стиль общения под ваш уровень
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup
+            type="single"
+            value={literacyLevel}
+            onValueChange={(v) => v && setLiteracyLevel(v)}
+            className="justify-start flex-wrap"
+          >
+            {LITERACY_LEVELS.map((level) => (
+              <ToggleGroupItem
+                key={level.value}
+                value={level.value}
+                className="px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                {level.label}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>

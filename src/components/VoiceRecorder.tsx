@@ -13,8 +13,9 @@ import { useTransactions } from "@/hooks/use-transactions";
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "@/hooks/use-profile";
 
 interface ParsedTransaction {
   amount: number;
@@ -35,6 +36,8 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const { addTransaction } = useTransactions();
   const { categories } = useCategories();
   const { toast } = useToast();
+  const { profile } = useProfile();
+  const currency = profile?.currency || 'USD';
 
   const [status, setStatus] = useState<'idle' | 'recording' | 'processing' | 'preview' | 'error'>('idle');
   const [transcript, setTranscript] = useState('');
@@ -106,7 +109,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
         await addTransaction({
           amount: tx.amount,
           category_id: tx.category_id,
-          currency: 'USD',
+          currency: currency,
           date: today,
           description: tx.description,
           type: tx.type,
@@ -223,7 +226,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
                         "text-lg font-bold font-manrope",
                         tx.type === 'expense' ? 'text-rose-600' : 'text-secondary'
                       )}>
-                        {tx.type === 'expense' ? '-' : '+'}${tx.amount}
+                        {tx.type === 'expense' ? '-' : '+'}{formatCurrency(tx.amount, currency)}
                       </p>
                     </div>
                     {!tx.category_id && (

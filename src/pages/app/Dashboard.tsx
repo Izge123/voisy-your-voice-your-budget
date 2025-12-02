@@ -20,7 +20,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency, getCurrencySymbol } from "@/lib/utils";
+import { useProfile } from "@/hooks/use-profile";
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
@@ -28,6 +29,8 @@ const Dashboard = () => {
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
   const { categories, isLoading: categoriesLoading } = useCategories();
+  const { profile } = useProfile();
+  const currency = profile?.currency || 'USD';
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [isManualOpen, setIsManualOpen] = useState(false);
@@ -59,7 +62,7 @@ const Dashboard = () => {
     addTransaction({
       amount: parseFloat(amount),
       category_id: selectedCategory,
-      currency: 'USD',
+      currency: currency,
       date: format(date, 'yyyy-MM-dd'),
       description: comment || null,
       type: transactionType as 'income' | 'expense',
@@ -85,7 +88,7 @@ const Dashboard = () => {
       <div className="space-y-2">
         <Label className="text-sm text-muted-foreground">Сумма</Label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">₽</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">{getCurrencySymbol(currency)}</span>
           <Input
             type="number"
             placeholder="0"
@@ -253,7 +256,7 @@ const Dashboard = () => {
               {balanceLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
-                `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                formatCurrency(balance, currency)
               )}
             </h2>
 
@@ -267,7 +270,7 @@ const Dashboard = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-white/60 font-inter">Доходы</p>
-                    <p className="text-sm font-bold font-manrope text-secondary">+${income.toFixed(0)}</p>
+                    <p className="text-sm font-bold font-manrope text-secondary">+{formatCurrency(income, currency)}</p>
                   </div>
                 </div>
                 <div className="w-px h-10 bg-white/20"></div>
@@ -277,7 +280,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter">Расходы</p>
-                    <p className="text-sm font-bold font-manrope text-rose-300">-${expenses.toFixed(0)}</p>
+                    <p className="text-sm font-bold font-manrope text-rose-300">-{formatCurrency(expenses, currency)}</p>
                   </div>
                 </div>
               </div>
@@ -289,7 +292,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-xs text-white/60 font-inter">Экономия</p>
-                  <p className="text-sm font-bold font-manrope text-amber-300">${savings.toFixed(0)}</p>
+                  <p className="text-sm font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
                 </div>
               </div>
 
@@ -302,7 +305,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Доходы</p>
-                    <p className="text-lg font-bold font-manrope text-secondary">+${income.toFixed(2)}</p>
+                    <p className="text-lg font-bold font-manrope text-secondary">+{formatCurrency(income, currency)}</p>
                   </div>
                 </div>
 
@@ -313,7 +316,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Расходы</p>
-                    <p className="text-lg font-bold font-manrope text-rose-300">-${expenses.toFixed(2)}</p>
+                    <p className="text-lg font-bold font-manrope text-rose-300">-{formatCurrency(expenses, currency)}</p>
                   </div>
                 </div>
 
@@ -324,7 +327,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Экономия</p>
-                    <p className="text-lg font-bold font-manrope text-amber-300">${savings.toFixed(2)}</p>
+                    <p className="text-lg font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
                   </div>
                 </div>
               </div>
@@ -444,7 +447,7 @@ const Dashboard = () => {
                     <p className={`text-base font-bold font-manrope ${
                       isExpense ? 'text-rose-600' : 'text-secondary'
                     }`}>
-                      {isExpense ? '-' : '+'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {isExpense ? '-' : '+'}{formatCurrency(amount, currency)}
                     </p>
                   </div>
                 );

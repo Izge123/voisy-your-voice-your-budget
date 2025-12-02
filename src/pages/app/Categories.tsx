@@ -135,14 +135,17 @@ const Categories = () => {
           }
         }}
       >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="group">
-            Создать Группу
-          </TabsTrigger>
-          <TabsTrigger value="subcategory">
-            Создать Подкатегорию
-          </TabsTrigger>
-        </TabsList>
+        {/* Показываем вкладки только если редактируем существующую категорию */}
+        {editingCategory && (
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="group">
+              Создать Группу
+            </TabsTrigger>
+            <TabsTrigger value="subcategory">
+              Создать Подкатегорию
+            </TabsTrigger>
+          </TabsList>
+        )}
 
         {/* TAB 1: Create Group */}
         <TabsContent value="group" className="space-y-4 mt-4">
@@ -235,111 +238,65 @@ const Categories = () => {
           </div>
         </TabsContent>
 
-        {/* TAB 2: Create Subcategory */}
-        <TabsContent value="subcategory" className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label>Тип категории</Label>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                type="button"
-                variant={categoryType === 'expense' ? 'default' : 'outline'}
-                onClick={() => {
-                  setCategoryType('expense');
-                  setSelectedParentId(''); // Reset parent when type changes
-                }}
-                className={cn(
-                  "h-10 font-semibold",
-                  categoryType === 'expense' && "bg-rose-500 hover:bg-rose-600 text-white"
-                )}
-              >
-                Расход
-              </Button>
-              <Button
-                type="button"
-                variant={categoryType === 'income' ? 'default' : 'outline'}
-                onClick={() => {
-                  setCategoryType('income');
-                  setSelectedParentId(''); // Reset parent when type changes
-                }}
-                className={cn(
-                  "h-10 font-semibold",
-                  categoryType === 'income' && "bg-emerald-500 hover:bg-emerald-600 text-white"
-                )}
-              >
-                Доход
-              </Button>
-              <Button
-                type="button"
-                variant={categoryType === 'savings' ? 'default' : 'outline'}
-                onClick={() => {
-                  setCategoryType('savings');
-                  setSelectedParentId(''); // Reset parent when type changes
-                }}
-                className={cn(
-                  "h-10 font-semibold",
-                  categoryType === 'savings' && "bg-blue-500 hover:bg-blue-600 text-white"
-                )}
-              >
-                Сбережение
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Выберите группу</Label>
-            <Select value={selectedParentId} onValueChange={setSelectedParentId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите родительскую группу" />
-              </SelectTrigger>
-              <SelectContent>
-                {rootCategories.length === 0 ? (
-                  <div className="p-2 text-sm text-muted-foreground text-center">
-                    Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
-                  </div>
-                ) : (
-                  rootCategories.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{group.icon}</span>
-                        <span>{group.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Название подкатегории</Label>
-            <Input
-              ref={nameInputRef}
-              placeholder="Например: Такси"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              autoFocus
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Иконка (опционально)</Label>
-            <div className="grid grid-cols-7 gap-2">
-              {emojiCategories.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => setCategoryIcon(emoji)}
-                  className={cn(
-                    "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
-                    categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+        {/* TAB 2: Create Subcategory - только при редактировании */}
+        {editingCategory && (
+          <TabsContent value="subcategory" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Выберите группу</Label>
+              <Select value={selectedParentId} onValueChange={setSelectedParentId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите родительскую группу" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rootCategories.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
+                    </div>
+                  ) : (
+                    rootCategories.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{group.icon}</span>
+                          <span>{group.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
                   )}
-                >
-                  {emoji}
-                </button>
-              ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
-        </TabsContent>
+
+            <div className="space-y-2">
+              <Label>Название подкатегории</Label>
+              <Input
+                ref={nameInputRef}
+                placeholder="Например: Такси"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Иконка (опционально)</Label>
+              <div className="grid grid-cols-7 gap-2">
+                {emojiCategories.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setCategoryIcon(emoji)}
+                    className={cn(
+                      "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
+                      categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
 
       <Button

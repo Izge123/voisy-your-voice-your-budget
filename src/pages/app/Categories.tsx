@@ -27,6 +27,7 @@ const Categories = () => {
   
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [parentCategoryForSubcategory, setParentCategoryForSubcategory] = useState<Category | null>(null);
   const [activeTab, setActiveTab] = useState<'group' | 'subcategory'>('group');
   const [categoryType, setCategoryType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [categoryName, setCategoryName] = useState('');
@@ -112,6 +113,7 @@ const Categories = () => {
   const resetForm = () => {
     setIsAddOpen(false);
     setEditingCategory(null);
+    setParentCategoryForSubcategory(null);
     setCategoryName('');
     setCategoryIcon('');
     setCategoryColor('#6366f1');
@@ -124,13 +126,28 @@ const Categories = () => {
       <Tabs 
         value={activeTab} 
         onValueChange={(v) => {
-          setActiveTab(v as 'group' | 'subcategory');
-          // Reset editing mode when switching tabs
-          if (editingCategory) {
-            setEditingCategory(null);
+          const newTab = v as 'group' | 'subcategory';
+          setActiveTab(newTab);
+          
+          // При переключении на вкладку "Создать Подкатегорию"
+          if (newTab === 'subcategory' && editingCategory) {
+            // Сохраняем текущую категорию как родителя для подкатегории
+            setParentCategoryForSubcategory(editingCategory);
+            setSelectedParentId(editingCategory.id);
+            // Очищаем поля для новой подкатегории
             setCategoryName('');
             setCategoryIcon('');
             setCategoryColor('#6366f1');
+          }
+          
+          // При переключении обратно на "Редактировать группу"
+          if (newTab === 'group' && parentCategoryForSubcategory) {
+            // Восстанавливаем данные редактируемой группы
+            const categoryToEdit = parentCategoryForSubcategory;
+            setCategoryName(categoryToEdit.name);
+            setCategoryIcon(categoryToEdit.icon || '');
+            setCategoryColor(categoryToEdit.color || '#6366f1');
+            setCategoryType(categoryToEdit.type);
             setSelectedParentId('');
           }
         }}
@@ -139,7 +156,7 @@ const Categories = () => {
         {editingCategory && (
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="group">
-              Создать Группу
+              Редактировать группу
             </TabsTrigger>
             <TabsTrigger value="subcategory">
               Создать Подкатегорию
@@ -238,32 +255,20 @@ const Categories = () => {
           </div>
         </TabsContent>
 
-        {/* TAB 2: Create Subcategory - только при редактировании */}
-        {editingCategory && (
+        {/* TAB 2: Create Subcategory - только при создании подкатегории */}
+        {parentCategoryForSubcategory && (
           <TabsContent value="subcategory" className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label>Выберите группу</Label>
-              <Select value={selectedParentId} onValueChange={setSelectedParentId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите родительскую группу" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rootCategories.length === 0 ? (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
-                    </div>
-                  ) : (
-                    rootCategories.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{group.icon}</span>
-                          <span>{group.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Label>Родительская группа</Label>
+              <div className="flex items-center gap-3 p-3 border border-border rounded-lg bg-muted/50">
+                <div 
+                  className="h-10 w-10 rounded-full flex items-center justify-center text-xl shrink-0"
+                  style={{ backgroundColor: `${parentCategoryForSubcategory.color}20` || '#6366f120' }}
+                >
+                  {parentCategoryForSubcategory.icon || "📁"}
+                </div>
+                <span className="font-semibold text-foreground">{parentCategoryForSubcategory.name}</span>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -337,7 +342,11 @@ const Categories = () => {
               <DrawerContent className="max-h-[90vh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать категорию' : 'Создать категорию'}
+                    {activeTab === 'subcategory' 
+                      ? 'Создать подкатегорию' 
+                      : editingCategory 
+                      ? 'Редактировать категорию' 
+                      : 'Создать категорию'}
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6 overflow-y-auto">
@@ -355,7 +364,11 @@ const Categories = () => {
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать категорию' : 'Создать категорию'}
+                    {activeTab === 'subcategory' 
+                      ? 'Создать подкатегорию' 
+                      : editingCategory 
+                      ? 'Редактировать категорию' 
+                      : 'Создать категорию'}
                   </DialogTitle>
                 </DialogHeader>
                 <CategoryDialog />

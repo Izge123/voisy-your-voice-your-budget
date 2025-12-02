@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { format, isToday, isYesterday } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Bell, Check, Trash2, CheckCheck, Loader2 } from "lucide-react";
+import { Bell, Check, Trash2, CheckCheck, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SettingsPageHeader from "@/components/SettingsPageHeader";
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, useDeleteNotification, useUnreadCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
+import TutorialDrawer from "@/components/TutorialDrawer";
 
 const getNotificationIcon = (type: string, icon: string | null) => {
   if (icon) return icon;
@@ -44,8 +46,28 @@ const NotificationsSettings = () => {
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
   const deleteNotification = useDeleteNotification();
+  
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [selectedTutorial, setSelectedTutorial] = useState<any>(null);
 
   const groupedNotifications = groupNotificationsByDate(notifications);
+
+  const isTutorialNotification = (notification: any) => {
+    return notification.type === 'tutorial' && notification.metadata?.is_tutorial;
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (isTutorialNotification(notification)) {
+      setSelectedTutorial(notification);
+      setTutorialOpen(true);
+    }
+  };
+
+  const handleTutorialComplete = () => {
+    if (selectedTutorial && !selectedTutorial.is_read) {
+      markAsRead.mutate(selectedTutorial.id);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -88,67 +110,95 @@ const NotificationsSettings = () => {
             <div key={dateLabel}>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3">{dateLabel}</h3>
               <div className="space-y-2">
-                {items.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={cn(
-                      "flex items-start gap-3 p-4 rounded-2xl border transition-colors",
-                      notification.is_read
-                        ? "bg-background border-border"
-                        : "bg-primary/5 border-primary/20"
-                    )}
-                  >
-                    <div className="text-2xl shrink-0">
-                      {getNotificationIcon(notification.type, notification.icon)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className={cn(
-                          "text-sm",
-                          notification.is_read ? "font-medium" : "font-semibold"
-                        )}>
-                          {notification.title}
-                        </h4>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {format(new Date(notification.created_at), "HH:mm")}
-                        </span>
-                      </div>
-                      {notification.message && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                          {notification.message}
-                        </p>
+                {items.map((notification) => {
+                  const isTutorial = isTutorialNotification(notification);
+                  
+                  return (
+                    <div
+                      key={notification.id}
+                      className={cn(
+                        "flex items-start gap-3 p-4 rounded-2xl border transition-colors",
+                        notification.is_read
+                          ? "bg-background border-border"
+                          : "bg-primary/5 border-primary/20",
+                        isTutorial && "cursor-pointer hover:bg-muted/50"
                       )}
-                      <div className="flex items-center gap-2 mt-2">
-                        {!notification.is_read && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs gap-1"
-                            onClick={() => markAsRead.mutate(notification.id)}
-                            disabled={markAsRead.isPending}
-                          >
-                            <Check className="h-3 w-3" />
-                            Прочитано
-                          </Button>
+                      onClick={isTutorial ? () => handleNotificationClick(notification) : undefined}
+                    >
+                      <div className="text-2xl shrink-0">
+                        {getNotificationIcon(notification.type, notification.icon)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className={cn(
+                            "text-sm",
+                            notification.is_read ? "font-medium" : "font-semibold"
+                          )}>
+                            {notification.title}
+                          </h4>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {format(new Date(notification.created_at), "HH:mm")}
+                          </span>
+                        </div>
+                        {notification.message && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                            {notification.message}
+                          </p>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
-                          onClick={() => deleteNotification.mutate(notification.id)}
-                          disabled={deleteNotification.isPending}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Удалить
-                        </Button>
+                        {isTutorial ? (
+                          <div className="flex items-center gap-1 mt-2 text-primary text-sm font-medium">
+                            Открыть туториал
+                            <ChevronRight className="h-4 w-4" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 mt-2">
+                            {!notification.is_read && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs gap-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead.mutate(notification.id);
+                                }}
+                                disabled={markAsRead.isPending}
+                              >
+                                <Check className="h-3 w-3" />
+                                Прочитано
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteNotification.mutate(notification.id);
+                              }}
+                              disabled={deleteNotification.isPending}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Удалить
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {selectedTutorial && (
+        <TutorialDrawer
+          open={tutorialOpen}
+          onOpenChange={setTutorialOpen}
+          steps={selectedTutorial.metadata?.steps || []}
+          onComplete={handleTutorialComplete}
+        />
       )}
     </div>
   );

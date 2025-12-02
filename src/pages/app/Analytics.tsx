@@ -1,51 +1,122 @@
-import { useState } from "react";
-import { TrendingDown, TrendingUp, DollarSign, ShoppingCart, Coffee, Car, Home as HomeIcon, Utensils, Plane, Gift, Heart } from "lucide-react";
+import { useState, useMemo } from "react";
+import { TrendingDown, TrendingUp, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { useTransactions } from "@/hooks/use-transactions";
+import { startOfWeek, startOfMonth, startOfYear, format, eachDayOfInterval, subDays } from "date-fns";
+import { ru } from "date-fns/locale";
 
 const Analytics = () => {
   const [period, setPeriod] = useState("month");
+  const { transactions, isLoading } = useTransactions();
 
-  // Summary data
-  const summaryStats = [
-    { label: "Всего трат", value: "$2,450", icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
-    { label: "Средний чек", value: "$45", icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Сэкономлено", value: "$320", icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
-  ];
+  // Filter transactions by period
+  const filteredTransactions = useMemo(() => {
+    const now = new Date();
+    let startDate: Date;
 
-  // Pie chart data (Expenses by category)
-  const expensesByCategory = [
-    { name: "Продукты", value: 850, color: "#ef4444", icon: ShoppingCart },
-    { name: "Транспорт", value: 420, color: "#3b82f6", icon: Car },
-    { name: "Еда", value: 380, color: "#f59e0b", icon: Utensils },
-    { name: "Кафе", value: 320, color: "#f97316", icon: Coffee },
-    { name: "Жильё", value: 280, color: "#8b5cf6", icon: HomeIcon },
-    { name: "Другое", value: 200, color: "#6b7280", icon: Gift },
-  ];
+    switch (period) {
+      case 'week':
+        startDate = startOfWeek(now, { locale: ru });
+        break;
+      case 'year':
+        startDate = startOfYear(now);
+        break;
+      case 'month':
+      default:
+        startDate = startOfMonth(now);
+    }
+
+    return transactions.filter(t => {
+      if (!t.date) return false;
+      return new Date(t.date) >= startDate;
+    });
+  }, [transactions, period]);
+
+  // Calculate summary stats
+  const summaryStats = useMemo(() => {
+    const expenses = filteredTransactions
+      .filter(t => t.category?.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const expenseCount = filteredTransactions.filter(t => t.category?.type === 'expense').length;
+    const avgExpense = expenseCount > 0 ? expenses / expenseCount : 0;
+
+    const income = filteredTransactions
+      .filter(t => t.category?.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const saved = income - expenses;
+
+    return [
+      { label: "Всего трат", value: `$${expenses.toFixed(0)}`, icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
+      { label: "Средний чек", value: `$${avgExpense.toFixed(0)}`, icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
+      { label: "Сэкономлено", value: `$${saved.toFixed(0)}`, icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
+    ];
+  }, [filteredTransactions]);
+
+  // Expenses by category
+  const expensesByCategory = useMemo(() => {
+    const categoryMap = new Map<string, { name: string; value: number; color: string; icon: string }>();
+
+    filteredTransactions
+      .filter(t => t.category?.type === 'expense')
+      .forEach(t => {
+        if (!t.category) return;
+        
+        const existing = categoryMap.get(t.category.id);
+        if (existing) {
+          existing.value += t.amount;
+        } else {
+          categoryMap.set(t.category.id, {
+            name: t.category.name,
+            value: t.amount,
+            color: t.category.color || '#6b7280',
+            icon: t.category.icon || '💰',
+          });
+        }
+      });
+
+    return Array.from(categoryMap.values()).sort((a, b) => b.value - a.value);
+  }, [filteredTransactions]);
 
   const totalExpenses = expensesByCategory.reduce((sum, item) => sum + item.value, 0);
 
-  // Bar chart data (Daily expenses)
-  const dailyExpenses = [
-    { day: "Пн", amount: 120 },
-    { day: "Вт", amount: 250 },
-    { day: "Ср", amount: 180 },
-    { day: "Чт", amount: 350 },
-    { day: "Пт", amount: 420 },
-    { day: "Сб", amount: 280 },
-    { day: "Вс", amount: 150 },
-  ];
+  // Daily expenses for bar chart
+  const dailyExpenses = useMemo(() => {
+    const days = eachDayOfInterval({
+      start: subDays(new Date(), 6),
+      end: new Date(),
+    });
+
+    return days.map(day => {
+      const dayExpenses = filteredTransactions
+        .filter(t => {
+          if (!t.date || t.category?.type !== 'expense') return false;
+          const transactionDate = format(new Date(t.date), 'yyyy-MM-dd');
+          const targetDate = format(day, 'yyyy-MM-dd');
+          return transactionDate === targetDate;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      return {
+        day: format(day, 'EEE', { locale: ru }),
+        amount: dayExpenses,
+      };
+    });
+  }, [filteredTransactions]);
 
   // Top categories with progress
-  const topCategories = expensesByCategory
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5)
-    .map(cat => ({
-      ...cat,
-      percentage: Math.round((cat.value / totalExpenses) * 100)
-    }));
+  const topCategories = useMemo(() => {
+    return expensesByCategory
+      .slice(0, 5)
+      .map(cat => ({
+        ...cat,
+        percentage: totalExpenses > 0 ? Math.round((cat.value / totalExpenses) * 100) : 0,
+      }));
+  }, [expensesByCategory, totalExpenses]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -81,6 +152,14 @@ const Analytics = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-6">
       {/* HEADER */}
@@ -97,7 +176,15 @@ const Analytics = () => {
         </Tabs>
       </header>
 
-      <div className="px-4 md:px-6 space-y-6">
+      {filteredTransactions.length === 0 ? (
+        <div className="px-4 md:px-6">
+          <div className="text-center py-16">
+            <p className="text-lg text-muted-foreground font-inter">Нет данных за выбранный период</p>
+            <p className="text-sm text-muted-foreground font-inter mt-2">Добавьте транзакции, чтобы увидеть аналитику</p>
+          </div>
+        </div>
+      ) : (
+        <div className="px-4 md:px-6 space-y-6">
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
           {summaryStats.map((stat, index) => {
@@ -153,8 +240,7 @@ const Analytics = () => {
             {/* Legend */}
             <div className="grid grid-cols-2 gap-3 mt-6">
               {expensesByCategory.map((category, index) => {
-                const Icon = category.icon;
-                const percentage = Math.round((category.value / totalExpenses) * 100);
+                const percentage = totalExpenses > 0 ? Math.round((category.value / totalExpenses) * 100) : 0;
                 return (
                   <div key={index} className="flex items-center gap-3">
                     <div className="flex items-center gap-2 flex-1">
@@ -162,7 +248,7 @@ const Analytics = () => {
                         className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: category.color }}
                       />
-                      <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-xl shrink-0">{category.icon}</span>
                       <span className="text-sm font-inter text-foreground truncate">{category.name}</span>
                     </div>
                     <span className="text-sm font-bold font-manrope text-muted-foreground">{percentage}%</span>
@@ -227,7 +313,6 @@ const Analytics = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {topCategories.map((category, index) => {
-              const Icon = category.icon;
               return (
                 <div
                   key={index}
@@ -237,10 +322,10 @@ const Analytics = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div
-                        className="flex items-center justify-center w-10 h-10 rounded-xl"
+                        className="flex items-center justify-center w-10 h-10 rounded-xl text-xl"
                         style={{ backgroundColor: `${category.color}15` }}
                       >
-                        <Icon className="h-5 w-5" style={{ color: category.color }} />
+                        {category.icon}
                       </div>
                       <span className="text-sm font-semibold font-inter text-foreground">
                         {category.name}
@@ -251,7 +336,7 @@ const Analytics = () => {
                         {category.percentage}%
                       </span>
                       <span className="text-base font-bold font-manrope text-foreground">
-                        ${category.value}
+                        ${category.value.toFixed(0)}
                       </span>
                     </div>
                   </div>
@@ -269,7 +354,8 @@ const Analytics = () => {
             })}
           </CardContent>
         </Card>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -121,22 +121,22 @@ const Categories = () => {
 
   const CategoryDialog = () => (
     <div className="space-y-6">
-      <Tabs 
-        value={activeTab} 
-        onValueChange={(v) => {
-          setActiveTab(v as 'group' | 'subcategory');
-          // Reset editing mode when switching tabs
-          if (editingCategory) {
-            setEditingCategory(null);
-            setCategoryName('');
-            setCategoryIcon('');
-            setCategoryColor('#6366f1');
-            setSelectedParentId('');
-          }
-        }}
-      >
-        {/* Показываем вкладки только если редактируем существующую категорию */}
-        {editingCategory && (
+      {/* Если редактируем - показываем Tabs с вкладками, иначе просто форму */}
+      {editingCategory ? (
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(v) => {
+            setActiveTab(v as 'group' | 'subcategory');
+            // Reset editing mode when switching tabs
+            if (editingCategory) {
+              setEditingCategory(null);
+              setCategoryName('');
+              setCategoryIcon('');
+              setCategoryColor('#6366f1');
+              setSelectedParentId('');
+            }
+          }}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="group">
               Создать Группу
@@ -145,10 +145,159 @@ const Categories = () => {
               Создать Подкатегорию
             </TabsTrigger>
           </TabsList>
-        )}
 
-        {/* TAB 1: Create Group */}
-        <TabsContent value="group" className="space-y-4 mt-4">
+          {/* TAB 1: Create Group */}
+          <TabsContent value="group" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Тип категории</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  type="button"
+                  variant={categoryType === 'expense' ? 'default' : 'outline'}
+                  onClick={() => setCategoryType('expense')}
+                  className={cn(
+                    "h-10 font-semibold",
+                    categoryType === 'expense' && "bg-rose-500 hover:bg-rose-600 text-white"
+                  )}
+                >
+                  Расход
+                </Button>
+                <Button
+                  type="button"
+                  variant={categoryType === 'income' ? 'default' : 'outline'}
+                  onClick={() => setCategoryType('income')}
+                  className={cn(
+                    "h-10 font-semibold",
+                    categoryType === 'income' && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  )}
+                >
+                  Доход
+                </Button>
+                <Button
+                  type="button"
+                  variant={categoryType === 'savings' ? 'default' : 'outline'}
+                  onClick={() => setCategoryType('savings')}
+                  className={cn(
+                    "h-10 font-semibold",
+                    categoryType === 'savings' && "bg-blue-500 hover:bg-blue-600 text-white"
+                  )}
+                >
+                  Сбережение
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Название группы</Label>
+              <Input
+                ref={nameInputRef}
+                placeholder="Например: Транспорт"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Иконка</Label>
+              <div className="grid grid-cols-7 gap-2">
+                {emojiCategories.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setCategoryIcon(emoji)}
+                    className={cn(
+                      "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
+                      categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Цвет</Label>
+              <div className="grid grid-cols-8 gap-2">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setCategoryColor(color)}
+                    className={cn(
+                      "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
+                      categoryColor === color ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-border'
+                    )}
+                    style={{ backgroundColor: color }}
+                    aria-label={`Select color ${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* TAB 2: Create Subcategory */}
+          <TabsContent value="subcategory" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Выберите группу</Label>
+              <Select value={selectedParentId} onValueChange={setSelectedParentId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите родительскую группу" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rootCategories.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
+                    </div>
+                  ) : (
+                    rootCategories.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{group.icon}</span>
+                          <span>{group.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Название подкатегории</Label>
+              <Input
+                ref={nameInputRef}
+                placeholder="Например: Такси"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Иконка (опционально)</Label>
+              <div className="grid grid-cols-7 gap-2">
+                {emojiCategories.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setCategoryIcon(emoji)}
+                    className={cn(
+                      "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
+                      categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      ) : (
+        // Форма создания новой категории (без вкладок)
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label>Тип категории</Label>
             <div className="grid grid-cols-3 gap-2">
@@ -236,68 +385,8 @@ const Categories = () => {
               ))}
             </div>
           </div>
-        </TabsContent>
-
-        {/* TAB 2: Create Subcategory - только при редактировании */}
-        {editingCategory && (
-          <TabsContent value="subcategory" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Выберите группу</Label>
-              <Select value={selectedParentId} onValueChange={setSelectedParentId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите родительскую группу" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rootCategories.length === 0 ? (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
-                    </div>
-                  ) : (
-                    rootCategories.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{group.icon}</span>
-                          <span>{group.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Название подкатегории</Label>
-              <Input
-                ref={nameInputRef}
-                placeholder="Например: Такси"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-                autoFocus
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Иконка (опционально)</Label>
-              <div className="grid grid-cols-7 gap-2">
-                {emojiCategories.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setCategoryIcon(emoji)}
-                    className={cn(
-                      "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
-                      categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
-                    )}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-        )}
-      </Tabs>
+        </div>
+      )}
 
       <Button
         onClick={handleSave}

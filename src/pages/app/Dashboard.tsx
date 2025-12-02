@@ -1,18 +1,41 @@
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, LogOut, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBalance } from "@/hooks/use-transactions";
 import { useTransactions } from "@/hooks/use-transactions";
+import { useCategories } from "@/hooks/use-categories";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
+  const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   const { balance, isLoading: balanceLoading } = useBalance();
-  const { transactions, isLoading: transactionsLoading } = useTransactions(5);
+  const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
+  const { categories, isLoading: categoriesLoading } = useCategories();
+
+  const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+  const [isManualOpen, setIsManualOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState("expense");
+  const [amount, setAmount] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [date, setDate] = useState<Date>(new Date());
+  const [comment, setComment] = useState("");
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();
@@ -25,6 +48,136 @@ const Dashboard = () => {
   const expenses = transactions
     .filter(t => t.category?.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
+
+  const filteredCategories = useMemo(() => {
+    return categories.filter(cat => cat.type === transactionType);
+  }, [categories, transactionType]);
+
+  const handleManualSave = () => {
+    if (!user || !amount || !selectedCategory) return;
+
+    addTransaction({
+      amount: parseFloat(amount),
+      category_id: selectedCategory,
+      currency: 'USD',
+      date: format(date, 'yyyy-MM-dd'),
+      description: comment || null,
+    });
+
+    setIsManualOpen(false);
+    setAmount("");
+    setSelectedCategory("");
+    setComment("");
+    setTransactionType("expense");
+  };
+
+  const AddTransactionForm = () => (
+    <div className="space-y-6">
+      <Tabs value={transactionType} onValueChange={setTransactionType} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="expense">Расход</TabsTrigger>
+          <TabsTrigger value="income">Доход</TabsTrigger>
+          <TabsTrigger value="transfer">Перевод</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="space-y-2">
+        <Label className="text-sm text-muted-foreground">Сумма</Label>
+        <div className="relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">₽</span>
+          <Input
+            type="number"
+            placeholder="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="text-4xl font-bold h-20 pl-14 text-center border-2"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-sm text-muted-foreground">Категория</Label>
+        {categoriesLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : filteredCategories.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-sm text-muted-foreground">Нет категорий</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-3">
+            {filteredCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={cn(
+                  "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
+                  selectedCategory === cat.id
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                )}
+              >
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                  style={{ backgroundColor: `${cat.color}15` }}
+                >
+                  {cat.icon}
+                </div>
+                <span className="text-xs font-medium text-center">{cat.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm text-muted-foreground">Дата</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-start text-left font-normal">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP", { locale: ru }) : "Выберите дату"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => newDate && setDate(newDate)}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm text-muted-foreground">Комментарий (опционально)</Label>
+        <Textarea
+          placeholder="Например: Продукты на неделю"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="resize-none"
+          rows={3}
+        />
+      </div>
+
+      <Button
+        onClick={handleManualSave}
+        className="w-full h-12 text-base font-semibold rounded-2xl"
+        disabled={!amount || !selectedCategory || isAddingTransaction}
+      >
+        {isAddingTransaction ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Сохранение...
+          </>
+        ) : (
+          'Сохранить'
+        )}
+      </Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-6">
@@ -104,7 +257,10 @@ const Dashboard = () => {
 
         {/* VOICE ACTION */}
         <div className="flex flex-col items-center justify-center py-8 md:py-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
-          <button className="relative group">
+          <button 
+            className="relative group"
+            onClick={() => setIsVoiceOpen(true)}
+          >
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary to-indigo-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse"></div>
             
@@ -121,7 +277,11 @@ const Dashboard = () => {
 
         {/* QUICK ACTIONS */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide animate-fade-in" style={{ animationDelay: '200ms' }}>
-          <Button variant="outline" className="rounded-full gap-2 whitespace-nowrap font-inter">
+          <Button 
+            variant="outline" 
+            className="rounded-full gap-2 whitespace-nowrap font-inter"
+            onClick={() => setIsManualOpen(true)}
+          >
             <Plus className="h-4 w-4" />
             Добавить вручную
           </Button>

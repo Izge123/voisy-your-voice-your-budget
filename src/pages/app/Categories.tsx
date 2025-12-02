@@ -1,19 +1,23 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, ChevronDown, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCategories, Category } from "@/hooks/use-categories";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 const Categories = () => {
   const isMobile = useIsMobile();
-  const { categoriesTree, isLoading, addCategory, updateCategory, deleteCategory, isAddingCategory, isUpdatingCategory, isDeletingCategory } = useCategories();
+  const { categories, categoriesTree, isLoading, addCategory, updateCategory, deleteCategory, isAddingCategory, isUpdatingCategory, isDeletingCategory } = useCategories();
   
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -21,6 +25,7 @@ const Categories = () => {
   const [categoryName, setCategoryName] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
+  const [isSubcategory, setIsSubcategory] = useState(false);
   const [parentId, setParentId] = useState<string | null>(null);
 
   const colors = [
@@ -37,6 +42,7 @@ const Categories = () => {
 
   const handleSave = () => {
     if (!categoryName.trim()) return;
+    if (isSubcategory && !parentId) return;
 
     if (editingCategory) {
       updateCategory({
@@ -46,6 +52,7 @@ const Categories = () => {
           icon: categoryIcon,
           color: categoryColor,
           type: categoryType,
+          parent_id: isSubcategory ? parentId : null,
         }
       });
     } else {
@@ -54,7 +61,7 @@ const Categories = () => {
         type: categoryType,
         icon: categoryIcon,
         color: categoryColor,
-        parent_id: parentId,
+        parent_id: isSubcategory ? parentId : null,
       });
     }
 
@@ -67,13 +74,19 @@ const Categories = () => {
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
     setCategoryType(category.type as 'expense' | 'income');
+    setIsSubcategory(!!category.parent_id);
     setParentId(category.parent_id);
     setIsAddOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Удалить категорию? Все подкатегории также будут удалены.')) {
-      deleteCategory(id);
+  const handleDelete = (category: Category) => {
+    const hasChildren = category.children && category.children.length > 0;
+    const message = hasChildren 
+      ? `Удалить категорию "${category.name}"?\n\nВнимание: Все подкатегории (${category.children?.length}) также будут удалены.`
+      : `Удалить категорию "${category.name}"?`;
+    
+    if (confirm(message)) {
+      deleteCategory(category.id);
     }
   };
 
@@ -84,12 +97,21 @@ const Categories = () => {
     setCategoryIcon('');
     setCategoryColor('#6366f1');
     setCategoryType('expense');
+    setIsSubcategory(false);
     setParentId(null);
   };
 
+  // Get parent categories for the selected type
+  const parentCategories = categories.filter(
+    c => c.type === categoryType && !c.parent_id
+  );
+
   const CategoryForm = () => (
     <div className="space-y-6">
-      <Tabs value={categoryType} onValueChange={(v) => setCategoryType(v as 'expense' | 'income')}>
+      <Tabs value={categoryType} onValueChange={(v) => {
+        setCategoryType(v as 'expense' | 'income');
+        setParentId(null); // Reset parent when changing type
+      }}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="expense">Расход</TabsTrigger>
           <TabsTrigger value="income">Доход</TabsTrigger>
@@ -105,6 +127,51 @@ const Categories = () => {
         />
       </div>
 
+      {/* Subcategory Toggle */}
+      <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
+        <div className="space-y-0.5">
+          <Label className="text-base">Это подкатегория</Label>
+          <p className="text-sm text-muted-foreground">
+            Вложенная категория внутри родительской
+          </p>
+        </div>
+        <Switch
+          checked={isSubcategory}
+          onCheckedChange={(checked) => {
+            setIsSubcategory(checked);
+            if (!checked) setParentId(null);
+          }}
+        />
+      </div>
+
+      {/* Parent Category Selection */}
+      {isSubcategory && (
+        <div className="space-y-2">
+          <Label>Родительская категория</Label>
+          <Select value={parentId || undefined} onValueChange={setParentId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Выберите родителя" />
+            </SelectTrigger>
+            <SelectContent>
+              {parentCategories.length === 0 ? (
+                <div className="p-2 text-sm text-muted-foreground text-center">
+                  Нет родительских категорий
+                </div>
+              ) : (
+                parentCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{cat.icon}</span>
+                      <span>{cat.name}</span>
+                    </div>
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label>Иконка</Label>
         <div className="grid grid-cols-7 gap-2">
@@ -112,9 +179,10 @@ const Categories = () => {
             <button
               key={emoji}
               onClick={() => setCategoryIcon(emoji)}
-              className={`text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110 ${
+              className={cn(
+                "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
                 categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
-              }`}
+              )}
             >
               {emoji}
             </button>
@@ -129,9 +197,10 @@ const Categories = () => {
             <button
               key={color}
               onClick={() => setCategoryColor(color)}
-              className={`w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${
+              className={cn(
+                "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
                 categoryColor === color ? 'border-foreground ring-2 ring-offset-2 ring-primary' : 'border-border'
-              }`}
+              )}
               style={{ backgroundColor: color }}
             />
           ))}
@@ -141,7 +210,7 @@ const Categories = () => {
       <Button
         onClick={handleSave}
         className="w-full h-12 text-base font-semibold rounded-2xl"
-        disabled={!categoryName.trim() || isAddingCategory || isUpdatingCategory}
+        disabled={!categoryName.trim() || (isSubcategory && !parentId) || isAddingCategory || isUpdatingCategory}
       >
         {(isAddingCategory || isUpdatingCategory) ? (
           <>
@@ -155,58 +224,52 @@ const Categories = () => {
     </div>
   );
 
-  const CategoryCard = ({ category }: { category: Category }) => (
-    <Card className="group hover:shadow-md transition-all">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center w-12 h-12 rounded-2xl text-2xl"
-            style={{ backgroundColor: `${category.color}15` }}
+  const CategoryItem = ({ category, isChild = false }: { category: Category; isChild?: boolean }) => (
+    <div className={cn(
+      "flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group",
+      isChild && "ml-8 border-l-2 border-border pl-4"
+    )}>
+      <div
+        className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+        style={{ backgroundColor: `${category.color}15` }}
+      >
+        {category.icon}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <p className={cn(
+          "font-inter truncate",
+          isChild ? "text-sm text-muted-foreground" : "text-base font-semibold text-foreground"
+        )}>
+          {category.name}
+        </p>
+      </div>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
           >
-            {category.icon}
-          </div>
-          
-          <div className="flex-1">
-            <p className="font-semibold font-inter text-foreground">{category.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {category.type === 'expense' ? 'Расход' : 'Доход'}
-              {category.children && category.children.length > 0 && ` • ${category.children.length} подкат.`}
-            </p>
-          </div>
-
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleEdit(category)}
-              disabled={isUpdatingCategory}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDelete(category.id)}
-              disabled={isDeletingCategory}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Subcategories */}
-        {category.children && category.children.length > 0 && (
-          <div className="mt-3 ml-4 space-y-2 border-l-2 border-border pl-4">
-            {category.children.map((child) => (
-              <div key={child.id} className="flex items-center gap-2">
-                <span className="text-lg">{child.icon}</span>
-                <span className="text-sm font-inter text-muted-foreground">{child.name}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handleEdit(category)}>
+            <Edit2 className="mr-2 h-4 w-4" />
+            Редактировать
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => handleDelete(category)}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Удалить
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 
   return (
@@ -255,19 +318,12 @@ const Categories = () => {
 
       <div className="px-4 md:px-6 py-6">
         {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-12 h-12 rounded-2xl" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3">
+                <Skeleton className="w-10 h-10 rounded-xl" />
+                <Skeleton className="h-5 w-48 flex-1" />
+              </div>
             ))}
           </div>
         ) : categoriesTree.length === 0 ? (
@@ -281,11 +337,73 @@ const Categories = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {categoriesTree.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          <Accordion type="multiple" className="space-y-2">
+            {categoriesTree.map((category) => {
+              const hasChildren = category.children && category.children.length > 0;
+              
+              return (
+                <AccordionItem 
+                  key={category.id} 
+                  value={category.id}
+                  className="border border-border rounded-2xl bg-card overflow-hidden"
+                >
+                  {hasChildren ? (
+                    <>
+                      <AccordionTrigger className="hover:no-underline px-4 py-3 hover:bg-muted/50">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div
+                            className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+                            style={{ backgroundColor: `${category.color}15` }}
+                          >
+                            {category.icon}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-base font-semibold text-foreground font-inter">
+                              {category.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {category.children?.length} подкатегор{category.children?.length === 1 ? 'ия' : category.children?.length && category.children.length < 5 ? 'ии' : 'ий'}
+                            </p>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="shrink-0">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(category)}>
+                                <Edit2 className="mr-2 h-4 w-4" />
+                                Редактировать
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(category)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Удалить
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-3 pt-0">
+                        <div className="space-y-1 border-l-2 border-border ml-5 pl-4">
+                          {category.children?.map((child) => (
+                            <CategoryItem key={child.id} category={child} isChild />
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </>
+                  ) : (
+                    <div className="px-4 py-3">
+                      <CategoryItem category={category} />
+                    </div>
+                  )}
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
         )}
       </div>
     </div>

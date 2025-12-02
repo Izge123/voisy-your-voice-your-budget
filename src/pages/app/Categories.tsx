@@ -67,15 +67,21 @@ const Categories = () => {
     if (!categoryName.trim()) return;
     if (activeTab === 'subcategory' && !selectedParentId) return;
 
+    // ЗАЩИТА: Если мы на вкладке подкатегории, всегда создаём НОВУЮ категорию
+    const isCreatingSubcategory = activeTab === 'subcategory';
+
     const categoryData = {
       name: categoryName,
       type: categoryType,
       icon: categoryIcon || null,
       color: categoryColor,
-      parent_id: activeTab === 'subcategory' ? selectedParentId : null,
+      parent_id: isCreatingSubcategory ? selectedParentId : null,
     };
 
-    if (editingCategory) {
+    // При создании подкатегории ВСЕГДА вызываем addCategory (не updateCategory!)
+    if (isCreatingSubcategory) {
+      addCategory(categoryData);
+    } else if (editingCategory) {
       updateCategory({
         id: editingCategory.id,
         updates: categoryData
@@ -134,6 +140,8 @@ const Categories = () => {
             // Сохраняем текущую категорию как родителя для подкатегории
             setParentCategoryForSubcategory(editingCategory);
             setSelectedParentId(editingCategory.id);
+            // ВАЖНО: Очищаем editingCategory чтобы handleSave вызвал addCategory!
+            setEditingCategory(null);
             // Очищаем поля для новой подкатегории
             setCategoryName('');
             setCategoryIcon('');
@@ -142,6 +150,8 @@ const Categories = () => {
           
           // При переключении обратно на "Редактировать группу"
           if (newTab === 'group' && parentCategoryForSubcategory) {
+            // ВАЖНО: Восстанавливаем editingCategory!
+            setEditingCategory(parentCategoryForSubcategory);
             // Восстанавливаем данные редактируемой группы
             const categoryToEdit = parentCategoryForSubcategory;
             setCategoryName(categoryToEdit.name);
@@ -152,8 +162,8 @@ const Categories = () => {
           }
         }}
       >
-        {/* Показываем вкладки только если редактируем существующую категорию */}
-        {editingCategory && (
+        {/* Показываем вкладки если редактируем категорию ИЛИ создаём подкатегорию */}
+        {(editingCategory || parentCategoryForSubcategory) && (
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="group">
               Редактировать группу

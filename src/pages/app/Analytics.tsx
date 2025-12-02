@@ -63,23 +63,20 @@ const Analytics = () => {
 
   // Calculate summary stats
   const summaryStats = useMemo(() => {
-    const expenses = filteredTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const expenseCount = filteredTransactions.filter(t => t.type === 'expense').length;
-    const avgExpense = expenseCount > 0 ? expenses / expenseCount : 0;
-
     const income = filteredTransactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const saved = income - expenses;
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const savings = income - expenses;
 
     return [
-      { label: "Всего трат", value: `$${expenses.toFixed(0)}`, icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
-      { label: "Средний чек", value: `$${avgExpense.toFixed(0)}`, icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
-      { label: "Сэкономлено", value: `$${saved.toFixed(0)}`, icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
+      { label: "Доходы", value: `$${income.toFixed(0)}`, icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
+      { label: "Расходы", value: `$${expenses.toFixed(0)}`, icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
+      { label: "Экономия", value: `$${savings.toFixed(0)}`, icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
     ];
   }, [filteredTransactions]);
 

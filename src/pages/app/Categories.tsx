@@ -75,6 +75,15 @@ const Categories = () => {
         color: categoryColor,
         parent_id: activeTab === 'child' ? parentId : null,
       });
+      
+      // Automatically open parent category when adding a subcategory
+      if (activeTab === 'child' && parentId) {
+        setOpenCategories(prev => {
+          const newSet = new Set(prev);
+          newSet.add(parentId);
+          return newSet;
+        });
+      }
     }
 
     resetForm();
@@ -266,8 +275,15 @@ const Categories = () => {
     const isOpen = openCategories.has(category.id);
 
     return (
-      <div className="border border-border rounded-2xl bg-card overflow-hidden">
-        <div className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors">
+      <div className="border border-border rounded-2xl bg-card overflow-hidden shadow-sm">
+        {/* Parent Category Row - Always clickable to expand/collapse */}
+        <button
+          onClick={() => hasChildren && toggleCategory(category.id)}
+          className={cn(
+            "w-full flex items-center gap-3 p-4 transition-colors text-left",
+            hasChildren ? "hover:bg-muted/50 cursor-pointer" : "cursor-default"
+          )}
+        >
           <div
             className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl shrink-0"
             style={{ backgroundColor: `${category.color}20` }}
@@ -288,40 +304,42 @@ const Categories = () => {
 
           <div className="flex items-center gap-2 shrink-0">
             {hasChildren && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toggleCategory(category.id)}
-              >
-                <ChevronDown className={cn(
-                  "h-5 w-5 transition-transform",
-                  isOpen && "rotate-180"
-                )} />
-              </Button>
+              <ChevronDown className={cn(
+                "h-5 w-5 text-muted-foreground transition-transform",
+                isOpen && "rotate-180"
+              )} />
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleEdit(category)}
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDelete(category)}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
+        </button>
+
+        {/* Action Buttons - Separate row to avoid click conflicts */}
+        <div className="flex items-center gap-2 px-4 pb-3 pt-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleEdit(category)}
+            className="text-xs"
+          >
+            <Edit2 className="h-3 w-3 mr-1" />
+            Редактировать
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDelete(category)}
+            className="text-xs text-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            Удалить
+          </Button>
         </div>
 
+        {/* Subcategories - Collapsible */}
         {hasChildren && isOpen && (
-          <div className="border-t border-border bg-muted/30 px-4 py-2">
-            <div className="space-y-1">
+          <div className="border-t border-border bg-muted/20 px-4 py-3">
+            <div className="space-y-2">
               {category.children?.map((child) => (
-                <div key={child.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-background transition-colors group">
+                <div key={child.id} className="flex items-center gap-3 p-3 rounded-lg bg-background hover:bg-muted/50 transition-colors group">
                   <CornerDownRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div
                     className="flex items-center justify-center w-8 h-8 rounded-lg text-lg shrink-0"

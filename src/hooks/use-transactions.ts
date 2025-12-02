@@ -21,6 +21,7 @@ export interface TransactionWithCategory extends Transaction {
     type: string;
     icon: string | null;
     color: string | null;
+    parent_id: string | null;
   };
 }
 
@@ -42,7 +43,8 @@ export const useTransactions = (limit?: number) => {
             name,
             type,
             icon,
-            color
+            color,
+            parent_id
           )
         `)
         .eq('user_id', user.id)

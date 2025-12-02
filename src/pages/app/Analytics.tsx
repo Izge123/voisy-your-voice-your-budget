@@ -1,16 +1,19 @@
 import { useState, useMemo } from "react";
-import { TrendingDown, TrendingUp, DollarSign } from "lucide-react";
+import { TrendingDown, TrendingUp, DollarSign, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useTransactions } from "@/hooks/use-transactions";
+import { useCategories } from "@/hooks/use-categories";
 import { startOfWeek, startOfMonth, startOfYear, format, eachDayOfInterval, subDays } from "date-fns";
 import { ru } from "date-fns/locale";
 
 const Analytics = () => {
   const [period, setPeriod] = useState("month");
   const { transactions, isLoading } = useTransactions();
+  const { categories } = useCategories();
 
   // Filter transactions by period
   const filteredTransactions = useMemo(() => {
@@ -57,30 +60,87 @@ const Analytics = () => {
     ];
   }, [filteredTransactions]);
 
-  // Expenses by category
-  const expensesByCategory = useMemo(() => {
-    const categoryMap = new Map<string, { name: string; value: number; color: string; icon: string }>();
+  // Hierarchical expenses by parent categories
+  const hierarchicalExpenses = useMemo(() => {
+    const categoryMap = new Map<string, string>(); // child -> parent mapping
+    const parentMap = new Map<string, {
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+      totalAmount: number;
+      subcategories: Map<string, { id: string; name: string; icon: string; amount: number }>;
+    }>();
 
+    // Build category parent mapping
+    categories.forEach(cat => {
+      if (cat.parent_id && cat.parent_id !== cat.id) {
+        categoryMap.set(cat.id, cat.parent_id);
+      }
+    });
+
+    // Process transactions
     filteredTransactions
       .filter(t => t.category?.type === 'expense')
       .forEach(t => {
         if (!t.category) return;
+
+        // Determine parent category
+        const parentId = t.category.parent_id && t.category.parent_id !== t.category.id 
+          ? t.category.parent_id 
+          : t.category.id;
         
-        const existing = categoryMap.get(t.category.id);
-        if (existing) {
-          existing.value += t.amount;
-        } else {
-          categoryMap.set(t.category.id, {
-            name: t.category.name,
-            value: t.amount,
-            color: t.category.color || '#6b7280',
-            icon: t.category.icon || '💰',
+        const parentCategory = categories.find(c => c.id === parentId);
+        if (!parentCategory) return;
+
+        // Initialize parent if not exists
+        if (!parentMap.has(parentId)) {
+          parentMap.set(parentId, {
+            id: parentId,
+            name: parentCategory.name,
+            icon: parentCategory.icon || '💰',
+            color: parentCategory.color || '#6b7280',
+            totalAmount: 0,
+            subcategories: new Map(),
           });
+        }
+
+        const parent = parentMap.get(parentId)!;
+        parent.totalAmount += t.amount;
+
+        // If this is a subcategory, track it separately
+        if (t.category.parent_id && t.category.parent_id !== t.category.id) {
+          if (!parent.subcategories.has(t.category.id)) {
+            parent.subcategories.set(t.category.id, {
+              id: t.category.id,
+              name: t.category.name,
+              icon: t.category.icon || '💰',
+              amount: 0,
+            });
+          }
+          const sub = parent.subcategories.get(t.category.id)!;
+          sub.amount += t.amount;
         }
       });
 
-    return Array.from(categoryMap.values()).sort((a, b) => b.value - a.value);
-  }, [filteredTransactions]);
+    // Convert to array and sort
+    return Array.from(parentMap.values())
+      .map(parent => ({
+        ...parent,
+        subcategories: Array.from(parent.subcategories.values()).sort((a, b) => b.amount - a.amount),
+      }))
+      .sort((a, b) => b.totalAmount - a.totalAmount);
+  }, [filteredTransactions, categories]);
+
+  // Expenses by category (for pie chart)
+  const expensesByCategory = useMemo(() => {
+    return hierarchicalExpenses.map(parent => ({
+      name: parent.name,
+      value: parent.totalAmount,
+      color: parent.color,
+      icon: parent.icon,
+    }));
+  }, [hierarchicalExpenses]);
 
   const totalExpenses = expensesByCategory.reduce((sum, item) => sum + item.value, 0);
 
@@ -108,15 +168,18 @@ const Analytics = () => {
     });
   }, [filteredTransactions]);
 
-  // Top categories with progress
+  // Top parent categories with progress
   const topCategories = useMemo(() => {
-    return expensesByCategory
+    return hierarchicalExpenses
       .slice(0, 5)
-      .map(cat => ({
-        ...cat,
-        percentage: totalExpenses > 0 ? Math.round((cat.value / totalExpenses) * 100) : 0,
+      .map(parent => ({
+        name: parent.name,
+        icon: parent.icon,
+        color: parent.color,
+        value: parent.totalAmount,
+        percentage: totalExpenses > 0 ? Math.round((parent.totalAmount / totalExpenses) * 100) : 0,
       }));
-  }, [expensesByCategory, totalExpenses]);
+  }, [hierarchicalExpenses, totalExpenses]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -237,25 +300,89 @@ const Analytics = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Legend */}
-            <div className="grid grid-cols-2 gap-3 mt-6">
-              {expensesByCategory.map((category, index) => {
-                const percentage = totalExpenses > 0 ? Math.round((category.value / totalExpenses) * 100) : 0;
+            {/* Hierarchical Legend with Accordion */}
+            <Accordion type="multiple" className="w-full mt-6">
+              {hierarchicalExpenses.map((parent) => {
+                const parentPercentage = totalExpenses > 0 ? Math.round((parent.totalAmount / totalExpenses) * 100) : 0;
+                const hasSubcategories = parent.subcategories.length > 0;
+
                 return (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 flex-1">
-                      <div
-                        className="w-3 h-3 rounded-full shrink-0"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <span className="text-xl shrink-0">{category.icon}</span>
-                      <span className="text-sm font-inter text-foreground truncate">{category.name}</span>
-                    </div>
-                    <span className="text-sm font-bold font-manrope text-muted-foreground">{percentage}%</span>
-                  </div>
+                  <AccordionItem key={parent.id} value={parent.id} className="border-b border-border">
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div
+                            className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+                            style={{ backgroundColor: `${parent.color}15` }}
+                          >
+                            {parent.icon}
+                          </div>
+                          <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
+                            <span className="text-sm font-semibold font-inter text-foreground truncate">
+                              {parent.name}
+                              {hasSubcategories && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  ({parent.subcategories.length})
+                                </span>
+                              )}
+                            </span>
+                            <Progress
+                              value={parentPercentage}
+                              className="h-1.5 w-full"
+                              style={
+                                {
+                                  '--progress-background': parent.color,
+                                } as React.CSSProperties
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-sm font-bold font-manrope text-muted-foreground">
+                            {parentPercentage}%
+                          </span>
+                          <span className="text-base font-bold font-manrope text-foreground">
+                            ${parent.totalAmount.toFixed(0)}
+                          </span>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    
+                    {hasSubcategories && (
+                      <AccordionContent className="pb-4">
+                        <div className="space-y-3 pl-4 border-l-2 border-border ml-5">
+                          {parent.subcategories.map((sub) => {
+                            const subPercentage = parent.totalAmount > 0 
+                              ? Math.round((sub.amount / parent.totalAmount) * 100) 
+                              : 0;
+                            
+                            return (
+                              <div key={sub.id} className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <span className="text-muted-foreground shrink-0">↳</span>
+                                  <span className="text-lg shrink-0">{sub.icon}</span>
+                                  <span className="text-sm font-inter text-foreground truncate">
+                                    {sub.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs font-bold font-manrope text-muted-foreground">
+                                    {subPercentage}%
+                                  </span>
+                                  <span className="text-sm font-semibold font-manrope text-foreground">
+                                    ${sub.amount.toFixed(0)}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </AccordionContent>
+                    )}
+                  </AccordionItem>
                 );
               })}
-            </div>
+            </Accordion>
           </CardContent>
         </Card>
 

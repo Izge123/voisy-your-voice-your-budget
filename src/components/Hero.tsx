@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Star, ArrowRight, Mic, Settings, TrendingUp, Home, PieChart, Plus, Bell, User } from "lucide-react";
 
 const Hero = () => {
@@ -23,8 +24,11 @@ const Hero = () => {
             <Button 
               size="lg" 
               className="rounded-full px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold font-inter bg-gradient-to-r from-indigo-600 to-emerald-500 hover:opacity-90 shadow-lg hover:shadow-xl transition-all mb-4 md:mb-6"
+              asChild
             >
-              Попробовать бесплатно
+              <Link to="/auth?tab=register">
+                Попробовать бесплатно
+              </Link>
             </Button>
 
             {/* Social Proof */}

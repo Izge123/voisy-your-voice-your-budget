@@ -257,7 +257,7 @@ const Dashboard = () => {
             </h2>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/20">
                   <TrendingUp className="h-4 w-4 text-secondary" />
@@ -267,7 +267,7 @@ const Dashboard = () => {
                   <p className="text-sm font-bold font-manrope text-secondary">+${income.toFixed(2)}</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 border-x border-white/20 px-3">
+              <div className="flex flex-col gap-2 md:border-x md:border-white/20 md:px-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-500/20">
                   <TrendingDown className="h-4 w-4 text-rose-300" />
                 </div>
@@ -276,7 +276,7 @@ const Dashboard = () => {
                   <p className="text-sm font-bold font-manrope text-rose-300">-${expenses.toFixed(2)}</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 col-span-2 md:col-span-1 pt-3 md:pt-0 border-t md:border-t-0 border-white/20">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-400/20">
                   <PiggyBank className="h-4 w-4 text-amber-300" />
                 </div>

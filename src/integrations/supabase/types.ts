@@ -66,11 +66,12 @@ export type Database = {
           currency: string | null
           email: string | null
           financial_goal: string | null
+          financial_literacy_level: string | null
           full_name: string | null
           id: string
           life_tags: string[] | null
-          monthly_income: number | null
           planning_horizon: string | null
+          target_amount: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -79,11 +80,12 @@ export type Database = {
           currency?: string | null
           email?: string | null
           financial_goal?: string | null
+          financial_literacy_level?: string | null
           full_name?: string | null
           id: string
           life_tags?: string[] | null
-          monthly_income?: number | null
           planning_horizon?: string | null
+          target_amount?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -92,11 +94,12 @@ export type Database = {
           currency?: string | null
           email?: string | null
           financial_goal?: string | null
+          financial_literacy_level?: string | null
           full_name?: string | null
           id?: string
           life_tags?: string[] | null
-          monthly_income?: number | null
           planning_horizon?: string | null
+          target_amount?: number | null
         }
         Relationships: []
       }

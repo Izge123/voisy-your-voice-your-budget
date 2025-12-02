@@ -147,6 +147,45 @@ const Categories = () => {
         {/* TAB 1: Create Group */}
         <TabsContent value="group" className="space-y-4 mt-4">
           <div className="space-y-2">
+            <Label>Тип категории</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                type="button"
+                variant={categoryType === 'expense' ? 'default' : 'outline'}
+                onClick={() => setCategoryType('expense')}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'expense' && "bg-rose-500 hover:bg-rose-600 text-white"
+                )}
+              >
+                Расход
+              </Button>
+              <Button
+                type="button"
+                variant={categoryType === 'income' ? 'default' : 'outline'}
+                onClick={() => setCategoryType('income')}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'income' && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                )}
+              >
+                Доход
+              </Button>
+              <Button
+                type="button"
+                variant={categoryType === 'savings' ? 'default' : 'outline'}
+                onClick={() => setCategoryType('savings')}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'savings' && "bg-blue-500 hover:bg-blue-600 text-white"
+                )}
+              >
+                Сбережение
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label>Название группы</Label>
             <Input
               ref={nameInputRef}
@@ -199,6 +238,54 @@ const Categories = () => {
         {/* TAB 2: Create Subcategory */}
         <TabsContent value="subcategory" className="space-y-4 mt-4">
           <div className="space-y-2">
+            <Label>Тип категории</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                type="button"
+                variant={categoryType === 'expense' ? 'default' : 'outline'}
+                onClick={() => {
+                  setCategoryType('expense');
+                  setSelectedParentId(''); // Reset parent when type changes
+                }}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'expense' && "bg-rose-500 hover:bg-rose-600 text-white"
+                )}
+              >
+                Расход
+              </Button>
+              <Button
+                type="button"
+                variant={categoryType === 'income' ? 'default' : 'outline'}
+                onClick={() => {
+                  setCategoryType('income');
+                  setSelectedParentId(''); // Reset parent when type changes
+                }}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'income' && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                )}
+              >
+                Доход
+              </Button>
+              <Button
+                type="button"
+                variant={categoryType === 'savings' ? 'default' : 'outline'}
+                onClick={() => {
+                  setCategoryType('savings');
+                  setSelectedParentId(''); // Reset parent when type changes
+                }}
+                className={cn(
+                  "h-10 font-semibold",
+                  categoryType === 'savings' && "bg-blue-500 hover:bg-blue-600 text-white"
+                )}
+              >
+                Сбережение
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label>Выберите группу</Label>
             <Select value={selectedParentId} onValueChange={setSelectedParentId}>
               <SelectTrigger>
@@ -207,7 +294,7 @@ const Categories = () => {
               <SelectContent>
                 {rootCategories.length === 0 ? (
                   <div className="p-2 text-sm text-muted-foreground text-center">
-                    Нет доступных групп. Создайте группу сначала.
+                    Нет доступных групп типа "{categoryType === 'expense' ? 'Расход' : categoryType === 'income' ? 'Доход' : 'Сбережение'}". Создайте группу сначала.
                   </div>
                 ) : (
                   rootCategories.map((group) => (

@@ -80,9 +80,9 @@ const Analytics = () => {
     ];
   }, [filteredTransactions]);
 
-  // Universal function to build hierarchical data by category type
-  const buildHierarchicalData = (categoryType: 'expense' | 'income') => {
-    const categoryMap = new Map<string, string>(); // child -> parent mapping
+  // Hierarchical expenses by parent categories
+  const hierarchicalExpenses = useMemo(() => {
+    const categoryMap = new Map<string, string>();
     const parentMap = new Map<string, {
       id: string;
       name: string;
@@ -92,20 +92,17 @@ const Analytics = () => {
       subcategories: Map<string, { id: string; name: string; icon: string; amount: number }>;
     }>();
 
-    // Build category parent mapping
     categories.forEach(cat => {
       if (cat.parent_id && cat.parent_id !== cat.id) {
         categoryMap.set(cat.id, cat.parent_id);
       }
     });
 
-    // Process transactions - filter by CATEGORY type, not transaction type
     filteredTransactions
-      .filter(t => t.category?.type === categoryType)
+      .filter(t => t.category?.type === 'expense')
       .forEach(t => {
         if (!t.category) return;
 
-        // Determine parent category
         const parentId = t.category.parent_id && t.category.parent_id !== t.category.id 
           ? t.category.parent_id 
           : t.category.id;
@@ -113,7 +110,6 @@ const Analytics = () => {
         const parentCategory = categories.find(c => c.id === parentId);
         if (!parentCategory) return;
 
-        // Initialize parent if not exists
         if (!parentMap.has(parentId)) {
           parentMap.set(parentId, {
             id: parentId,
@@ -128,7 +124,6 @@ const Analytics = () => {
         const parent = parentMap.get(parentId)!;
         parent.totalAmount += t.amount;
 
-        // If this is a subcategory, track it separately
         if (t.category.parent_id && t.category.parent_id !== t.category.id) {
           if (!parent.subcategories.has(t.category.id)) {
             parent.subcategories.set(t.category.id, {
@@ -143,18 +138,79 @@ const Analytics = () => {
         }
       });
 
-    // Convert to array and sort
     return Array.from(parentMap.values())
       .map(parent => ({
         ...parent,
         subcategories: Array.from(parent.subcategories.values()).sort((a, b) => b.amount - a.amount),
       }))
       .sort((a, b) => b.totalAmount - a.totalAmount);
-  };
+  }, [filteredTransactions, categories]);
 
-  // Build hierarchical data for each type
-  const hierarchicalExpenses = useMemo(() => buildHierarchicalData('expense'), [filteredTransactions, categories]);
-  const hierarchicalIncome = useMemo(() => buildHierarchicalData('income'), [filteredTransactions, categories]);
+  // Hierarchical income by parent categories
+  const hierarchicalIncome = useMemo(() => {
+    const categoryMap = new Map<string, string>();
+    const parentMap = new Map<string, {
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+      totalAmount: number;
+      subcategories: Map<string, { id: string; name: string; icon: string; amount: number }>;
+    }>();
+
+    categories.forEach(cat => {
+      if (cat.parent_id && cat.parent_id !== cat.id) {
+        categoryMap.set(cat.id, cat.parent_id);
+      }
+    });
+
+    filteredTransactions
+      .filter(t => t.category?.type === 'income')
+      .forEach(t => {
+        if (!t.category) return;
+
+        const parentId = t.category.parent_id && t.category.parent_id !== t.category.id 
+          ? t.category.parent_id 
+          : t.category.id;
+        
+        const parentCategory = categories.find(c => c.id === parentId);
+        if (!parentCategory) return;
+
+        if (!parentMap.has(parentId)) {
+          parentMap.set(parentId, {
+            id: parentId,
+            name: parentCategory.name,
+            icon: parentCategory.icon || '💰',
+            color: parentCategory.color || '#6b7280',
+            totalAmount: 0,
+            subcategories: new Map(),
+          });
+        }
+
+        const parent = parentMap.get(parentId)!;
+        parent.totalAmount += t.amount;
+
+        if (t.category.parent_id && t.category.parent_id !== t.category.id) {
+          if (!parent.subcategories.has(t.category.id)) {
+            parent.subcategories.set(t.category.id, {
+              id: t.category.id,
+              name: t.category.name,
+              icon: t.category.icon || '💰',
+              amount: 0,
+            });
+          }
+          const sub = parent.subcategories.get(t.category.id)!;
+          sub.amount += t.amount;
+        }
+      });
+
+    return Array.from(parentMap.values())
+      .map(parent => ({
+        ...parent,
+        subcategories: Array.from(parent.subcategories.values()).sort((a, b) => b.amount - a.amount),
+      }))
+      .sort((a, b) => b.totalAmount - a.totalAmount);
+  }, [filteredTransactions, categories]);
 
   // Data by category (for pie charts)
   const expensesByCategory = useMemo(() => {

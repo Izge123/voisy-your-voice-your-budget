@@ -28,7 +28,6 @@ const Categories = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [activeTab, setActiveTab] = useState<'group' | 'subcategory'>('group');
-  const [categoryType, setCategoryType] = useState<'expense' | 'income'>('expense');
   const [categoryName, setCategoryName] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
@@ -60,10 +59,7 @@ const Categories = () => {
     '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
   ];
 
-  const emojiCategories = {
-    expense: ['🍔', '🚕', '🏠', '💳', '🛒', '☕', '🎬', '⚡', '💊', '👕', '📱', '🎮', '✈️', '🎁'],
-    income: ['💰', '💵', '💼', '📈', '🎯', '💎', '🏆', '💸', '🤝', '📊']
-  };
+  const emojiCategories = ['🍔', '🚕', '🏠', '💳', '🛒', '☕', '🎬', '⚡', '💊', '👕', '📱', '🎮', '✈️', '🎁', '💰', '💵', '💼', '📈', '🎯', '💎', '🏆', '💸', '🤝', '📊'];
 
   const handleSave = () => {
     if (!categoryName.trim()) return;
@@ -71,7 +67,7 @@ const Categories = () => {
 
     const categoryData = {
       name: categoryName,
-      type: categoryType,
+      type: 'expense' as const,
       icon: categoryIcon || null,
       color: categoryColor,
       parent_id: activeTab === 'subcategory' ? selectedParentId : null,
@@ -94,7 +90,6 @@ const Categories = () => {
     setCategoryName(category.name);
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
-    setCategoryType(category.type as 'expense' | 'income');
     setActiveTab(category.parent_id ? 'subcategory' : 'group');
     setSelectedParentId(category.parent_id || '');
     setIsAddOpen(true);
@@ -118,7 +113,6 @@ const Categories = () => {
     setCategoryName('');
     setCategoryIcon('');
     setCategoryColor('#6366f1');
-    setCategoryType('expense');
     setActiveTab('group');
     setSelectedParentId('');
   };
@@ -133,13 +127,6 @@ const Categories = () => {
 
         {/* TAB 1: Create Group */}
         <TabsContent value="group" className="space-y-4 mt-4">
-          <Tabs value={categoryType} onValueChange={(v) => setCategoryType(v as 'expense' | 'income')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="expense">Расход</TabsTrigger>
-              <TabsTrigger value="income">Доход</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
           <div className="space-y-2">
             <Label>Название группы</Label>
             <Input
@@ -154,13 +141,13 @@ const Categories = () => {
           <div className="space-y-2">
             <Label>Иконка</Label>
             <div className="grid grid-cols-7 gap-2">
-              {emojiCategories[categoryType].map((emoji) => (
+              {emojiCategories.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setCategoryIcon(emoji)}
                   className={cn(
-                    "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
+                    "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
                     categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
                   )}
                 >
@@ -194,13 +181,7 @@ const Categories = () => {
         <TabsContent value="subcategory" className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label>Выберите группу</Label>
-            <Select value={selectedParentId} onValueChange={(value) => {
-              setSelectedParentId(value);
-              const parent = categories?.find(c => c.id === value);
-              if (parent) {
-                setCategoryType(parent.type as 'expense' | 'income');
-              }
-            }}>
+            <Select value={selectedParentId} onValueChange={setSelectedParentId}>
               <SelectTrigger>
                 <SelectValue placeholder="Выберите родительскую группу" />
               </SelectTrigger>
@@ -237,13 +218,13 @@ const Categories = () => {
           <div className="space-y-2">
             <Label>Иконка (опционально)</Label>
             <div className="grid grid-cols-7 gap-2">
-              {emojiCategories[categoryType].map((emoji) => (
+              {emojiCategories.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setCategoryIcon(emoji)}
                   className={cn(
-                    "text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110",
+                    "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
                     categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
                   )}
                 >

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Edit2, Trash2, Loader2, Folder, ChevronRight } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -339,114 +339,108 @@ const Categories = () => {
             </Button>
           </div>
         ) : (
-          <Accordion type="multiple" className="space-y-3">
+          <Accordion type="multiple" className="w-full space-y-4">
             {rootCategories.map((group) => {
               const subcategories = getSubcategories(group.id);
-              const hasChildren = subcategories.length > 0;
               
               return (
                 <AccordionItem 
                   key={group.id} 
                   value={group.id}
-                  className="border-2 border-border rounded-2xl bg-card overflow-hidden shadow-sm"
+                  className="border border-border rounded-xl px-4 bg-card shadow-sm"
                 >
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    {/* Color circle with icon */}
-                    <div
-                      className="flex items-center justify-center w-12 h-12 rounded-full shrink-0"
-                      style={{ backgroundColor: group.color || '#6366f1' }}
-                    >
-                      <span className="text-2xl">{group.icon || '📁'}</span>
+                  {/* ЗАГОЛОВОК ГРУППЫ */}
+                  <AccordionTrigger className="hover:no-underline py-4">
+                    <div className="flex items-center gap-3 w-full">
+                      {/* Иконка с защитой от сжатия */}
+                      <div 
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-xl shrink-0"
+                        style={{ backgroundColor: `${group.color}20` || '#6366f120' }}
+                      >
+                        {group.icon || "📁"}
+                      </div>
+                      
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-foreground font-manrope">
+                          {group.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-inter">
+                          {subcategories.length} {subcategories.length === 1 ? 'подкатегория' : 'подкатегорий'}
+                        </p>
+                      </div>
+
+                      {/* Кнопки управления группой */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(group);
+                        }}
+                        className="shrink-0 h-8 w-8"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(group);
+                        }}
+                        className="shrink-0 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    
-                    {/* Group name + expand trigger */}
-                    <AccordionTrigger 
-                      className="flex-1 hover:no-underline py-0 [&[data-state=open]>svg]:rotate-90"
-                      disabled={!hasChildren}
-                    >
-                      <div className="flex items-center justify-between w-full pr-2">
-                        <div className="text-left">
-                          <p className="text-lg font-bold text-foreground font-manrope">
-                            {group.name}
-                          </p>
-                          {hasChildren && (
-                            <p className="text-sm text-muted-foreground font-inter">
-                              {subcategories.length} шт
-                            </p>
-                          )}
-                        </div>
-                        {hasChildren && (
-                          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-200" />
-                        )}
-                      </div>
-                    </AccordionTrigger>
+                  </AccordionTrigger>
 
-                    {/* Edit button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(group);
-                      }}
-                      className="shrink-0 h-9 w-9"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-
-                    {/* Delete button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(group);
-                      }}
-                      className="shrink-0 h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Subcategories */}
-                  {hasChildren && (
-                    <AccordionContent className="px-4 pb-3 pt-0">
-                      <div className="space-y-2 pl-8 border-l-2 border-primary/20 ml-6">
-                        {subcategories.map((subcategory) => (
+                  {/* СОДЕРЖИМОЕ (ПОДКАТЕГОРИИ) */}
+                  <AccordionContent className="pb-4 pt-0">
+                    <div className="pl-4 ml-5 border-l-2 border-primary/30 space-y-3 mt-2">
+                      {subcategories.length === 0 ? (
+                        <p className="text-sm text-muted-foreground pl-4 py-2 font-inter">
+                          Нет подкатегорий
+                        </p>
+                      ) : (
+                        subcategories.map((sub) => (
                           <div 
-                            key={subcategory.id}
-                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
+                            key={sub.id} 
+                            className="flex items-center justify-between group/item pl-4 py-2 rounded-lg hover:bg-muted/50 transition-colors"
                           >
-                            <span className="text-xl shrink-0">
-                              {subcategory.icon || '📄'}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-muted-foreground">↳</span>
+                              <span className="text-lg">{sub.icon}</span>
+                              <span className="text-foreground font-inter font-medium">
+                                {sub.name}
+                              </span>
+                            </div>
                             
-                            <p className="flex-1 text-base font-medium text-foreground font-inter">
-                              {subcategory.name}
-                            </p>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(subcategory)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shrink-0"
-                            >
-                              <Edit2 className="h-3 w-3" />
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(subcategory)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                onClick={() => handleEdit(sub)}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                onClick={() => handleDelete(sub)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  )}
+                        ))
+                      )}
+                    </div>
+                  </AccordionContent>
                 </AccordionItem>
               );
             })}

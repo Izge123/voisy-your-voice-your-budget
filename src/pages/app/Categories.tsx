@@ -134,10 +134,10 @@ const Categories = () => {
         }}
       >
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="group" disabled={!!editingCategory && !!editingCategory.parent_id}>
+          <TabsTrigger value="group">
             Создать Группу
           </TabsTrigger>
-          <TabsTrigger value="subcategory" disabled={!!editingCategory && !editingCategory.parent_id}>
+          <TabsTrigger value="subcategory">
             Создать Подкатегорию
           </TabsTrigger>
         </TabsList>

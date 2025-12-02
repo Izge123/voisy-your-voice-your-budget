@@ -28,6 +28,7 @@ const Categories = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [activeTab, setActiveTab] = useState<'group' | 'subcategory'>('group');
+  const [categoryType, setCategoryType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [categoryName, setCategoryName] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('');
   const [categoryColor, setCategoryColor] = useState('#6366f1');
@@ -45,8 +46,8 @@ const Categories = () => {
     }
   }, [isAddOpen, activeTab]);
 
-  // 1. РОДИТЕЛИ (Группы) - категории без parent_id
-  const rootCategories = categories?.filter(c => !c.parent_id && c.parent_id !== c.id) || [];
+  // 1. РОДИТЕЛИ (Группы) - категории без parent_id, отфильтрованные по типу
+  const rootCategories = categories?.filter(c => !c.parent_id && c.parent_id !== c.id && c.type === categoryType) || [];
 
   // 2. Функция получения ДЕТЕЙ (Подкатегорий)
   const getSubcategories = (parentId: string) => 
@@ -67,7 +68,7 @@ const Categories = () => {
 
     const categoryData = {
       name: categoryName,
-      type: 'expense' as const,
+      type: categoryType,
       icon: categoryIcon || null,
       color: categoryColor,
       parent_id: activeTab === 'subcategory' ? selectedParentId : null,
@@ -90,6 +91,7 @@ const Categories = () => {
     setCategoryName(category.name);
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
+    setCategoryType(category.type);
     setActiveTab(category.parent_id ? 'subcategory' : 'group');
     setSelectedParentId(category.parent_id || '');
     setIsAddOpen(true);
@@ -291,7 +293,7 @@ const Categories = () => {
               <DrawerContent className="max-h-[90vh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать' : 'Добавить категорию'}
+                    {editingCategory ? 'Редактировать' : `Добавить ${categoryType === 'expense' ? 'расход' : categoryType === 'income' ? 'доход' : 'сбережение'}`}
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6 overflow-y-auto">
@@ -309,7 +311,7 @@ const Categories = () => {
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold font-manrope">
-                    {editingCategory ? 'Редактировать' : 'Добавить категорию'}
+                    {editingCategory ? 'Редактировать' : `Добавить ${categoryType === 'expense' ? 'расход' : categoryType === 'income' ? 'доход' : 'сбережение'}`}
                   </DialogTitle>
                 </DialogHeader>
                 <CategoryDialog />
@@ -318,6 +320,32 @@ const Categories = () => {
           )}
         </div>
       </header>
+
+      {/* ВКЛАДКИ ТИПОВ КАТЕГОРИЙ */}
+      <div className="px-4 md:px-6 pt-6">
+        <Tabs value={categoryType} onValueChange={(v) => setCategoryType(v as 'expense' | 'income' | 'savings')} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 h-12">
+            <TabsTrigger 
+              value="expense" 
+              className="data-[state=active]:bg-rose-500/10 data-[state=active]:text-rose-600 font-semibold"
+            >
+              Расходы
+            </TabsTrigger>
+            <TabsTrigger 
+              value="income" 
+              className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-600 font-semibold"
+            >
+              Доходы
+            </TabsTrigger>
+            <TabsTrigger 
+              value="savings" 
+              className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 font-semibold"
+            >
+              Сбережения
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       <div className="px-4 md:px-6 py-6">
         {isLoading ? (
@@ -341,7 +369,9 @@ const Categories = () => {
               Нет категорий
             </h2>
             <p className="text-base text-muted-foreground font-inter mb-6 max-w-sm mx-auto">
-              Создайте свою первую группу расходов, чтобы начать отслеживать финансы
+              {categoryType === 'expense' && 'Создайте свою первую группу расходов, чтобы начать отслеживать финансы'}
+              {categoryType === 'income' && 'Создайте группу доходов для учета ваших поступлений'}
+              {categoryType === 'savings' && 'Создайте группу сбережений для контроля накоплений'}
             </p>
             <Button
               onClick={() => setIsAddOpen(true)}

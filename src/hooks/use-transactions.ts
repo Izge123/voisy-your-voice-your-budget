@@ -12,6 +12,7 @@ export interface Transaction {
   date: string | null;
   description: string | null;
   created_at: string | null;
+  type: 'income' | 'expense' | null;
 }
 
 export interface TransactionWithCategory extends Transaction {
@@ -76,6 +77,7 @@ export const useTransactions = (limit?: number) => {
           currency: newTransaction.currency,
           date: newTransaction.date,
           description: newTransaction.description,
+          type: newTransaction.type,
         })
         .select()
         .single();
@@ -163,13 +165,14 @@ export const useBalance = () => {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-      // Fetch transactions for current month with their categories
+      // Fetch transactions for current month with their categories and types
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select(`
           amount,
           date,
-          category:categories!inner (
+          type,
+          category:categories (
             type
           )
         `)
@@ -185,7 +188,8 @@ export const useBalance = () => {
 
       transactions.forEach((transaction) => {
         const amount = transaction.amount;
-        const type = (transaction.category as any)?.type;
+        // Use transaction type if available, fallback to category type
+        const type = transaction.type || (transaction.category as any)?.type;
         
         if (type === 'income') {
           income += amount;

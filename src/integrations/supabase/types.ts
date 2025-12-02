@@ -94,6 +94,7 @@ export type Database = {
           date: string | null
           description: string | null
           id: string
+          type: string | null
           user_id: string
         }
         Insert: {
@@ -104,6 +105,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          type?: string | null
           user_id: string
         }
         Update: {
@@ -114,6 +116,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          type?: string | null
           user_id?: string
         }
         Relationships: [

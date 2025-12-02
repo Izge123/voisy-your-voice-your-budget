@@ -62,6 +62,7 @@ const Dashboard = () => {
       currency: 'USD',
       date: format(date, 'yyyy-MM-dd'),
       description: comment || null,
+      type: transactionType as 'income' | 'expense',
     });
 
     setIsManualOpen(false);

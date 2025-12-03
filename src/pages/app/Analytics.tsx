@@ -249,7 +249,7 @@ const Analytics = () => {
     }>();
 
     filteredTransactions
-      .filter(t => t.category?.type === 'savings')
+      .filter(t => t.type === 'savings')
       .forEach(t => {
         if (!t.category) return;
 

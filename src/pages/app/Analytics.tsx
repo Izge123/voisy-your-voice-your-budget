@@ -102,7 +102,7 @@ const Analytics = () => {
     });
 
     filteredTransactions
-      .filter(t => t.category?.type === 'expense')
+      .filter(t => t.type === 'expense')
       .forEach(t => {
         if (!t.category) return;
 
@@ -168,7 +168,7 @@ const Analytics = () => {
     });
 
     filteredTransactions
-      .filter(t => t.category?.type === 'income')
+      .filter(t => t.type === 'income')
       .forEach(t => {
         if (!t.category) return;
 
@@ -236,6 +236,76 @@ const Analytics = () => {
 
   const totalExpenses = expensesByCategory.reduce((sum, item) => sum + item.value, 0);
   const totalIncome = incomeByCategory.reduce((sum, item) => sum + item.value, 0);
+
+  // Hierarchical savings by parent categories
+  const hierarchicalSavings = useMemo(() => {
+    const parentMap = new Map<string, {
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+      totalAmount: number;
+      subcategories: Map<string, { id: string; name: string; icon: string; amount: number }>;
+    }>();
+
+    filteredTransactions
+      .filter(t => t.category?.type === 'savings')
+      .forEach(t => {
+        if (!t.category) return;
+
+        const parentId = t.category.parent_id && t.category.parent_id !== t.category.id 
+          ? t.category.parent_id 
+          : t.category.id;
+        
+        const parentCategory = categories.find(c => c.id === parentId);
+        if (!parentCategory) return;
+
+        if (!parentMap.has(parentId)) {
+          parentMap.set(parentId, {
+            id: parentId,
+            name: parentCategory.name,
+            icon: parentCategory.icon || '💰',
+            color: parentCategory.color || '#6b7280',
+            totalAmount: 0,
+            subcategories: new Map(),
+          });
+        }
+
+        const parent = parentMap.get(parentId)!;
+        parent.totalAmount += t.amount;
+
+        if (t.category.parent_id && t.category.parent_id !== t.category.id) {
+          if (!parent.subcategories.has(t.category.id)) {
+            parent.subcategories.set(t.category.id, {
+              id: t.category.id,
+              name: t.category.name,
+              icon: t.category.icon || '💰',
+              amount: 0,
+            });
+          }
+          const sub = parent.subcategories.get(t.category.id)!;
+          sub.amount += t.amount;
+        }
+      });
+
+    return Array.from(parentMap.values())
+      .map(parent => ({
+        ...parent,
+        subcategories: Array.from(parent.subcategories.values()).sort((a, b) => b.amount - a.amount),
+      }))
+      .sort((a, b) => b.totalAmount - a.totalAmount);
+  }, [filteredTransactions, categories]);
+
+  const savingsByCategory = useMemo(() => {
+    return hierarchicalSavings.map(parent => ({
+      name: parent.name,
+      value: parent.totalAmount,
+      color: parent.color,
+      icon: parent.icon,
+    }));
+  }, [hierarchicalSavings]);
+
+  const totalSavingsCategories = savingsByCategory.reduce((sum, item) => sum + item.value, 0);
 
   // Dynamic expenses for bar chart (days or months)
   const dynamicExpenses = useMemo(() => {
@@ -585,6 +655,123 @@ const Analytics = () => {
               <Accordion type="multiple" className="w-full mt-6">
                 {hierarchicalIncome.map((parent) => {
                   const parentPercentage = totalIncome > 0 ? Math.round((parent.totalAmount / totalIncome) * 100) : 0;
+                  const hasSubcategories = parent.subcategories.length > 0;
+
+                  return (
+                    <AccordionItem key={parent.id} value={parent.id} className="border-b border-border">
+                      <AccordionTrigger className="hover:no-underline py-4">
+                        <div className="flex items-center justify-between w-full pr-4">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div
+                              className="flex items-center justify-center w-10 h-10 rounded-xl text-xl shrink-0"
+                              style={{ backgroundColor: `${parent.color}15` }}
+                            >
+                              {parent.icon}
+                            </div>
+                            <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
+                              <span className="text-sm font-semibold font-inter text-foreground truncate">
+                                {parent.name}
+                                {hasSubcategories && (
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    ({parent.subcategories.length})
+                                  </span>
+                                )}
+                              </span>
+                              <Progress
+                                value={parentPercentage}
+                                className="h-1.5 w-full"
+                                style={
+                                  {
+                                    '--progress-background': parent.color,
+                                  } as React.CSSProperties
+                                }
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-sm font-bold font-manrope text-muted-foreground">
+                              {parentPercentage}%
+                            </span>
+                            <span className="text-base font-bold font-manrope text-foreground">
+                              {formatCurrency(parent.totalAmount, currency)}
+                            </span>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      
+                      {hasSubcategories && (
+                        <AccordionContent className="pb-4">
+                          <div className="space-y-3 pl-4 border-l-2 border-border ml-5">
+                            {parent.subcategories.map((sub) => {
+                              const subPercentage = parent.totalAmount > 0 
+                                ? Math.round((sub.amount / parent.totalAmount) * 100) 
+                                : 0;
+                              
+                              return (
+                                <div key={sub.id} className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <span className="text-muted-foreground shrink-0">↳</span>
+                                    <span className="text-lg shrink-0">{sub.icon}</span>
+                                    <span className="text-sm font-inter text-foreground truncate">
+                                      {sub.name}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span className="text-xs font-bold font-manrope text-muted-foreground">
+                                      {subPercentage}%
+                                    </span>
+                                    <span className="text-sm font-semibold font-manrope text-foreground">
+                                      {formatCurrency(sub.amount, currency)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      )}
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* SAVINGS STRUCTURE */}
+        {hierarchicalSavings.length > 0 && (
+          <Card className="animate-fade-in" style={{ animationDelay: '250ms' }}>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold font-manrope text-primary">Структура сбережений</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={savingsByCategory}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomLabel}
+                      outerRadius={100}
+                      innerRadius={60}
+                      fill="#8884d8"
+                      dataKey="value"
+                      animationDuration={800}
+                    >
+                      {savingsByCategory.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <Accordion type="multiple" className="w-full mt-6">
+                {hierarchicalSavings.map((parent) => {
+                  const parentPercentage = totalSavingsCategories > 0 ? Math.round((parent.totalAmount / totalSavingsCategories) * 100) : 0;
                   const hasSubcategories = parent.subcategories.length > 0;
 
                   return (

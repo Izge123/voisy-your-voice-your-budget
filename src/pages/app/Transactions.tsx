@@ -367,7 +367,7 @@ const Transactions = () => {
                             {transaction.description || transaction.category?.name || 'Транзакция'}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
-                            {transaction.category?.name || 'Без категории'} • {transaction.date ? format(new Date(transaction.date), 'HH:mm', { locale: ru }) : ''}
+                            {transaction.category?.name || 'Без категории'} • {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
                           </p>
                         </div>
 
@@ -380,7 +380,7 @@ const Transactions = () => {
                             {isExpense ? '-' : '+'}{formatCurrency(amount, currency)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {transaction.date ? format(new Date(transaction.date), 'HH:mm', { locale: ru }) : ''}
+                            {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
                           </p>
                         </div>
 

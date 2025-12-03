@@ -519,7 +519,7 @@ const Dashboard = () => {
                         {transaction.description || transaction.category?.name || 'Транзакция'}
                       </p>
                       <p className="text-xs text-muted-foreground font-inter">
-                        {transaction.category?.name || 'Без категории'} • {transaction.date ? format(new Date(transaction.date), 'HH:mm', { locale: ru }) : ''}
+                        {transaction.category?.name || 'Без категории'} • {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
                       </p>
                     </div>
 

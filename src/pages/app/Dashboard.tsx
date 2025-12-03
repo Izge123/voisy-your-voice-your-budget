@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, Bell, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Bell, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -449,10 +449,6 @@ const Dashboard = () => {
               Аналитика
             </Button>
           </Link>
-          <Button variant="outline" className="rounded-full gap-2 whitespace-nowrap font-inter">
-            <Target className="h-4 w-4" />
-            Цели
-          </Button>
         </div>
 
         {/* RECENT TRANSACTIONS */}

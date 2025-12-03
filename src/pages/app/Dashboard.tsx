@@ -1,38 +1,27 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Bell, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBalance } from "@/hooks/use-transactions";
 import { useTransactions } from "@/hooks/use-transactions";
-import { useCategories } from "@/hooks/use-categories";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { cn, formatCurrency, getCurrencySymbol } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useProfile } from "@/hooks/use-profile";
 import { useNotifications, useUnreadCount, useMarkAsRead } from "@/hooks/use-notifications";
 import { formatDistanceToNow } from "date-fns";
 
 const Dashboard = () => {
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
-  const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(10);
-  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { transactions, isLoading: transactionsLoading } = useTransactions(10);
   const { profile } = useProfile();
   const { notifications: recentNotifications } = useNotifications(5);
   const { unreadCount } = useUnreadCount();
@@ -40,7 +29,6 @@ const Dashboard = () => {
   const currency = profile?.currency || 'USD';
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
-  const [isManualOpen, setIsManualOpen] = useState(false);
 
   // Обработка URL параметра для автоматического запуска голосового ввода
   useEffect(() => {
@@ -54,180 +42,12 @@ const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [searchParams, setSearchParams, isVoiceOpen]);
-  const [transactionType, setTransactionType] = useState("expense");
-  const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [date, setDate] = useState<Date>(new Date());
-  const [comment, setComment] = useState("");
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();
 
   // Get current month and year for display
   const currentMonthYear = format(new Date(), "LLLL yyyy", { locale: ru });
-
-  const filteredCategoriesTree = useMemo(() => {
-    const filtered = categories.filter(cat => cat.type === transactionType);
-    const parentCategories = filtered.filter(cat => !cat.parent_id || cat.parent_id === cat.id);
-    
-    return parentCategories.map(parent => ({
-      ...parent,
-      children: filtered.filter(cat => cat.parent_id === parent.id && cat.id !== parent.id)
-    }));
-  }, [categories, transactionType]);
-
-  const handleManualSave = () => {
-    if (!user || !amount || !selectedCategory) return;
-
-    addTransaction({
-      amount: parseFloat(amount),
-      category_id: selectedCategory,
-      currency: currency,
-      date: format(date, 'yyyy-MM-dd'),
-      description: comment || null,
-      type: transactionType as 'income' | 'expense',
-    });
-
-    setIsManualOpen(false);
-    setAmount("");
-    setSelectedCategory("");
-    setComment("");
-    setTransactionType("expense");
-  };
-
-  const AddTransactionForm = () => (
-    <div className="space-y-6">
-      <Tabs value={transactionType} onValueChange={setTransactionType} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="expense">Расход</TabsTrigger>
-          <TabsTrigger value="income">Доход</TabsTrigger>
-          <TabsTrigger value="transfer">Перевод</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <div className="space-y-2">
-        <Label className="text-sm text-muted-foreground">Сумма</Label>
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-muted-foreground">{getCurrencySymbol(currency)}</span>
-          <Input
-            type="number"
-            placeholder="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="text-4xl font-bold h-20 pl-14 text-center border-2"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-sm text-muted-foreground">Категория</Label>
-        {categoriesLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : filteredCategoriesTree.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground">Нет категорий</p>
-          </div>
-        ) : (
-          <Accordion type="multiple" className="w-full">
-            {filteredCategoriesTree.map((parent) => (
-              <AccordionItem key={parent.id} value={parent.id} className="border-b">
-                <AccordionTrigger className="hover:no-underline py-3">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${parent.color}15` }}
-                    >
-                      {parent.icon}
-                    </div>
-                    <span className="text-sm font-semibold">{parent.name}</span>
-                    {parent.children && parent.children.length > 0 && (
-                      <span className="text-xs text-muted-foreground">({parent.children.length})</span>
-                    )}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-2 pl-4 border-l-2 border-border ml-5">
-                    {parent.children && parent.children.length > 0 ? (
-                      parent.children.map((child) => (
-                        <button
-                          key={child.id}
-                          onClick={() => setSelectedCategory(child.id)}
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all w-full text-left",
-                            selectedCategory === child.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:border-primary/50"
-                          )}
-                        >
-                          <span className="text-muted-foreground shrink-0">↳</span>
-                          <div 
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                            style={{ backgroundColor: `${child.color}15` }}
-                          >
-                            {child.icon}
-                          </div>
-                          <span className="text-sm font-medium">{child.name}</span>
-                        </button>
-                      ))
-                    ) : (
-                      <button
-                        onClick={() => setSelectedCategory(parent.id)}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all w-full text-left",
-                          selectedCategory === parent.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
-                        )}
-                      >
-                        <span className="text-sm font-medium">Использовать "{parent.name}"</span>
-                      </button>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label className="text-sm text-muted-foreground">Дата</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start text-left font-normal">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP", { locale: ru }) : "Выберите дату"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(newDate) => newDate && setDate(newDate)}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <Button
-        onClick={handleManualSave}
-        className="w-full h-12 text-base font-semibold rounded-2xl"
-        disabled={!amount || !selectedCategory || isAddingTransaction}
-      >
-        {isAddingTransaction ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Сохранение...
-          </>
-        ) : (
-          'Сохранить'
-        )}
-      </Button>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-background pb-6">
@@ -435,14 +255,6 @@ const Dashboard = () => {
 
         {/* QUICK ACTIONS */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide animate-fade-in" style={{ animationDelay: '200ms' }}>
-          <Button 
-            variant="outline" 
-            className="rounded-full gap-2 whitespace-nowrap font-inter"
-            onClick={() => setIsManualOpen(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Добавить вручную
-          </Button>
           <Link to="/app/analytics">
             <Button variant="outline" className="rounded-full gap-2 whitespace-nowrap font-inter">
               <BarChart3 className="h-4 w-4" />
@@ -536,29 +348,6 @@ const Dashboard = () => {
 
       {/* VOICE RECORDER MODAL */}
       <VoiceRecorder open={isVoiceOpen} onOpenChange={setIsVoiceOpen} />
-
-      {/* MANUAL ADD TRANSACTION MODAL */}
-      {isMobile ? (
-        <Drawer open={isManualOpen} onOpenChange={setIsManualOpen}>
-          <DrawerContent className="max-h-[90vh]">
-            <DrawerHeader>
-              <DrawerTitle className="text-2xl font-bold font-manrope">Добавить операцию</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-4 pb-6 overflow-y-auto">
-              <AddTransactionForm />
-            </div>
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold font-manrope">Добавить операцию</DialogTitle>
-            </DialogHeader>
-            <AddTransactionForm />
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 };

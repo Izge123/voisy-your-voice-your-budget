@@ -2,3 +2,6 @@ project_id = "xnkbciknqvnmienxiwdg"
 
 [functions.process-voice]
 verify_jwt = false
+
+[functions.payment-webhook]
+verify_jwt = false

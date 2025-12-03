@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +15,8 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { useProfile } from "@/hooks/use-profile";
 import { useNotifications, useUnreadCount, useMarkAsRead } from "@/hooks/use-notifications";
 import { formatDistanceToNow } from "date-fns";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,9 +28,20 @@ const Dashboard = () => {
   const { notifications: recentNotifications } = useNotifications(5);
   const { unreadCount } = useUnreadCount();
   const markAsRead = useMarkAsRead();
+  const { subscription, canPerformAction } = useSubscription();
   const currency = profile?.currency || 'USD';
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Handler for voice button that checks subscription
+  const handleVoiceClick = () => {
+    if (!canPerformAction) {
+      setShowPaywall(true);
+      return;
+    }
+    setIsVoiceOpen(true);
+  };
 
   // Обработка URL параметра для автоматического запуска голосового ввода
   useEffect(() => {
@@ -142,6 +155,40 @@ const Dashboard = () => {
       </header>
 
       <div className="px-4 md:px-6 space-y-6">
+        {/* TRIAL BANNER */}
+        {subscription?.status === 'trial' && subscription.daysRemaining <= 5 && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-amber-600" />
+              <p className="text-sm text-amber-600 font-medium">
+                Триал заканчивается через {subscription.daysRemaining} дн.
+              </p>
+              <Link to="/app/settings/subscription" className="ml-auto">
+                <Button size="sm" variant="outline" className="text-xs h-7 border-amber-500/30 text-amber-600 hover:bg-amber-500/10">
+                  Подписаться
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* EXPIRED BANNER */}
+        {subscription?.status === 'expired' && (
+          <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-destructive" />
+              <p className="text-sm text-destructive font-medium">
+                Ваш пробный период закончился
+              </p>
+              <Link to="/app/settings/subscription" className="ml-auto">
+                <Button size="sm" className="text-xs h-7 bg-primary hover:bg-primary/90">
+                  Подписаться
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* BALANCE CARD */}
         <div className="relative bg-gradient-to-br from-primary via-indigo-600 to-indigo-700 rounded-3xl p-4 md:p-8 shadow-xl overflow-hidden animate-fade-in">
           {/* Decorative elements */}
@@ -237,7 +284,7 @@ const Dashboard = () => {
         <div className="flex flex-col items-center justify-center py-6 md:py-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <button 
             className="relative group"
-            onClick={() => setIsVoiceOpen(true)}
+            onClick={handleVoiceClick}
           >
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary to-indigo-600 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity animate-pulse"></div>
@@ -348,6 +395,13 @@ const Dashboard = () => {
 
       {/* VOICE RECORDER MODAL */}
       <VoiceRecorder open={isVoiceOpen} onOpenChange={setIsVoiceOpen} />
+
+      {/* SUBSCRIPTION PAYWALL */}
+      <SubscriptionPaywall 
+        open={showPaywall} 
+        onOpenChange={setShowPaywall}
+        daysRemaining={subscription?.daysRemaining}
+      />
     </div>
   );
 };

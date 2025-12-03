@@ -142,6 +142,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          payment_id: string | null
+          payment_provider: string | null
+          plan: string
+          status: string
+          subscription_ends_at: string | null
+          subscription_started_at: string | null
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_provider?: string | null
+          plan?: string
+          status?: string
+          subscription_ends_at?: string | null
+          subscription_started_at?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_provider?: string | null
+          plan?: string
+          status?: string
+          subscription_ends_at?: string | null
+          subscription_started_at?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -191,7 +236,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_subscription_status: {
+        Args: { p_user_id: string }
+        Returns: {
+          days_remaining: number
+          is_active: boolean
+          plan: string
+          status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

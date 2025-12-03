@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingDown, TrendingUp, DollarSign, CalendarIcon } from "lucide-react";
+import { TrendingDown, TrendingUp, Wallet, CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,7 @@ const Analytics = () => {
     return [
       { label: "Доходы", value: formatCurrency(income, currency), icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
       { label: "Расходы", value: formatCurrency(expenses, currency), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
-      { label: "Экономия", value: formatCurrency(savings, currency), icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
+      { label: "Остаток", value: formatCurrency(savings, currency), icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
     ];
   }, [filteredTransactions, currency]);
 

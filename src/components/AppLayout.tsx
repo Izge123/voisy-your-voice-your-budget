@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
+import logo from "@/assets/kapitallo-logo.png";
 
 const AppLayout = () => {
   const navigate = useNavigate();
@@ -33,8 +34,9 @@ const AppLayout = () => {
             <Sidebar>
               <SidebarContent>
                 {/* Logo */}
-                <div className="px-6 py-4 border-b">
-                  <h1 className="text-2xl font-extrabold text-primary">Voisy</h1>
+                <div className="px-6 py-4 border-b flex items-center gap-2">
+                  <img src={logo} alt="Kapitallo" className="h-8 w-8" />
+                  <h1 className="text-2xl font-extrabold text-primary">Kapitallo</h1>
                 </div>
 
                 <SidebarGroup>

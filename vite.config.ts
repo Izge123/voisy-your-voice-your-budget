@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
-        name: 'Voisy - Учёт финансов голосом',
-        short_name: 'Voisy',
+        name: 'Kapitallo - Учёт финансов голосом',
+        short_name: 'Kapitallo',
         description: 'Просто скажи — AI запишет. Учёт финансов голосом с AI.',
         theme_color: '#4F46E5',
         background_color: '#F8FAFC',

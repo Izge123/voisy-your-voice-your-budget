@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
-    <title>Voisy - Учёт финансов голосом с AI</title>
-    <meta name="description" content="Учёт финансов голосом. Просто скажи — AI запишет. Voisy распознает траты и разделит чек на категории." />
-    <meta name="author" content="Voisy" />
+    <title>Kapitallo - Учёт финансов голосом с AI</title>
+    <meta name="description" content="Учёт финансов голосом. Просто скажи — AI запишет. Kapitallo распознает траты и разделит чек на категории." />
+    <meta name="author" content="Kapitallo" />
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4F46E5" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Voisy" />
+    <meta name="apple-mobile-web-app-title" content="Kapitallo" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     
@@ -19,13 +19,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <meta property="og:title" content="63fb105a-d66f-449d-abf4-14e4dc14c73d" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:title" content="Kapitallo - Учёт финансов голосом с AI" />
+    <meta property="og:description" content="Просто скажи — AI запишет. Учёт финансов голосом." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:site" content="@Kapitallo" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <!-- Instant Splash Screen Styles -->
@@ -51,11 +51,12 @@
         margin-bottom: 24px;
         animation: pulse 2s ease-in-out infinite;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
       }
-      #splash-screen .splash-icon svg {
-        width: 48px;
-        height: 48px;
-        color: white;
+      #splash-screen .splash-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
       #splash-screen .splash-title {
         color: white;
@@ -98,13 +99,9 @@
     <!-- Instant Splash Screen (shows before React loads) -->
     <div id="splash-screen">
       <div class="splash-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" x2="12" y1="19" y2="22"/>
-        </svg>
+        <img src="/kapitallo-logo.png" alt="Kapitallo" />
       </div>
-      <div class="splash-title">Voisy</div>
+      <div class="splash-title">Kapitallo</div>
       <div class="splash-subtitle">Учёт финансов голосом</div>
       <div class="splash-dots">
         <div class="splash-dot"></div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AudioWaveform, Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -169,8 +169,8 @@ const Auth = () => {
 
         <div className="w-full max-w-md relative z-10">
           <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
-            <AudioWaveform className="h-10 w-10 text-primary" />
-            <span className="text-3xl font-extrabold font-manrope text-primary">Voisy</span>
+            <img src="/kapitallo-logo.png" alt="Kapitallo" className="h-10 w-10" />
+            <span className="text-3xl font-extrabold font-manrope text-primary">Kapitallo</span>
           </div>
 
           <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border/50 p-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
@@ -243,8 +243,8 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
-          <AudioWaveform className="h-10 w-10 text-primary" />
-          <span className="text-3xl font-extrabold font-manrope text-primary">Voisy</span>
+          <img src="/kapitallo-logo.png" alt="Kapitallo" className="h-10 w-10" />
+          <span className="text-3xl font-extrabold font-manrope text-primary">Kapitallo</span>
         </div>
 
         {/* Auth Card */}

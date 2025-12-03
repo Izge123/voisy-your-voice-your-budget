@@ -55,7 +55,7 @@ const UseCases = () => {
           Идеально подходит для...
         </h2>
         <p className="text-center text-muted-foreground font-inter mb-12 md:mb-16 max-w-2xl mx-auto">
-          Какой бы ни была твоя финансовая ситуация — Voisy адаптируется под тебя
+          Какой бы ни была твоя финансовая ситуация — Kapitallo адаптируется под тебя
         </p>
 
         {/* Tabs */}

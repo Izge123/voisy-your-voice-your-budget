@@ -127,7 +127,7 @@ const AIChat = () => {
             </Avatar>
             <div>
               <h1 className="text-lg md:text-xl font-bold font-manrope text-foreground">
-                Voisy Assistant
+                Kapitallo Assistant
               </h1>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-muted-foreground" />
@@ -176,13 +176,13 @@ const AIChat = () => {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-lg md:text-xl font-bold font-manrope text-foreground">
-              Voisy Assistant
-            </h1>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="text-xs text-muted-foreground font-inter">Online</span>
-            </div>
+              <h1 className="text-lg md:text-xl font-bold font-manrope text-foreground">
+                Kapitallo Assistant
+              </h1>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span className="text-xs text-muted-foreground font-inter">Online</span>
+              </div>
           </div>
         </div>
         <Button

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { AudioWaveform, Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet";
+import logo from "@/assets/kapitallo-logo.png";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -22,8 +23,8 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <AudioWaveform className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold font-manrope text-primary">Voisy</span>
+            <img src={logo} alt="Kapitallo" className="h-8 w-8" />
+            <span className="text-xl font-bold font-manrope text-primary">Kapitallo</span>
           </div>
 
           {/* Desktop Navigation */}
@@ -67,8 +68,8 @@ const Header = () => {
               <div className="flex flex-col gap-8 mt-8">
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-2 mb-4">
-                  <AudioWaveform className="h-6 w-6 text-primary" />
-                  <span className="text-xl font-bold font-manrope text-primary">Voisy</span>
+                  <img src={logo} alt="Kapitallo" className="h-8 w-8" />
+                  <span className="text-xl font-bold font-manrope text-primary">Kapitallo</span>
                 </div>
 
                 {/* Mobile Navigation */}

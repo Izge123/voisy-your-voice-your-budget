@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Mic, Square, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,6 +52,31 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
       setErrorMessage('Не удалось получить доступ к микрофону');
     }
   });
+
+  // Автоматический старт записи при открытии
+  const hasAutoStarted = useRef(false);
+  
+  useEffect(() => {
+    if (open && status === 'idle' && !hasAutoStarted.current) {
+      hasAutoStarted.current = true;
+      // Небольшая задержка чтобы UI успел отрисоваться
+      const timer = setTimeout(() => {
+        handleStart();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open, status]);
+
+  // Сброс состояния при закрытии
+  useEffect(() => {
+    if (!open) {
+      hasAutoStarted.current = false;
+      setStatus('idle');
+      setTranscript('');
+      setParsedTransactions([]);
+      setErrorMessage('');
+    }
+  }, [open]);
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
     if (!user) return;
@@ -143,18 +168,10 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const RecorderContent = () => (
     <div className="space-y-6 py-4">
       {status === 'idle' && (
-        <div className="flex flex-col items-center justify-center space-y-6 py-8">
-          <div className="relative">
-            <Button
-              onClick={handleStart}
-              size="icon"
-              className="w-24 h-24 rounded-full shadow-2xl"
-            >
-              <Mic className="h-10 w-10" />
-            </Button>
-          </div>
-          <p className="text-center text-sm text-muted-foreground">
-            Нажмите, чтобы начать запись
+        <div className="flex flex-col items-center justify-center space-y-4 py-16">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-center text-muted-foreground">
+            Подготовка микрофона...
           </p>
         </div>
       )}

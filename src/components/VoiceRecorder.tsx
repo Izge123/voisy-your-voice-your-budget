@@ -44,7 +44,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { isRecording, recordingTime, startRecording, stopRecording, cancelRecording } = useVoiceRecording({
+  const { isRecording, recordingTime, startRecording, stopRecording, cancelRecording, reset } = useVoiceRecording({
     onRecordingComplete: handleRecordingComplete,
     onError: (error) => {
       console.error('Recording error:', error);
@@ -70,13 +70,14 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   // Сброс состояния при закрытии
   useEffect(() => {
     if (!open) {
+      reset(); // Принудительный сброс таймера и записи
       hasAutoStarted.current = false;
       setStatus('idle');
       setTranscript('');
       setParsedTransactions([]);
       setErrorMessage('');
     }
-  }, [open]);
+  }, [open, reset]);
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
     if (!user) return;

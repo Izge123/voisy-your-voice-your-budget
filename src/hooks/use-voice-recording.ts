@@ -11,6 +11,7 @@ export const useVoiceRecording = (options: UseVoiceRecordingOptions = {}) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startRecording = useCallback(async () => {
     try {
@@ -20,6 +21,8 @@ export const useVoiceRecording = (options: UseVoiceRecordingOptions = {}) => {
           sampleRate: 16000,
         } 
       });
+      
+      streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm',
@@ -92,11 +95,37 @@ export const useVoiceRecording = (options: UseVoiceRecordingOptions = {}) => {
     }
   }, [isRecording]);
 
+  const reset = useCallback(() => {
+    // Stop MediaRecorder if active
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    mediaRecorderRef.current = null;
+    
+    // Stop media tracks
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // Reset state
+    chunksRef.current = [];
+    setIsRecording(false);
+    setRecordingTime(0);
+  }, []);
+
   return {
     isRecording,
     recordingTime,
     startRecording,
     stopRecording,
     cancelRecording,
+    reset,
   };
 };

@@ -52,8 +52,7 @@ const Security = () => {
             return (
               <div 
                 key={index}
-                className="bg-card rounded-3xl p-6 md:p-8 shadow-lg border border-border hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in"
-                style={{ animationDelay: `${index * 150}ms` }}
+                className="bg-card rounded-3xl p-6 md:p-8 shadow-lg border border-border hover:shadow-xl md:hover:scale-105 transition-all duration-300"
               >
                 {/* Icon */}
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${feature.bgColor} mb-6`}>

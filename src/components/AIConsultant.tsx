@@ -3,9 +3,9 @@ import { Bot, User } from "lucide-react";
 const AIConsultant = () => {
   return (
     <section className="w-full py-16 md:py-24 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
-      {/* Decorative gradient orbs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-30"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-30"></div>
+      {/* Decorative gradient orbs - simplified for iOS */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full opacity-40"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full opacity-40"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Title */}
@@ -23,7 +23,7 @@ const AIConsultant = () => {
 
         {/* Chat Interface */}
         <div className="max-w-3xl mx-auto">
-          <div className="bg-slate-800/50 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-slate-700/50 shadow-2xl">
+          <div className="bg-slate-800/90 rounded-3xl p-6 md:p-8 border border-slate-700/50 shadow-2xl">
             {/* Chat Messages */}
             <div className="space-y-6">
               {/* User Message */}
@@ -49,7 +49,7 @@ const AIConsultant = () => {
                   <div className="bg-slate-700/80 rounded-2xl rounded-tl-sm px-5 py-4">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-semibold font-inter text-secondary">Voisy AI</span>
-                      <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+                      <div className="w-2 h-2 rounded-full bg-secondary"></div>
                     </div>
                     <p className="text-sm md:text-base font-inter text-slate-100 leading-relaxed">
                       У тебя осталось <span className="font-bold text-white">$500</span> до 25-го числа. 
@@ -68,9 +68,9 @@ const AIConsultant = () => {
                   </div>
                   <div className="bg-slate-700/80 rounded-2xl rounded-tl-sm px-5 py-3">
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></div>
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }}></div>
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }}></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 opacity-60"></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 opacity-80"></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 opacity-60"></div>
                     </div>
                   </div>
                 </div>

@@ -51,16 +51,16 @@ const Hero = () => {
           {/* Right Column - iPhone Mockup */}
           <div className="relative w-full max-w-[280px] sm:max-w-xs mx-auto lg:max-w-sm">
             {/* Floating Icons - Positioned in front of phone */}
-            <div className="absolute -left-12 md:-left-16 top-16 md:top-20 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border border-border/50 shadow-xl flex items-center justify-center z-20 animate-in fade-in zoom-in duration-700 delay-300" style={{ animation: 'bounce 3s ease-in-out infinite' }}>
+            <div className="absolute -left-12 md:-left-16 top-16 md:top-20 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white dark:bg-slate-800 border border-border/50 shadow-xl flex items-center justify-center z-20">
               <span className="text-2xl md:text-3xl">🍔</span>
             </div>
-            <div className="absolute -right-12 md:-right-16 top-32 md:top-40 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border border-border/50 shadow-xl flex items-center justify-center z-20 animate-in fade-in zoom-in duration-700 delay-500" style={{ animation: 'bounce 3s ease-in-out infinite 0.5s' }}>
+            <div className="absolute -right-12 md:-right-16 top-32 md:top-40 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white dark:bg-slate-800 border border-border/50 shadow-xl flex items-center justify-center z-20">
               <span className="text-2xl md:text-3xl">✈️</span>
             </div>
 
             <div className="relative mx-auto">
-              {/* Glow Effect Behind Phone */}
-              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-500/30 via-emerald-500/30 to-indigo-600/30 blur-3xl opacity-60"></div>
+              {/* Glow Effect Behind Phone - simplified for iOS */}
+              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20 rounded-full scale-150 opacity-50"></div>
 
               {/* iPhone Frame */}
               <div className="relative bg-card rounded-[2.5rem] md:rounded-[3rem] shadow-2xl border-4 md:border-8 border-foreground/10 overflow-hidden">
@@ -174,7 +174,7 @@ const Hero = () => {
                   </div>
 
                   {/* LAYER 2 - AI Overlay */}
-                  <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm z-10 flex flex-col justify-center p-4 md:p-6">
+                  <div className="absolute inset-0 bg-white/90 dark:bg-slate-900/90 z-10 flex flex-col justify-center p-4 md:p-6">
                     
                     {/* User Message (Right - Audio bubble) */}
                     <div className="flex justify-end mb-3 md:mb-4 animate-in slide-in-from-right duration-500">
@@ -182,9 +182,9 @@ const Hero = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <Mic className="h-3 w-3 md:h-4 md:w-4" />
                           <div className="flex gap-1">
-                            <div className="w-0.5 md:w-1 h-2 md:h-3 bg-primary-foreground/60 rounded-full animate-pulse"></div>
-                            <div className="w-0.5 md:w-1 h-3 md:h-4 bg-primary-foreground/80 rounded-full animate-pulse delay-75"></div>
-                            <div className="w-0.5 md:w-1 h-2 md:h-3 bg-primary-foreground/60 rounded-full animate-pulse delay-150"></div>
+                            <div className="w-0.5 md:w-1 h-2 md:h-3 bg-primary-foreground/60 rounded-full"></div>
+                            <div className="w-0.5 md:w-1 h-3 md:h-4 bg-primary-foreground/80 rounded-full"></div>
+                            <div className="w-0.5 md:w-1 h-2 md:h-3 bg-primary-foreground/60 rounded-full"></div>
                           </div>
                         </div>
                         <p className="text-[10px] md:text-xs font-inter font-medium">
@@ -197,9 +197,9 @@ const Hero = () => {
                     <div className="flex justify-start mb-3 md:mb-4 animate-in slide-in-from-left duration-500 delay-300">
                       <div className="bg-white dark:bg-slate-800 border border-border rounded-2xl rounded-tl-sm px-3 md:px-4 py-2 md:py-3 shadow-md">
                         <div className="flex gap-1">
-                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce delay-75"></div>
-                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full animate-bounce delay-150"></div>
+                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full opacity-60"></div>
+                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full opacity-80"></div>
+                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-muted-foreground rounded-full opacity-60"></div>
                         </div>
                       </div>
                     </div>

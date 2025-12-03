@@ -369,7 +369,7 @@ const Dashboard = () => {
                   <PiggyBank className="h-4 w-4 text-amber-300" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60 font-inter">Экономия</p>
+                  <p className="text-xs text-white/60 font-inter">Остаток</p>
                   <p className="text-sm font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
                 </div>
               </div>
@@ -404,7 +404,7 @@ const Dashboard = () => {
                     <PiggyBank className="h-5 w-5 text-amber-300" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/60 font-inter mb-1">Экономия</p>
+                    <p className="text-xs text-white/60 font-inter mb-1">Остаток</p>
                     <p className="text-lg font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
                   </div>
                 </div>

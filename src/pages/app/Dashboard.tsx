@@ -44,11 +44,16 @@ const Dashboard = () => {
 
   // Обработка URL параметра для автоматического запуска голосового ввода
   useEffect(() => {
-    if (searchParams.get('startVoice') === 'true') {
-      setIsVoiceOpen(true);
-      setSearchParams({});
+    if (searchParams.get('startVoice') === 'true' && !isVoiceOpen) {
+      // Сначала очищаем параметр
+      setSearchParams({}, { replace: true });
+      // Небольшая задержка чтобы избежать race condition
+      const timer = setTimeout(() => {
+        setIsVoiceOpen(true);
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, isVoiceOpen]);
   const [transactionType, setTransactionType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");

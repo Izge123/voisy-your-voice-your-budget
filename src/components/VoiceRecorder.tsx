@@ -56,6 +56,16 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const [transcript, setTranscript] = useState('');
   const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Ref для отслеживания состояния монтирования
+  const isMountedRef = useRef(true);
+  
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const { isRecording, recordingTime, startRecording, stopRecording, cancelRecording, reset } = useVoiceRecording({
     onRecordingComplete: handleRecordingComplete,
@@ -93,7 +103,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   }, [open, reset]);
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
-    if (!user) return;
+    if (!user || !isMountedRef.current) return;
     
     setStatus('processing');
     
@@ -101,6 +111,9 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
       const { data, error } = await supabase.functions.invoke('process-voice', {
         body: { audio: audioBase64, userId: user.id }
       });
+
+      // Проверяем, что компонент всё ещё смонтирован
+      if (!isMountedRef.current) return;
 
       if (error) throw error;
 
@@ -113,8 +126,10 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
       }
     } catch (error) {
       console.error('Error processing voice:', error);
-      setStatus('error');
-      setErrorMessage('Не удалось обработать запись. Попробуйте еще раз.');
+      if (isMountedRef.current) {
+        setStatus('error');
+        setErrorMessage('Не удалось обработать запись. Попробуйте еще раз.');
+      }
     }
   }
 

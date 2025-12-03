@@ -182,9 +182,10 @@ export const useBalance = () => {
 
       if (error) throw error;
 
-      // Calculate income and expenses for current month
+      // Calculate income, expenses and savings for current month
       let income = 0;
       let expenses = 0;
+      let savingsAmount = 0;
 
       transactions.forEach((transaction) => {
         const amount = transaction.amount;
@@ -195,11 +196,13 @@ export const useBalance = () => {
           income += amount;
         } else if (type === 'expense') {
           expenses += amount;
+        } else if (type === 'savings') {
+          savingsAmount += amount;
         }
       });
 
       const balance = income - expenses;
-      const savings = income - expenses;
+      const savings = income - expenses; // Экономия = доходы - расходы
 
       return {
         balance,

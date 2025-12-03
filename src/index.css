@@ -137,3 +137,35 @@ All colors MUST be HSL.
     scrollbar-width: none;
   }
 }
+
+/* iOS Performance Optimizations */
+@layer base {
+  /* GPU acceleration for animated elements */
+  .animate-in,
+  [class*="animate-"],
+  .transition-all,
+  .transition-transform {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Optimize touch scrolling on iOS */
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

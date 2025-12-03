@@ -20,9 +20,22 @@ import { useProfile } from "@/hooks/use-profile";
 interface ParsedTransaction {
   amount: number;
   category_id: string | null;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'savings';
   description: string;
 }
+
+const getTypeBadge = (type: string) => {
+  switch (type) {
+    case 'expense':
+      return { variant: 'destructive' as const, label: 'Расход' };
+    case 'income':
+      return { variant: 'default' as const, label: 'Доход' };
+    case 'savings':
+      return { variant: 'secondary' as const, label: 'Сбережения' };
+    default:
+      return { variant: 'outline' as const, label: type };
+  }
+};
 
 interface VoiceRecorderProps {
   open: boolean;
@@ -236,13 +249,14 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <p className="text-sm font-medium">{tx.description}</p>
-                        <Badge variant={tx.type === 'expense' ? 'destructive' : 'default'}>
-                          {tx.type === 'expense' ? 'Расход' : 'Доход'}
+                        <Badge variant={getTypeBadge(tx.type).variant}>
+                          {getTypeBadge(tx.type).label}
                         </Badge>
                       </div>
                       <p className={cn(
                         "text-lg font-bold font-manrope",
-                        tx.type === 'expense' ? 'text-rose-600' : 'text-secondary'
+                        tx.type === 'expense' ? 'text-rose-600' : 
+                        tx.type === 'savings' ? 'text-blue-600' : 'text-secondary'
                       )}>
                         {tx.type === 'expense' ? '-' : '+'}{formatCurrency(tx.amount, currency)}
                       </p>

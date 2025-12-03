@@ -9,9 +9,19 @@ interface SplashScreenProps {
 export const SplashScreen = ({ onFinished, minDisplayTime = 1800 }: SplashScreenProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
+  const [showTitle, setShowTitle] = useState(false);
+  const [showSubtitle, setShowSubtitle] = useState(false);
+  const [showDots, setShowDots] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Staggered animation sequence
+    const iconTimer = setTimeout(() => setShowIcon(true), 100);
+    const titleTimer = setTimeout(() => setShowTitle(true), 300);
+    const subtitleTimer = setTimeout(() => setShowSubtitle(true), 500);
+    const dotsTimer = setTimeout(() => setShowDots(true), 700);
+
+    const finishTimer = setTimeout(() => {
       setIsFadingOut(true);
       setTimeout(() => {
         setIsVisible(false);
@@ -21,46 +31,73 @@ export const SplashScreen = ({ onFinished, minDisplayTime = 1800 }: SplashScreen
         if (htmlSplash) {
           htmlSplash.remove();
         }
-      }, 300);
+      }, 400);
     }, minDisplayTime);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(iconTimer);
+      clearTimeout(titleTimer);
+      clearTimeout(subtitleTimer);
+      clearTimeout(dotsTimer);
+      clearTimeout(finishTimer);
+    };
   }, [minDisplayTime, onFinished]);
 
   if (!isVisible) return null;
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-primary transition-opacity duration-300 ${
-        isFadingOut ? 'opacity-0' : 'opacity-100'
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-primary transition-all duration-400 ${
+        isFadingOut ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
       }`}
     >
       {/* Logo Icon */}
-      <div className="animate-pulse mb-6">
-        <div className="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center animate-[scale-in_0.4s_ease-out]">
-          <Mic className="w-10 h-10 text-white" />
+      <div 
+        className={`mb-6 transition-all duration-500 ${
+          showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+        }`}
+      >
+        <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl">
+          <Mic className="w-12 h-12 text-white" />
         </div>
       </div>
 
       {/* App Name */}
       <h1 
-        className="text-4xl font-manrope font-extrabold text-white mb-2 animate-[fade-in_0.4s_ease-out_0.2s_both]"
+        className={`text-5xl font-manrope font-extrabold text-white mb-3 transition-all duration-500 ${
+          showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
       >
         Voisy
       </h1>
 
       {/* Tagline */}
       <p 
-        className="text-white/80 text-base font-inter animate-[fade-in_0.4s_ease-out_0.4s_both]"
+        className={`text-white/80 text-lg font-inter transition-all duration-500 ${
+          showSubtitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
       >
         Учёт финансов голосом
       </p>
 
       {/* Loading dots */}
-      <div className="flex gap-1.5 mt-8 animate-[fade-in_0.4s_ease-out_0.6s_both]">
-        <span className="w-2 h-2 bg-white/60 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
-        <span className="w-2 h-2 bg-white/60 rounded-full animate-[pulse_1s_ease-in-out_0.2s_infinite]" />
-        <span className="w-2 h-2 bg-white/60 rounded-full animate-[pulse_1s_ease-in-out_0.4s_infinite]" />
+      <div 
+        className={`flex gap-2 mt-10 transition-all duration-500 ${
+          showDots ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <span 
+          className="w-2.5 h-2.5 bg-white/70 rounded-full animate-bounce-dot"
+          style={{ animationDelay: '0ms' }}
+        />
+        <span 
+          className="w-2.5 h-2.5 bg-white/70 rounded-full animate-bounce-dot"
+          style={{ animationDelay: '150ms' }}
+        />
+        <span 
+          className="w-2.5 h-2.5 bg-white/70 rounded-full animate-bounce-dot"
+          style={{ animationDelay: '300ms' }}
+        />
       </div>
     </div>
   );

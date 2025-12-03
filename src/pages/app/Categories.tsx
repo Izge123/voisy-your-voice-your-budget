@@ -612,16 +612,16 @@ const Categories = () => {
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                className="h-8 w-8"
                                 onClick={() => handleEdit(sub)}
                               >
-                                <Edit2 className="h-3 w-3" />
+                                <Edit2 className="h-4 w-4" />
                               </Button>
                               
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => handleDelete(sub)}
                               >
                                 <Trash2 className="h-4 w-4" />

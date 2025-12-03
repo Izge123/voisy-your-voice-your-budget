@@ -12,6 +12,8 @@ import { useCategories, Category } from "@/hooks/use-categories";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 
 const Categories = () => {
   const isMobile = useIsMobile();
@@ -24,6 +26,8 @@ const Categories = () => {
     isAddingCategory, 
     isUpdatingCategory 
   } = useCategories();
+  const { subscription, canPerformAction } = useSubscription();
+  const [showPaywall, setShowPaywall] = useState(false);
   
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -109,6 +113,11 @@ const Categories = () => {
   };
 
   const handleEdit = (category: Category) => {
+    if (!canPerformAction) {
+      setShowPaywall(true);
+      return;
+    }
+    
     setEditingCategory(category);
     setCategoryName(category.name);
     setCategoryIcon(category.icon || '');
@@ -133,6 +142,11 @@ const Categories = () => {
   };
 
   const handleDelete = (category: Category) => {
+    if (!canPerformAction) {
+      setShowPaywall(true);
+      return;
+    }
+    
     const children = getSubcategories(category.id);
     const hasChildren = children.length > 0;
     const message = hasChildren 
@@ -421,7 +435,16 @@ const Categories = () => {
           {isMobile ? (
             <Drawer open={isAddOpen} onOpenChange={setIsAddOpen} handleOnly>
               <DrawerTrigger asChild>
-                <Button size="icon" className="rounded-full">
+                <Button 
+                  size="icon" 
+                  className="rounded-full"
+                  onClick={(e) => {
+                    if (!canPerformAction) {
+                      e.preventDefault();
+                      setShowPaywall(true);
+                    }
+                  }}
+                >
                   <Plus className="h-5 w-5" />
                 </Button>
               </DrawerTrigger>
@@ -445,7 +468,16 @@ const Categories = () => {
           ) : (
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
-                <Button size="icon" className="rounded-full">
+                <Button 
+                  size="icon" 
+                  className="rounded-full"
+                  onClick={(e) => {
+                    if (!canPerformAction) {
+                      e.preventDefault();
+                      setShowPaywall(true);
+                    }
+                  }}
+                >
                   <Plus className="h-5 w-5" />
                 </Button>
               </DialogTrigger>
@@ -638,6 +670,12 @@ const Categories = () => {
           </Accordion>
         )}
       </div>
+      
+      <SubscriptionPaywall 
+        open={showPaywall} 
+        onOpenChange={setShowPaywall}
+        daysRemaining={subscription?.daysRemaining}
+      />
     </div>
   );
 };

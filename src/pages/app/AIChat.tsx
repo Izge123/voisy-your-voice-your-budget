@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { Trash2, Mic, Send, Sparkles } from "lucide-react";
+import { Trash2, Mic, Send, Sparkles, Lock, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -18,8 +21,11 @@ const AIChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { subscription, canPerformAction } = useSubscription();
+  const navigate = useNavigate();
 
   const suggestedQuestions = [
     "Как мне сэкономить?",
@@ -60,6 +66,11 @@ const AIChat = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
+    
+    if (!canPerformAction) {
+      setShowPaywall(true);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -102,6 +113,57 @@ const AIChat = () => {
       handleSendMessage();
     }
   };
+
+  // Show locked state for expired subscription
+  if (!canPerformAction && subscription?.status === 'expired') {
+    return (
+      <div className="flex flex-col h-[calc(100vh-64px)] md:h-screen bg-background">
+        <header className="flex items-center justify-between p-4 md:p-6 border-b border-border bg-card">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 md:h-12 md:w-12">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-indigo-600 text-white">
+                <Sparkles className="h-6 w-6" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-lg md:text-xl font-bold font-manrope text-foreground">
+                Voisy Assistant
+              </h1>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-inter">Заблокирован</span>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-6">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+            <Lock className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <div className="text-center space-y-2 max-w-md">
+            <h2 className="text-xl font-bold font-manrope">AI чат заблокирован</h2>
+            <p className="text-muted-foreground text-sm">
+              Ваш пробный период закончился. Оформите подписку PRO, чтобы продолжить использовать AI консультанта.
+            </p>
+          </div>
+          <Button 
+            className="bg-gradient-to-r from-primary to-primary/80"
+            onClick={() => navigate('/app/settings/subscription')}
+          >
+            <Crown className="h-4 w-4 mr-2" />
+            Оформить подписку
+          </Button>
+        </div>
+        
+        <SubscriptionPaywall 
+          open={showPaywall} 
+          onOpenChange={setShowPaywall}
+          daysRemaining={subscription?.daysRemaining}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] md:h-screen bg-background">
@@ -275,6 +337,12 @@ const AIChat = () => {
           </Button>
         </div>
       </div>
+      
+      <SubscriptionPaywall 
+        open={showPaywall} 
+        onOpenChange={setShowPaywall}
+        daysRemaining={subscription?.daysRemaining}
+      />
     </div>
   );
 };

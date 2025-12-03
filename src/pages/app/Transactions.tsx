@@ -19,6 +19,8 @@ import { useCategories } from "@/hooks/use-categories";
 import { useTransactions } from "@/hooks/use-transactions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/use-profile";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 
 const Transactions = () => {
   const isMobile = useIsMobile();
@@ -30,6 +32,7 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [date, setDate] = useState<Date>(new Date());
   const [comment, setComment] = useState("");
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { 
@@ -41,6 +44,7 @@ const Transactions = () => {
     isDeletingTransaction 
   } = useTransactions();
   const { profile } = useProfile();
+  const { subscription, canPerformAction } = useSubscription();
   const currency = profile?.currency || 'USD';
 
   // Filter categories by transaction type and build tree
@@ -115,6 +119,11 @@ const Transactions = () => {
   };
 
   const handleDelete = (id: string) => {
+    if (!canPerformAction) {
+      setShowPaywall(true);
+      return;
+    }
+    
     if (confirm('Удалить транзакцию?')) {
       deleteTransaction(id);
     }
@@ -411,6 +420,12 @@ const Transactions = () => {
             <Button
               size="icon"
               className="fixed bottom-20 right-6 md:bottom-6 w-14 h-14 rounded-full shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] z-50 animate-fade-in"
+              onClick={(e) => {
+                if (!canPerformAction) {
+                  e.preventDefault();
+                  setShowPaywall(true);
+                }
+              }}
             >
               <Plus className="h-6 w-6" />
             </Button>
@@ -430,6 +445,12 @@ const Transactions = () => {
             <Button
               size="icon"
               className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] z-50 animate-fade-in"
+              onClick={(e) => {
+                if (!canPerformAction) {
+                  e.preventDefault();
+                  setShowPaywall(true);
+                }
+              }}
             >
               <Plus className="h-6 w-6" />
             </Button>
@@ -442,6 +463,12 @@ const Transactions = () => {
           </DialogContent>
         </Dialog>
       )}
+      
+      <SubscriptionPaywall 
+        open={showPaywall} 
+        onOpenChange={setShowPaywall}
+        daysRemaining={subscription?.daysRemaining}
+      />
     </div>
   );
 };

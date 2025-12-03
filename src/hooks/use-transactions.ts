@@ -12,7 +12,7 @@ export interface Transaction {
   date: string | null;
   description: string | null;
   created_at: string | null;
-  type: 'income' | 'expense' | null;
+  type: 'income' | 'expense' | 'savings' | null;
 }
 
 export interface TransactionWithCategory extends Transaction {

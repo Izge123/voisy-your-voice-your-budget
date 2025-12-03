@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, Plus, BarChart3, Target, Bell, Loader2, Calendar as CalendarIcon, ChevronDown, PiggyBank } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,6 +28,7 @@ import { formatDistanceToNow } from "date-fns";
 const Dashboard = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
@@ -40,6 +41,14 @@ const Dashboard = () => {
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [isManualOpen, setIsManualOpen] = useState(false);
+
+  // Обработка URL параметра для автоматического запуска голосового ввода
+  useEffect(() => {
+    if (searchParams.get('startVoice') === 'true') {
+      setIsVoiceOpen(true);
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
   const [transactionType, setTransactionType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");

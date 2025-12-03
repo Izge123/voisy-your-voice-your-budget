@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { Home, Folder, Mic, BarChart3, MessageSquare, Settings } from "lucide-react";
 import {
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/sidebar";
 
 const AppLayout = () => {
+  const navigate = useNavigate();
+  
   const navItems = [
     { to: "/app/dashboard", icon: Home, label: "Главная" },
     { to: "/app/categories", icon: Folder, label: "Категории" },
@@ -94,12 +96,12 @@ const AppLayout = () => {
             </NavLink>
 
             {/* Central Mic Button */}
-            <NavLink
-              to="/app/dashboard"
+            <button
+              onClick={() => navigate('/app/dashboard?startVoice=true')}
               className="flex items-center justify-center -mt-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all"
             >
               <Mic className="h-7 w-7" />
-            </NavLink>
+            </button>
 
             <NavLink
               to="/app/analytics"

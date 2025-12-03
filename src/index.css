@@ -119,3 +119,21 @@ All colors MUST be HSL.
     max-height: 85dvh;
   }
 }
+
+/* Hide scrollbar for mobile PWA */
+@media (max-width: 767px) {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  body::-webkit-scrollbar,
+  main::-webkit-scrollbar,
+  .overflow-auto::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  body,
+  main,
+  .overflow-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

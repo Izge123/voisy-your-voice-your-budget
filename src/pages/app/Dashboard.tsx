@@ -31,7 +31,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
-  const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(5);
+  const { transactions, isLoading: transactionsLoading, addTransaction, isAddingTransaction } = useTransactions(10);
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { profile } = useProfile();
   const { notifications: recentNotifications } = useNotifications(5);
@@ -466,17 +466,17 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {transactionsLoading ? (
               <>
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border">
-                    <Skeleton className="w-12 h-12 rounded-2xl" />
+                  <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border">
+                    <Skeleton className="w-10 h-10 rounded-xl" />
                     <div className="flex-1 space-y-2">
                       <Skeleton className="h-4 w-32" />
                       <Skeleton className="h-3 w-24" />
                     </div>
-                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-5 w-14" />
                   </div>
                 ))}
               </>
@@ -492,18 +492,20 @@ const Dashboard = () => {
               </div>
             ) : (
               transactions.map((transaction, index) => {
-                const isExpense = transaction.category?.type === 'expense';
+                const type = transaction.type;
+                const isExpense = type === 'expense';
+                const isSavings = type === 'savings';
                 const amount = transaction.amount;
                 
                 return (
                   <div
                     key={transaction.id}
-                    className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
+                    className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
                     style={{ animationDelay: `${300 + index * 50}ms` }}
                   >
                     {/* Icon */}
                     <div 
-                      className="flex items-center justify-center w-12 h-12 rounded-2xl text-2xl"
+                      className="flex items-center justify-center w-10 h-10 rounded-xl text-xl"
                       style={{ 
                         backgroundColor: `${transaction.category?.color || '#6b7280'}15`,
                       }}
@@ -522,10 +524,11 @@ const Dashboard = () => {
                     </div>
 
                     {/* Amount */}
-                    <p className={`text-base font-bold font-manrope ${
-                      isExpense ? 'text-rose-600' : 'text-secondary'
-                    }`}>
-                      {isExpense ? '-' : '+'}{formatCurrency(amount, currency)}
+                    <p className={cn(
+                      "text-sm font-bold font-manrope",
+                      isExpense ? 'text-rose-600' : isSavings ? 'text-blue-600' : 'text-secondary'
+                    )}>
+                      {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
                     </p>
                   </div>
                 );

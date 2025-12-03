@@ -28,6 +28,7 @@ const Categories = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [parentCategoryForSubcategory, setParentCategoryForSubcategory] = useState<Category | null>(null);
+  const [isEditingSubcategory, setIsEditingSubcategory] = useState(false);
   const [activeTab, setActiveTab] = useState<'group' | 'subcategory'>('group');
   const [categoryType, setCategoryType] = useState<'expense' | 'income' | 'savings'>('expense');
   const [categoryName, setCategoryName] = useState('');
@@ -65,6 +66,20 @@ const Categories = () => {
 
   const handleSave = () => {
     if (!categoryName.trim()) return;
+    
+    // Редактирование подкатегории - только имя и иконка
+    if (isEditingSubcategory && editingCategory) {
+      updateCategory({
+        id: editingCategory.id,
+        updates: {
+          name: categoryName,
+          icon: categoryIcon || null,
+        }
+      });
+      resetForm();
+      return;
+    }
+    
     if (activeTab === 'subcategory' && !selectedParentId) return;
 
     // ЗАЩИТА: Если мы на вкладке подкатегории, всегда создаём НОВУЮ категорию
@@ -99,8 +114,21 @@ const Categories = () => {
     setCategoryIcon(category.icon || '');
     setCategoryColor(category.color || '#6366f1');
     setCategoryType(category.type);
-    setActiveTab(category.parent_id ? 'subcategory' : 'group');
-    setSelectedParentId(category.parent_id || '');
+    
+    // Определяем: это подкатегория или группа?
+    const isSubcategory = !!category.parent_id;
+    setIsEditingSubcategory(isSubcategory);
+    
+    if (isSubcategory) {
+      // Для подкатегории: простая форма без табов
+      setActiveTab('group'); // Не важно, форма будет специальная
+      setSelectedParentId(category.parent_id || '');
+    } else {
+      // Для группы: обычная логика с табами
+      setActiveTab('group');
+      setSelectedParentId('');
+    }
+    
     setIsAddOpen(true);
   };
 
@@ -120,12 +148,62 @@ const Categories = () => {
     setIsAddOpen(false);
     setEditingCategory(null);
     setParentCategoryForSubcategory(null);
+    setIsEditingSubcategory(false);
     setCategoryName('');
     setCategoryIcon('');
     setCategoryColor('#6366f1');
     setActiveTab('group');
     setSelectedParentId('');
   };
+
+  // Простая форма для редактирования подкатегории (только имя и иконка)
+  const subcategoryEditForm = (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>Название подкатегории</Label>
+        <Input
+          ref={nameInputRef}
+          placeholder="Например: Такси"
+          value={categoryName}
+          onChange={(e) => setCategoryName(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Иконка</Label>
+        <div className="grid grid-cols-7 gap-2">
+          {emojiCategories.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => setCategoryIcon(emoji)}
+              className={cn(
+                "w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all hover:scale-110",
+                categoryIcon === emoji ? 'border-primary bg-primary/10' : 'border-border'
+              )}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Button
+        onClick={handleSave}
+        className="w-full h-12 text-base font-semibold rounded-2xl"
+        disabled={!categoryName.trim() || isUpdatingCategory}
+      >
+        {isUpdatingCategory ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Сохранение...
+          </>
+        ) : (
+          'Обновить'
+        )}
+      </Button>
+    </div>
+  );
 
   // Form JSX moved inline to prevent re-mounting on every keystroke
   const formContent = (
@@ -350,7 +428,9 @@ const Categories = () => {
               <DrawerContent className="h-[85dvh] max-h-[85dvh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
-                    {activeTab === 'subcategory' 
+                    {isEditingSubcategory 
+                      ? 'Редактировать подкатегорию'
+                      : activeTab === 'subcategory' 
                       ? 'Создать подкатегорию' 
                       : editingCategory 
                       ? 'Редактировать категорию' 
@@ -358,7 +438,7 @@ const Categories = () => {
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4 pb-6 overflow-y-auto flex-1">
-                  {formContent}
+                  {isEditingSubcategory ? subcategoryEditForm : formContent}
                 </div>
               </DrawerContent>
             </Drawer>
@@ -372,14 +452,16 @@ const Categories = () => {
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-bold font-manrope">
-                    {activeTab === 'subcategory' 
+                    {isEditingSubcategory 
+                      ? 'Редактировать подкатегорию'
+                      : activeTab === 'subcategory' 
                       ? 'Создать подкатегорию' 
                       : editingCategory 
                       ? 'Редактировать категорию' 
                       : 'Создать категорию'}
                   </DialogTitle>
                 </DialogHeader>
-                {formContent}
+                {isEditingSubcategory ? subcategoryEditForm : formContent}
               </DialogContent>
             </Dialog>
           )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Mic } from "lucide-react";
+import logo from "@/assets/kapitallo-logo.png";
 
 interface SplashScreenProps {
   onFinished: () => void;
@@ -57,8 +57,8 @@ export const SplashScreen = ({ onFinished, minDisplayTime = 1800 }: SplashScreen
           showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
         }`}
       >
-        <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl">
-          <Mic className="w-12 h-12 text-white" />
+        <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl overflow-hidden">
+          <img src={logo} alt="Kapitallo" className="w-full h-full object-contain" />
         </div>
       </div>
 
@@ -68,7 +68,7 @@ export const SplashScreen = ({ onFinished, minDisplayTime = 1800 }: SplashScreen
           showTitle ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
-        Voisy
+        Kapitallo
       </h1>
 
       {/* Tagline */}

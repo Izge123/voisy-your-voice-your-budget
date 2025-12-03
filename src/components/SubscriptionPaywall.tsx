@@ -30,13 +30,13 @@ export const SubscriptionPaywall = ({ open, onOpenChange, daysRemaining }: Subsc
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-center text-muted-foreground text-sm">
-              Чтобы продолжить использовать все функции Voisy, оформите подписку PRO
+              Чтобы продолжить использовать все функции Kapitallo, оформите подписку PRO
             </p>
             
             <div className="p-4 rounded-xl bg-muted/50 border border-border">
               <div className="flex items-center gap-2 mb-3">
                 <Crown className="h-5 w-5 text-primary" />
-                <span className="font-semibold">Voisy PRO — $4.99/мес</span>
+                <span className="font-semibold">Kapitallo PRO — $4.99/мес</span>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">

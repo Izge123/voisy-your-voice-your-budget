@@ -17,7 +17,7 @@ const Hero = () => {
 
             {/* Subheading */}
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-inter mb-6 md:mb-8">
-              Забудь про Excel и ручной ввод. Voisy распознает твои траты, разделит чек на категории и покажет, куда уходят деньги.
+              Забудь про Excel и ручной ввод. Kapitallo распознает твои траты, разделит чек на категории и покажет, куда уходят деньги.
             </p>
 
             {/* CTA Button */}

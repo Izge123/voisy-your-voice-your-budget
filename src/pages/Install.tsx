@@ -46,7 +46,7 @@ const Install = () => {
           <CheckCircle2 className="w-8 h-8 text-emerald-500" />
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">Уже установлено!</h1>
-        <p className="text-muted-foreground mb-6">Voisy работает как приложение</p>
+        <p className="text-muted-foreground mb-6">Kapitallo работает как приложение</p>
         <Link to="/app/dashboard">
           <Button>Перейти в приложение</Button>
         </Link>
@@ -62,19 +62,19 @@ const Install = () => {
           <Link to="/" className="p-2 -ml-2 hover:bg-accent rounded-lg">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="font-bold text-lg">Установка Voisy</h1>
+          <h1 className="font-bold text-lg">Установка Kapitallo</h1>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-lg">
         {/* Hero */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-white font-bold text-3xl">V</span>
+          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
+            <img src="/kapitallo-logo.png" alt="Kapitallo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">Установите приложение</h2>
           <p className="text-muted-foreground">
-            Быстрый доступ к Voisy прямо с главного экрана
+            Быстрый доступ к Kapitallo прямо с главного экрана
           </p>
         </div>
 
@@ -106,7 +106,7 @@ const Install = () => {
             </p>
             <Button onClick={handleInstall} className="gap-2">
               <Download className="w-4 h-4" />
-              Установить Voisy
+              Установить Kapitallo
             </Button>
           </div>
         )}

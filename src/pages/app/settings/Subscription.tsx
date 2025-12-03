@@ -25,7 +25,7 @@ const SubscriptionSettings = () => {
           color: "text-amber-600" 
         };
       case 'active':
-        return { label: "Voisy PRO", color: "text-secondary" };
+        return { label: "Kapitallo PRO", color: "text-secondary" };
       case 'expired':
         return { label: "Истёк", color: "text-destructive" };
       case 'cancelled':
@@ -78,7 +78,7 @@ const SubscriptionSettings = () => {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-primary" />
-            <CardTitle>Voisy PRO</CardTitle>
+            <CardTitle>Kapitallo PRO</CardTitle>
           </div>
           <CardDescription>
             Полный доступ ко всем функциям
@@ -120,7 +120,7 @@ const SubscriptionSettings = () => {
               <div className="p-4 rounded-lg bg-secondary/10 border border-secondary/20">
                 <p className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Crown className="h-4 w-4 text-secondary" />
-                  Вы используете Voisy PRO
+                  Вы используете Kapitallo PRO
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">Спасибо за поддержку!</p>
               </div>

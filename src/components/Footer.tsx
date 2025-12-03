@@ -1,4 +1,5 @@
-import { AudioWaveform, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import logo from "@/assets/kapitallo-logo.png";
 
 const Footer = () => {
   const links = [
@@ -19,8 +20,8 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <AudioWaveform className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold font-manrope text-primary">Voisy</span>
+              <img src={logo} alt="Kapitallo" className="h-6 w-6" />
+              <span className="text-xl font-bold font-manrope text-primary">Kapitallo</span>
             </div>
             <p className="text-sm font-inter text-muted-foreground max-w-md mb-4">
               Умный учет финансов голосом. Забудь про Excel и ручной ввод — просто скажи, и AI запишет.
@@ -28,10 +29,10 @@ const Footer = () => {
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <a 
-                href="mailto:hello@getvoisy.com" 
+                href="mailto:hello@kapitallo.com" 
                 className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
               >
-                hello@getvoisy.com
+                hello@kapitallo.com
               </a>
             </div>
           </div>
@@ -77,13 +78,13 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm font-inter text-muted-foreground">
-            © 2025 Voisy. Все права защищены.
+            © 2025 Kapitallo. Все права защищены.
           </p>
           
           {/* Social Links */}
           <div className="flex items-center gap-4">
             <a 
-              href="https://t.me/voisy" 
+              href="https://t.me/kapitallo" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
@@ -91,7 +92,7 @@ const Footer = () => {
               Telegram
             </a>
             <a 
-              href="https://twitter.com/voisy" 
+              href="https://twitter.com/kapitallo" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
@@ -99,7 +100,7 @@ const Footer = () => {
               Twitter
             </a>
             <a 
-              href="https://instagram.com/voisy" 
+              href="https://instagram.com/kapitallo" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"

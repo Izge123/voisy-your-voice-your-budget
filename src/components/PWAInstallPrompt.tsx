@@ -78,12 +78,12 @@ export const PWAInstallPrompt = () => {
       </button>
 
       <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-xl">V</span>
+        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <img src="/kapitallo-logo.png" alt="Kapitallo" className="w-full h-full object-contain" />
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-sm">Установите Voisy</h3>
+          <h3 className="font-semibold text-foreground text-sm">Установите Kapitallo</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             {isIOS 
               ? 'Нажмите "Поделиться" → "На экран Домой"' 

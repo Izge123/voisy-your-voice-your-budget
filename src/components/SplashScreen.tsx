@@ -57,7 +57,7 @@ export const SplashScreen = ({ onFinished, minDisplayTime = 1800 }: SplashScreen
           showIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
         }`}
       >
-        <div className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl overflow-hidden">
+        <div className="w-36 h-36 rounded-[32px] bg-white flex items-center justify-center shadow-2xl overflow-hidden">
           <img src={logo} alt="Kapitallo" className="w-full h-full object-contain" />
         </div>
       </div>

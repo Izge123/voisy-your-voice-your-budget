@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet";
-import logo from "@/assets/kapitallo-logo.png";
+import logo from "@/assets/kapitallo-logo.svg";
 const Header = () => {
   const [open, setOpen] = useState(false);
   const navLinks = [{

@@ -1,22 +1,8 @@
 import { X, Check, ArrowRight, Activity } from "lucide-react";
-
 const ProblemSolution = () => {
-  const problems = [
-    "Забывал внести траты к вечеру",
-    "Лень выбирать категории вручную",
-    "В приложении банка каша из переводов",
-    "Excel-таблицы — это долго и скучно"
-  ];
-
-  const solutions = [
-    "Сказал на ходу — записано за 3 секунды",
-    "AI сам понял, что это 'Продукты', а не 'Машина'",
-    "Учитывает наличку, карты и крипту в одном месте",
-    "Красивая аналитика вместо цифр"
-  ];
-
-  return (
-    <section id="features" className="w-full py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
+  const problems = ["Забывал внести траты к вечеру", "Лень выбирать категории вручную", "В приложении банка каша из переводов", "Excel-таблицы — это долго и скучно"];
+  const solutions = ["Сказал на ходу — записано за 3 секунды", "AI сам понял, что это 'Продукты', а не 'Машина'", "Учитывает наличку, карты и крипту в одном месте", "Красивая аналитика вместо цифр"];
+  return <section id="features" className="w-full py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">
@@ -50,24 +36,20 @@ const ProblemSolution = () => {
                   <span>Категория</span>
                   <span>Сумма</span>
                 </div>
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="flex justify-between text-[9px] font-mono text-muted-foreground/70">
+                {[...Array(4)].map((_, i) => <div key={i} className="flex justify-between text-[9px] font-mono text-muted-foreground/70">
                     <span>01.12.2025</span>
                     <span>???</span>
                     <span>₽ {(Math.random() * 1000).toFixed(0)}</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
 
             {/* Problems List */}
             <ul className="space-y-3">
-              {problems.map((problem, index) => (
-                <li key={index} className="flex items-start gap-3">
+              {problems.map((problem, index) => <li key={index} className="flex items-start gap-3">
                   <X className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                   <span className="text-sm font-inter text-muted-foreground">{problem}</span>
-                </li>
-              ))}
+                </li>)}
             </ul>
 
             {/* Emotion Badge */}
@@ -107,7 +89,7 @@ const ProblemSolution = () => {
               </div>
               <div>
                 <h3 className="text-2xl font-bold font-manrope text-foreground">Магия AI</h3>
-                <p className="text-sm font-inter text-primary font-semibold">Voisy</p>
+                <p className="text-sm font-inter text-primary font-semibold">Kapitallo</p>
               </div>
             </div>
 
@@ -116,16 +98,10 @@ const ProblemSolution = () => {
               <div className="flex items-center justify-center gap-2">
                 <Activity className="h-12 w-12 text-primary animate-pulse" strokeWidth={3} />
                 <div className="flex gap-1 items-end h-12">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 bg-gradient-to-t from-indigo-500 to-emerald-500 rounded-full animate-pulse"
-                      style={{
-                        height: `${Math.random() * 48 + 16}px`,
-                        animationDelay: `${i * 100}ms`,
-                      }}
-                    />
-                  ))}
+                  {[...Array(8)].map((_, i) => <div key={i} className="w-1.5 bg-gradient-to-t from-indigo-500 to-emerald-500 rounded-full animate-pulse" style={{
+                  height: `${Math.random() * 48 + 16}px`,
+                  animationDelay: `${i * 100}ms`
+                }} />)}
                 </div>
               </div>
               <p className="text-center text-xs font-inter font-semibold text-primary mt-3">AI распознает речь за секунды</p>
@@ -136,12 +112,12 @@ const ProblemSolution = () => {
 
             {/* Solutions List */}
             <ul className="space-y-3">
-              {solutions.map((solution, index) => (
-                <li key={index} className="flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+              {solutions.map((solution, index) => <li key={index} className="flex items-start gap-3 animate-fade-in" style={{
+              animationDelay: `${index * 100}ms`
+            }}>
                   <Check className="h-5 w-5 text-secondary shrink-0 mt-0.5" strokeWidth={3} />
                   <span className="text-sm font-inter text-foreground font-semibold">{solution}</span>
-                </li>
-              ))}
+                </li>)}
             </ul>
 
             {/* Emotion Badge */}
@@ -152,8 +128,6 @@ const ProblemSolution = () => {
 
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default ProblemSolution;

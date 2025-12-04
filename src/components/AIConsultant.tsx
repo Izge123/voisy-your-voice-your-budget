@@ -1,8 +1,6 @@
 import { Bot, User } from "lucide-react";
-
 const AIConsultant = () => {
-  return (
-    <section className="w-full py-16 md:py-24 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
+  return <section className="w-full py-16 md:py-24 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
       {/* Decorative gradient orbs - simplified for iOS */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full opacity-40"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full opacity-40"></div>
@@ -16,9 +14,7 @@ const AIConsultant = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-white mb-4">
             Личный финансовый аналитик в кармане
           </h2>
-          <p className="text-base md:text-lg text-slate-300 font-inter max-w-3xl mx-auto">
-            Задавай вопросы, как живому человеку. Voisy анализирует твои привычки и дает советы.
-          </p>
+          <p className="text-base md:text-lg text-slate-300 font-inter max-w-3xl mx-auto">Задавай вопросы, как живому человеку. Kapitallo анализирует твои привычки и дает советы.</p>
         </div>
 
         {/* Chat Interface */}
@@ -41,14 +37,16 @@ const AIConsultant = () => {
               </div>
 
               {/* AI Response */}
-              <div className="flex justify-start animate-fade-in" style={{ animationDelay: "300ms" }}>
+              <div className="flex justify-start animate-fade-in" style={{
+              animationDelay: "300ms"
+            }}>
                 <div className="flex items-start gap-3 max-w-[85%]">
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary shrink-0">
                     <Bot className="h-5 w-5 text-white" />
                   </div>
                   <div className="bg-slate-700/80 rounded-2xl rounded-tl-sm px-5 py-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold font-inter text-secondary">Voisy AI</span>
+                      <span className="text-xs font-semibold font-inter text-secondary">Kapitallo AI</span>
                       <div className="w-2 h-2 rounded-full bg-secondary"></div>
                     </div>
                     <p className="text-sm md:text-base font-inter text-slate-100 leading-relaxed">
@@ -61,7 +59,9 @@ const AIConsultant = () => {
               </div>
 
               {/* Typing Indicator */}
-              <div className="flex justify-start animate-fade-in" style={{ animationDelay: "600ms" }}>
+              <div className="flex justify-start animate-fade-in" style={{
+              animationDelay: "600ms"
+            }}>
                 <div className="flex items-start gap-3">
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary shrink-0">
                     <Bot className="h-5 w-5 text-white" />
@@ -95,8 +95,6 @@ const AIConsultant = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default AIConsultant;

@@ -1,8 +1,6 @@
 import { ArrowDown, Mic } from "lucide-react";
-
 const KillerFeature = () => {
-  return (
-    <section className="w-full py-16 md:py-24 bg-background">
+  return <section className="w-full py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
           {/* Text Content */}
@@ -15,7 +13,7 @@ const KillerFeature = () => {
             </h2>
             <p className="text-base md:text-lg text-muted-foreground font-inter leading-relaxed mb-6">
               Бывало такое: сходил в супермаркет, чек на 10 000, а там и еда, и бытовая химия, и алкоголь? 
-              Обычные приложения запишут всё в "Еду". <span className="font-semibold text-foreground">Voisy умнее.</span>
+              Обычные приложения запишут всё в "Еду". <span className="font-semibold text-foreground">Kapitallo умнее.</span>
             </p>
             <div className="flex flex-wrap gap-3">
               <div className="px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-medium font-inter">
@@ -52,7 +50,9 @@ const KillerFeature = () => {
 
               {/* Result Cards */}
               <div className="space-y-4">
-                <div className="bg-card rounded-2xl p-4 shadow-lg border border-border hover:shadow-xl transition-shadow animate-fade-in" style={{ animationDelay: "200ms" }}>
+                <div className="bg-card rounded-2xl p-4 shadow-lg border border-border hover:shadow-xl transition-shadow animate-fade-in" style={{
+                animationDelay: "200ms"
+              }}>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-secondary/10">
                       <span className="text-2xl">🚖</span>
@@ -67,7 +67,9 @@ const KillerFeature = () => {
                   </div>
                 </div>
 
-                <div className="bg-card rounded-2xl p-4 shadow-lg border border-border hover:shadow-xl transition-shadow animate-fade-in" style={{ animationDelay: "400ms" }}>
+                <div className="bg-card rounded-2xl p-4 shadow-lg border border-border hover:shadow-xl transition-shadow animate-fade-in" style={{
+                animationDelay: "400ms"
+              }}>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-secondary/10">
                       <span className="text-2xl">☕</span>
@@ -86,8 +88,6 @@ const KillerFeature = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default KillerFeature;

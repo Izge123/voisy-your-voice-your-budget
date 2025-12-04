@@ -182,7 +182,7 @@ const Auth = () => {
 
         <div className="w-full max-w-md relative z-10">
           <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
-            <img src="/kapitallo-logo.png" alt="Kapitallo" className="h-10 w-10" />
+            <img src="/kapitallo-logo.svg" alt="Kapitallo" className="h-10 w-10" />
             <span className="text-3xl font-extrabold font-manrope text-primary">Kapitallo</span>
           </div>
 
@@ -231,7 +231,7 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
-          <img src="/kapitallo-logo.png" alt="Kapitallo" className="h-10 w-10" />
+          <img src="/kapitallo-logo.svg" alt="Kapitallo" className="h-10 w-10" />
           
         </div>
 

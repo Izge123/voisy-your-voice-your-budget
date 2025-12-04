@@ -1,5 +1,5 @@
 import { Mail } from "lucide-react";
-import logo from "@/assets/kapitallo-logo.png";
+import logo from "@/assets/kapitallo-logo.svg";
 const Footer = () => {
   const links = [{
     label: "Возможности",

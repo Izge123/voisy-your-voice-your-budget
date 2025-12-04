@@ -87,7 +87,7 @@ const ComparisonTable = () => {
               </div>
               <div className="p-4 md:p-6 bg-gradient-to-br from-primary/10 to-secondary/10">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm md:text-base font-bold font-manrope text-primary">Voisy</span>
+                  <span className="text-sm md:text-base font-bold font-manrope text-primary">Kapitallo</span>
                   <div className="px-2 py-0.5 rounded-full bg-primary text-white text-xs font-semibold">NEW</div>
                 </div>
               </div>

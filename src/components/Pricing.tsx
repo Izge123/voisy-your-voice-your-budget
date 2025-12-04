@@ -22,7 +22,7 @@ const Pricing = () => {
       popular: false
     },
     {
-      name: "Voisy PRO",
+      name: "Kapitallo PRO",
       price: isYearly ? 3.99 : 4.99,
       period: "мес",
       originalPrice: isYearly ? 4.99 : null,

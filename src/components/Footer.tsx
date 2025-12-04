@@ -1,37 +1,38 @@
 import { Mail } from "lucide-react";
 import logo from "@/assets/kapitallo-logo.png";
-
 const Footer = () => {
-  const links = [
-    { label: "Возможности", href: "#features" },
-    { label: "Тарифы", href: "#pricing" },
-    { label: "FAQ", href: "#faq" }
-  ];
-
-  const legal = [
-    { label: "Оферта", href: "#" },
-    { label: "Политика конфиденциальности", href: "#" }
-  ];
-
-  return (
-    <footer className="w-full py-12 md:py-16 bg-muted/30 border-t border-border">
+  const links = [{
+    label: "Возможности",
+    href: "#features"
+  }, {
+    label: "Тарифы",
+    href: "#pricing"
+  }, {
+    label: "FAQ",
+    href: "#faq"
+  }];
+  const legal = [{
+    label: "Оферта",
+    href: "#"
+  }, {
+    label: "Политика конфиденциальности",
+    href: "#"
+  }];
+  return <footer className="w-full py-12 md:py-16 bg-muted/30 border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <img src={logo} alt="Kapitallo" className="h-6 w-6" />
-              <span className="text-xl font-bold font-manrope text-primary">Kapitallo</span>
+              
             </div>
             <p className="text-sm font-inter text-muted-foreground max-w-md mb-4">
               Умный учет финансов голосом. Забудь про Excel и ручной ввод — просто скажи, и AI запишет.
             </p>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <a 
-                href="mailto:hello@kapitallo.com" 
-                className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-              >
+              <a href="mailto:hello@kapitallo.com" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
                 hello@kapitallo.com
               </a>
             </div>
@@ -41,16 +42,11 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-bold font-manrope text-foreground mb-4">Навигация</h3>
             <ul className="space-y-3">
-              {links.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  >
+              {links.map((link, index) => <li key={index}>
+                  <a href={link.href} className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -58,16 +54,11 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-bold font-manrope text-foreground mb-4">Документы</h3>
             <ul className="space-y-3">
-              {legal.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  >
+              {legal.map((link, index) => <li key={index}>
+                  <a href={link.href} className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
         </div>
@@ -83,35 +74,18 @@ const Footer = () => {
           
           {/* Social Links */}
           <div className="flex items-center gap-4">
-            <a 
-              href="https://t.me/kapitallo" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-            >
+            <a href="https://t.me/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
               Telegram
             </a>
-            <a 
-              href="https://twitter.com/kapitallo" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-            >
+            <a href="https://twitter.com/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
               Twitter
             </a>
-            <a 
-              href="https://instagram.com/kapitallo" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-            >
+            <a href="https://instagram.com/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
               Instagram
             </a>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;

@@ -1,33 +1,62 @@
 import { Check, X, AlertTriangle } from "lucide-react";
-
 const ComparisonTable = () => {
-  const features = [
-    {
-      name: "Ввод данных",
-      voisy: { text: "Голосом (3 сек)", icon: "check" },
-      banks: { text: "Авто (только карты)", icon: "warning" },
-      excel: { text: "Руками (долго)", icon: "cross" }
+  const features = [{
+    name: "Ввод данных",
+    voisy: {
+      text: "Голосом (3 сек)",
+      icon: "check"
     },
-    {
-      name: "Наличные",
-      voisy: { text: "Да", icon: "check" },
-      banks: { text: "Нет", icon: "cross" },
-      excel: { text: "Да", icon: "check" }
+    banks: {
+      text: "Авто (только карты)",
+      icon: "warning"
     },
-    {
-      name: "Сплит чеков (AI)",
-      voisy: { text: "Да", icon: "check" },
-      banks: { text: "Базовая", icon: "warning" },
-      excel: { text: "Нет", icon: "cross" }
-    },
-    {
-      name: "Советы",
-      voisy: { text: "AI-аналитик", icon: "check" },
-      banks: { text: "Реклама", icon: "cross" },
-      excel: { text: "Нет", icon: "cross" }
+    excel: {
+      text: "Руками (долго)",
+      icon: "cross"
     }
-  ];
-
+  }, {
+    name: "Наличные",
+    voisy: {
+      text: "Да",
+      icon: "check"
+    },
+    banks: {
+      text: "Нет",
+      icon: "cross"
+    },
+    excel: {
+      text: "Да",
+      icon: "check"
+    }
+  }, {
+    name: "Сплит чеков (AI)",
+    voisy: {
+      text: "Да",
+      icon: "check"
+    },
+    banks: {
+      text: "Базовая",
+      icon: "warning"
+    },
+    excel: {
+      text: "Нет",
+      icon: "cross"
+    }
+  }, {
+    name: "Советы",
+    voisy: {
+      text: "AI-аналитик",
+      icon: "check"
+    },
+    banks: {
+      text: "Реклама",
+      icon: "cross"
+    },
+    excel: {
+      text: "Нет",
+      icon: "cross"
+    }
+  }];
   const getIcon = (type: string) => {
     switch (type) {
       case "check":
@@ -40,14 +69,10 @@ const ComparisonTable = () => {
         return null;
     }
   };
-
-  return (
-    <section className="w-full py-16 md:py-24 bg-background">
+  return <section className="w-full py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">
-          Почему Voisy лучше Excel?
-        </h2>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">Почему Kapitallo лучше Excel?</h2>
         <p className="text-center text-muted-foreground font-inter mb-12 md:mb-16 max-w-2xl mx-auto">
           Сравните сами: старые методы vs умный финансовый помощник
         </p>
@@ -75,13 +100,7 @@ const ComparisonTable = () => {
             </div>
 
             {/* Rows */}
-            {features.map((feature, index) => (
-              <div 
-                key={index} 
-                className={`grid grid-cols-4 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors ${
-                  index % 2 === 0 ? "" : "bg-muted/10"
-                }`}
-              >
+            {features.map((feature, index) => <div key={index} className={`grid grid-cols-4 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors ${index % 2 === 0 ? "" : "bg-muted/10"}`}>
                 <div className="p-4 md:p-6">
                   <span className="text-sm md:text-base font-medium font-inter text-foreground">{feature.name}</span>
                 </div>
@@ -103,13 +122,10 @@ const ComparisonTable = () => {
                     <span className="text-sm md:text-base font-inter text-muted-foreground">{feature.excel.text}</span>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default ComparisonTable;

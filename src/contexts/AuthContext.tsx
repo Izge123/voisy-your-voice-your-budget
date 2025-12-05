@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -54,25 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       password,
     });
 
-    if (error) {
-      const errorMessages: { [key: string]: string } = {
-        "Invalid login credentials": "Неверный email или пароль",
-        "Email not confirmed": "Email не подтверждён. Проверьте почту.",
-        "User not found": "Пользователь не найден",
-      };
-      
-      toast({
-        variant: "destructive",
-        title: "Ошибка входа",
-        description: errorMessages[error.message] || error.message,
-      });
-    } else {
-      toast({
-        title: "Добро пожаловать!",
-        description: "Вы успешно вошли в систему",
-      });
-    }
-
     return { error };
   };
 
@@ -90,25 +70,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       },
     });
 
-    if (error) {
-      const errorMessages: { [key: string]: string } = {
-        "User already registered": "Этот email уже зарегистрирован",
-        "Password should be at least 6 characters": "Пароль должен содержать минимум 6 символов",
-        "Unable to validate email address: invalid format": "Некорректный формат email",
-      };
-
-      toast({
-        variant: "destructive",
-        title: "Ошибка регистрации",
-        description: errorMessages[error.message] || error.message,
-      });
-    } else {
-      toast({
-        title: "Регистрация успешна!",
-        description: "Проверьте почту для подтверждения аккаунта",
-      });
-    }
-
     return { error };
   };
 
@@ -120,14 +81,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       },
     });
 
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка входа через Google",
-        description: error.message,
-      });
-    }
-
     return { error };
   };
 
@@ -136,28 +89,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       redirectTo: `${window.location.origin}/auth?reset=true`,
     });
 
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка сброса пароля",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Проверьте почту",
-        description: "Мы отправили вам ссылку для сброса пароля",
-      });
-    }
-
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    toast({
-      title: "Вы вышли из системы",
-      description: "До скорой встречи!",
-    });
     navigate("/");
   };
 

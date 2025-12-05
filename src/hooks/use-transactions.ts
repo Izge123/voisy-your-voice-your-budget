@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 
 export interface Transaction {
   id: string;
@@ -88,10 +87,8 @@ export const useTransactions = (limit?: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['balance'] });
-      toast.success('Транзакция добавлена');
     },
     onError: (error) => {
-      toast.error('Ошибка при добавлении транзакции');
       console.error('Add transaction error:', error);
     },
   });
@@ -111,10 +108,8 @@ export const useTransactions = (limit?: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['balance'] });
-      toast.success('Транзакция обновлена');
     },
     onError: (error) => {
-      toast.error('Ошибка при обновлении транзакции');
       console.error('Update transaction error:', error);
     },
   });
@@ -131,10 +126,8 @@ export const useTransactions = (limit?: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['balance'] });
-      toast.success('Транзакция удалена');
     },
     onError: (error) => {
-      toast.error('Ошибка при удалении транзакции');
       console.error('Delete transaction error:', error);
     },
   });

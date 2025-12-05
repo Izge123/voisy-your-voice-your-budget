@@ -30,11 +30,12 @@ export function formatCurrency(
   currency: string = 'USD'
 ): string {
   const symbol = CURRENCY_SYMBOLS[currency] || currency;
+  const isNegative = amount < 0;
   const formatted = Math.abs(amount).toLocaleString('ru-RU', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
-  return `${symbol}${formatted}`;
+  return isNegative ? `-${symbol}${formatted}` : `${symbol}${formatted}`;
 }
 
 export function getCurrencySymbol(currency: string = 'USD'): string {

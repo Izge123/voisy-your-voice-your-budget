@@ -7,12 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, KeyRound, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import SettingsPageHeader from "@/components/SettingsPageHeader";
 
 const ProfileSettings = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,17 +52,7 @@ const ProfileSettings = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить изменения",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Сохранено",
-        description: "Профиль успешно обновлён",
-      });
+    if (!error) {
       setIsEdited(false);
     }
   };
@@ -79,21 +67,11 @@ const ProfileSettings = () => {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Ошибка",
-        description: "Пожалуйста, выберите изображение",
-        variant: "destructive",
-      });
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Ошибка",
-        description: "Размер файла не должен превышать 5MB",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -127,16 +105,8 @@ const ProfileSettings = () => {
       if (updateError) throw updateError;
 
       setAvatarUrl(newAvatarUrl);
-      toast({
-        title: "Успешно",
-        description: "Фото профиля обновлено",
-      });
     } catch (error: any) {
-      toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось загрузить фото",
-        variant: "destructive",
-      });
+      console.error('Error uploading avatar:', error);
     } finally {
       setIsUploadingAvatar(false);
       // Reset input
@@ -157,18 +127,8 @@ const ProfileSettings = () => {
 
     setIsResetLoading(false);
 
-    if (error) {
-      toast({
-        title: "Ошибка",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
+    if (!error) {
       setResetSent(true);
-      toast({
-        title: "Письмо отправлено",
-        description: "Проверьте почту для сброса пароля",
-      });
     }
   };
 

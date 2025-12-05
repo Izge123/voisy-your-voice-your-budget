@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 const loginSchema = z.object({
@@ -41,9 +40,6 @@ const Auth = () => {
     resetPassword,
     user
   } = useAuth();
-  const {
-    toast
-  } = useToast();
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
     email: "",
@@ -159,17 +155,7 @@ const Auth = () => {
       password: newPassword
     });
     setIsLoading(false);
-    if (error) {
-      toast({
-        title: "Ошибка",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Успешно",
-        description: "Пароль успешно изменён"
-      });
+    if (!error) {
       navigate("/app/dashboard");
     }
   };

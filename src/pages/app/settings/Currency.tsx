@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import SettingsPageHeader from "@/components/SettingsPageHeader";
 
 const CurrencySettings = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [currency, setCurrency] = useState("USD");
   const [monthlyBudget, setMonthlyBudget] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,17 +48,7 @@ const CurrencySettings = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить изменения",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Сохранено",
-        description: "Настройки валюты обновлены",
-      });
+    if (!error) {
       setIsEdited(false);
     }
   };

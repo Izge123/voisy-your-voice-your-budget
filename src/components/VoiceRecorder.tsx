@@ -11,7 +11,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTransactions } from "@/hooks/use-transactions";
 import { useCategories } from "@/hooks/use-categories";
-import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -48,7 +47,6 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   const { user } = useAuth();
   const { addTransaction } = useTransactions();
   const { categories } = useCategories();
-  const { toast } = useToast();
   const { profile } = useProfile();
   const currency = profile?.currency || 'USD';
 
@@ -170,21 +168,11 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
         });
       }
 
-      toast({
-        title: "Успешно",
-        description: `Добавлено ${parsedTransactions.length} транзакций`,
-      });
-
       onOpenChange(false);
       setStatus('idle');
       setParsedTransactions([]);
     } catch (error) {
       console.error('Error saving transactions:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить транзакции",
-        variant: "destructive"
-      });
     }
   };
 

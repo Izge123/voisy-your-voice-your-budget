@@ -24,7 +24,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading } = useTransactions(10);
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { notifications: recentNotifications } = useNotifications(5);
   const { unreadCount } = useUnreadCount();
   const markAsRead = useMarkAsRead();
@@ -198,7 +198,7 @@ const Dashboard = () => {
           <div className="relative z-10">
             <p className="text-xs text-white/70 font-inter mb-1 capitalize">Баланс за {currentMonthYear}</p>
             <h2 className="text-3xl md:text-5xl font-extrabold font-manrope text-white mb-3 md:mb-6">
-              {balanceLoading ? (
+              {balanceLoading || profileLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
                 formatCurrency(balance, currency)
@@ -215,7 +215,9 @@ const Dashboard = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-white/60 font-inter">Доходы</p>
-                    <p className="text-sm font-bold font-manrope text-secondary">+{formatCurrency(income, currency)}</p>
+                    <p className="text-sm font-bold font-manrope text-secondary">
+                      {profileLoading ? "..." : `+${formatCurrency(income, currency)}`}
+                    </p>
                   </div>
                 </div>
                 <div className="w-px h-10 bg-white/20"></div>
@@ -225,7 +227,9 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter">Расходы</p>
-                    <p className="text-sm font-bold font-manrope text-rose-300">-{formatCurrency(expenses, currency)}</p>
+                    <p className="text-sm font-bold font-manrope text-rose-300">
+                      {profileLoading ? "..." : `-${formatCurrency(expenses, currency)}`}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -237,7 +241,9 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-xs text-white/60 font-inter">Остаток</p>
-                  <p className="text-sm font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
+                  <p className="text-sm font-bold font-manrope text-amber-300">
+                    {profileLoading ? "..." : formatCurrency(savings, currency)}
+                  </p>
                 </div>
               </div>
 
@@ -250,7 +256,9 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Доходы</p>
-                    <p className="text-lg font-bold font-manrope text-secondary">+{formatCurrency(income, currency)}</p>
+                    <p className="text-lg font-bold font-manrope text-secondary">
+                      {profileLoading ? "..." : `+${formatCurrency(income, currency)}`}
+                    </p>
                   </div>
                 </div>
 
@@ -261,7 +269,9 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Расходы</p>
-                    <p className="text-lg font-bold font-manrope text-rose-300">-{formatCurrency(expenses, currency)}</p>
+                    <p className="text-lg font-bold font-manrope text-rose-300">
+                      {profileLoading ? "..." : `-${formatCurrency(expenses, currency)}`}
+                    </p>
                   </div>
                 </div>
 
@@ -272,7 +282,9 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-white/60 font-inter mb-1">Остаток</p>
-                    <p className="text-lg font-bold font-manrope text-amber-300">{formatCurrency(savings, currency)}</p>
+                    <p className="text-lg font-bold font-manrope text-amber-300">
+                      {profileLoading ? "..." : formatCurrency(savings, currency)}
+                    </p>
                   </div>
                 </div>
               </div>

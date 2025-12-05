@@ -35,11 +35,12 @@ const SettingsMenuItem = ({ icon, iconBg, title, subtitle, onClick, danger }: Se
 const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { unreadCount } = useUnreadCount();
 
   const currency = profile?.currency || "USD";
   const currencySymbol = getCurrencySymbol(currency);
+  const currencySubtitle = profileLoading ? "Загрузка..." : `${currency} (${currencySymbol})`;
   const notificationsSubtitle = unreadCount > 0 ? `${unreadCount} непрочитанных` : "Всё прочитано";
 
   return (
@@ -69,7 +70,7 @@ const Settings = () => {
           icon={<Wallet className="h-5 w-5 text-secondary" />}
           iconBg="bg-secondary/10"
           title="Валюта и бюджет"
-          subtitle={`${currency} (${currencySymbol})`}
+          subtitle={currencySubtitle}
           onClick={() => navigate("/app/settings/currency")}
         />
         <SettingsMenuItem

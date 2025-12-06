@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
         short_name: 'Kapitallo',
         description: 'Просто скажи — AI запишет. Учёт финансов голосом с AI.',
         theme_color: '#4F46E5',
-        background_color: '#F8FAFC',
+        background_color: '#4F46E5',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/app/dashboard',

@@ -26,7 +26,7 @@ const Analytics = () => {
   });
   const { transactions, isLoading } = useTransactions();
   const { categories } = useCategories();
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const currency = profile?.currency || 'USD';
 
   // Handle period change
@@ -404,7 +404,7 @@ const Analytics = () => {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

@@ -45,16 +45,20 @@ const Dashboard = () => {
 
   // Обработка URL параметра для автоматического запуска голосового ввода
   useEffect(() => {
-    if (searchParams.get('startVoice') === 'true' && !isVoiceOpen) {
-      // Сначала очищаем параметр
+    const shouldStartVoice = searchParams.get('startVoice') === 'true';
+    
+    if (shouldStartVoice) {
+      // Сначала очищаем параметр чтобы избежать повторных срабатываний
       setSearchParams({}, { replace: true });
-      // Небольшая задержка чтобы избежать race condition
-      const timer = setTimeout(() => {
+      
+      // Проверяем подписку перед открытием
+      if (!canPerformAction) {
+        setShowPaywall(true);
+      } else {
         setIsVoiceOpen(true);
-      }, 50);
-      return () => clearTimeout(timer);
+      }
     }
-  }, [searchParams, setSearchParams, isVoiceOpen]);
+  }, [searchParams, setSearchParams, canPerformAction]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

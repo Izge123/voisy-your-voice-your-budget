@@ -112,11 +112,17 @@ All colors MUST be HSL.
   }
 }
 
-/* Mobile keyboard fixes */
+/* Mobile drawer height fixes with safe area support */
 @supports (height: 100dvh) {
   .drawer-content-mobile {
-    height: 85dvh;
     max-height: 85dvh;
+  }
+}
+
+/* Safe area insets for iOS */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .drawer-content-mobile {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 }
 

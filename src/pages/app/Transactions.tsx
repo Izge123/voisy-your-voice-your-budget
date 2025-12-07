@@ -430,8 +430,8 @@ const Transactions = () => {
               <Plus className="h-6 w-6" />
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="max-h-[90vh]">
-            <DrawerHeader>
+          <DrawerContent className="max-h-[85dvh]">
+            <DrawerHeader className="shrink-0">
               <DrawerTitle className="text-2xl font-bold font-manrope">Добавить операцию</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-6 overflow-y-auto">

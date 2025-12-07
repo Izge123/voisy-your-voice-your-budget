@@ -433,7 +433,7 @@ const Categories = () => {
           <h1 className="text-2xl md:text-3xl font-bold font-manrope text-foreground">Категории</h1>
           
           {isMobile ? (
-            <Drawer open={isAddOpen} onOpenChange={setIsAddOpen} handleOnly>
+            <Drawer open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DrawerTrigger asChild>
                 <Button 
                   size="icon" 
@@ -448,7 +448,7 @@ const Categories = () => {
                   <Plus className="h-5 w-5" />
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="h-[85dvh] max-h-[85dvh]">
+              <DrawerContent className="max-h-[85dvh]">
                 <DrawerHeader>
                   <DrawerTitle className="text-2xl font-bold font-manrope">
                     {isEditingSubcategory 

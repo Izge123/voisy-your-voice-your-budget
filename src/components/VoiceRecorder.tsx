@@ -334,13 +334,13 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
-          <DrawerHeader>
+        <DrawerContent className="max-h-[85dvh]">
+          <DrawerHeader className="shrink-0">
             <DrawerTitle className="text-2xl font-bold font-manrope">
               Голосовой ввод
             </DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-6">
+          <div className="px-4 pb-6 overflow-y-auto">
             <RecorderContent />
           </div>
         </DrawerContent>

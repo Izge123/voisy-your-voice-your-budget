@@ -74,23 +74,19 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
     }
   });
 
-  // Автоматический старт записи при открытии
+  // Ref для предотвращения повторного автостарта
   const hasAutoStarted = useRef(false);
+  const autoStartTimer = useRef<NodeJS.Timeout | null>(null);
   
-  useEffect(() => {
-    if (open && status === 'idle' && !hasAutoStarted.current) {
-      hasAutoStarted.current = true;
-      // Небольшая задержка чтобы UI успел отрисоваться
-      const timer = setTimeout(() => {
-        handleStart();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [open, status]);
-
-  // Сброс состояния при закрытии
+  // Сброс состояния при закрытии - выполняется первым
   useEffect(() => {
     if (!open) {
+      // Очищаем таймер автостарта
+      if (autoStartTimer.current) {
+        clearTimeout(autoStartTimer.current);
+        autoStartTimer.current = null;
+      }
+      
       reset(); // Принудительный сброс таймера и записи
       hasAutoStarted.current = false;
       setStatus('idle');
@@ -99,6 +95,32 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
       setErrorMessage('');
     }
   }, [open, reset]);
+  
+  // Автоматический старт записи при открытии
+  useEffect(() => {
+    if (open && status === 'idle' && !hasAutoStarted.current && !isRecording) {
+      hasAutoStarted.current = true;
+      
+      // Очищаем предыдущий таймер если есть
+      if (autoStartTimer.current) {
+        clearTimeout(autoStartTimer.current);
+      }
+      
+      // Небольшая задержка чтобы UI успел отрисоваться
+      autoStartTimer.current = setTimeout(() => {
+        if (isMountedRef.current && open) {
+          handleStart();
+        }
+      }, 350);
+    }
+    
+    return () => {
+      if (autoStartTimer.current) {
+        clearTimeout(autoStartTimer.current);
+        autoStartTimer.current = null;
+      }
+    };
+  }, [open, status, isRecording]);
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
     if (!user || !isMountedRef.current) return;

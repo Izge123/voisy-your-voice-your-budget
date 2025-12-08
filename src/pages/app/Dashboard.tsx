@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,61 +35,13 @@ const Dashboard = () => {
 
   // Handler for voice button that checks subscription
   const handleVoiceClick = () => {
-    if (subscriptionLoading) return; // Ждём загрузки
+    if (subscriptionLoading) return;
     if (!canPerformAction) {
       setShowPaywall(true);
       return;
     }
     setIsVoiceOpen(true);
   };
-
-  // Обработка запроса голосового ввода через sessionStorage + event
-  const lastProcessedClickId = useRef<string | null>(null);
-  const pendingClickId = useRef<string | null>(null);
-  
-  useEffect(() => {
-    const openVoice = (clickId: string) => {
-      if (clickId === lastProcessedClickId.current || isVoiceOpen) return;
-      
-      // Если subscription ещё грузится — сохраняем и ждём
-      if (subscriptionLoading) {
-        pendingClickId.current = clickId;
-        return;
-      }
-      
-      lastProcessedClickId.current = clickId;
-      pendingClickId.current = null;
-      sessionStorage.removeItem('voiceStartRequest');
-      
-      if (!canPerformAction) {
-        setShowPaywall(true);
-      } else {
-        setIsVoiceOpen(true);
-      }
-    };
-    
-    // Проверяем pending после загрузки subscription
-    if (!subscriptionLoading && pendingClickId.current) {
-      openVoice(pendingClickId.current);
-      return;
-    }
-    
-    // Проверяем при монтировании
-    const clickId = sessionStorage.getItem('voiceStartRequest');
-    if (clickId) {
-      openVoice(clickId);
-    }
-    
-    // Слушаем событие
-    const handleEvent = (e: CustomEvent<string>) => {
-      if (e.detail) {
-        openVoice(e.detail);
-      }
-    };
-    
-    window.addEventListener('startVoiceRecording', handleEvent as EventListener);
-    return () => window.removeEventListener('startVoiceRecording', handleEvent as EventListener);
-  }, [canPerformAction, isVoiceOpen, subscriptionLoading]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

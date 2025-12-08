@@ -1,10 +1,33 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { useState, useRef, useCallback } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { Home, Folder, Mic, BarChart3, MessageSquare, Settings } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from "@/components/ui/sidebar";
 import logo from "@/assets/kapitallo-logo.png";
+
 const AppLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isNavigatingRef = useRef(false);
+  
+  // Защита от повторных кликов по микрофону
+  const handleMicClick = useCallback(() => {
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    
+    // Если уже на dashboard — просто передаём state
+    if (location.pathname === '/app/dashboard') {
+      navigate('/app/dashboard', { state: { startVoice: true, timestamp: Date.now() }, replace: true });
+    } else {
+      navigate('/app/dashboard', { state: { startVoice: true, timestamp: Date.now() } });
+    }
+    
+    // Сброс через 1 секунду
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
+  }, [navigate, location.pathname]);
   const navItems = [{
     to: "/app/dashboard",
     icon: Home,
@@ -84,7 +107,10 @@ const AppLayout = () => {
             </NavLink>
 
             {/* Central Mic Button */}
-            <button onClick={() => navigate('/app/dashboard?startVoice=true')} className="flex items-center justify-center -mt-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all">
+            <button 
+              onClick={handleMicClick} 
+              className="flex items-center justify-center -mt-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all"
+            >
               <Mic className="h-7 w-7" />
             </button>
 

@@ -10,7 +10,19 @@ interface SubscriptionStatus {
   endsAt: Date | null;
 }
 
-const CACHE_KEY = 'kapitallo_subscription_cache';
+const CACHE_VERSION = 2;
+const CACHE_KEY = `kapitallo_subscription_cache_v${CACHE_VERSION}`;
+
+function clearOldCacheVersions() {
+  try {
+    localStorage.removeItem('kapitallo_subscription_cache');
+    for (let i = 1; i < CACHE_VERSION; i++) {
+      localStorage.removeItem(`kapitallo_subscription_cache_v${i}`);
+    }
+  } catch {
+    // Ignore errors
+  }
+}
 
 function getCachedSubscription(userId: string): SubscriptionStatus | null {
   try {
@@ -84,6 +96,11 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Clear old cache versions on mount
+  useEffect(() => {
+    clearOldCacheVersions();
+  }, []);
 
   useEffect(() => {
     if (!user) {

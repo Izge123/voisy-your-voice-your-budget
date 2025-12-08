@@ -195,13 +195,14 @@ export const useBalance = () => {
       });
 
       const balance = income - expenses;
-      const savings = income - expenses; // Экономия = доходы - расходы
+      const remainder = income - expenses; // Остаток = доходы - расходы
 
       return {
         balance,
         income,
         expenses,
-        savings,
+        savingsAmount, // Реальные сбережения из транзакций типа 'savings'
+        remainder,     // Остаток = доходы - расходы
       };
     },
     enabled: !!user,
@@ -211,7 +212,8 @@ export const useBalance = () => {
     balance: data?.balance || 0,
     income: data?.income || 0,
     expenses: data?.expenses || 0,
-    savings: data?.savings || 0,
+    savingsAmount: data?.savingsAmount || 0,
+    remainder: data?.remainder || 0,
     isLoading,
     error,
   };

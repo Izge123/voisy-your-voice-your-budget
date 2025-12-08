@@ -27,7 +27,7 @@ const Dashboard = () => {
   const { notifications: recentNotifications } = useNotifications(5);
   const { unreadCount } = useUnreadCount();
   const markAsRead = useMarkAsRead();
-  const { subscription, canPerformAction } = useSubscription();
+  const { subscription, canPerformAction, loading: subscriptionLoading } = useSubscription();
   const currency = profile?.currency || 'USD';
 
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
@@ -35,6 +35,7 @@ const Dashboard = () => {
 
   // Handler for voice button that checks subscription
   const handleVoiceClick = () => {
+    if (subscriptionLoading) return; // Ждём загрузки
     if (!canPerformAction) {
       setShowPaywall(true);
       return;
@@ -44,13 +45,21 @@ const Dashboard = () => {
 
   // Обработка запроса голосового ввода через sessionStorage + event
   const lastProcessedClickId = useRef<string | null>(null);
+  const pendingClickId = useRef<string | null>(null);
   
   useEffect(() => {
     const openVoice = (clickId: string) => {
       if (clickId === lastProcessedClickId.current || isVoiceOpen) return;
       
+      // Если subscription ещё грузится — сохраняем и ждём
+      if (subscriptionLoading) {
+        pendingClickId.current = clickId;
+        return;
+      }
+      
       lastProcessedClickId.current = clickId;
-      sessionStorage.removeItem('voiceStartRequest'); // Удаляем сразу!
+      pendingClickId.current = null;
+      sessionStorage.removeItem('voiceStartRequest');
       
       if (!canPerformAction) {
         setShowPaywall(true);
@@ -59,13 +68,19 @@ const Dashboard = () => {
       }
     };
     
-    // Проверяем при монтировании (навигация с другой страницы)
+    // Проверяем pending после загрузки subscription
+    if (!subscriptionLoading && pendingClickId.current) {
+      openVoice(pendingClickId.current);
+      return;
+    }
+    
+    // Проверяем при монтировании
     const clickId = sessionStorage.getItem('voiceStartRequest');
     if (clickId) {
       openVoice(clickId);
     }
     
-    // Слушаем событие (когда уже на dashboard)
+    // Слушаем событие
     const handleEvent = (e: CustomEvent<string>) => {
       if (e.detail) {
         openVoice(e.detail);
@@ -74,7 +89,7 @@ const Dashboard = () => {
     
     window.addEventListener('startVoiceRecording', handleEvent as EventListener);
     return () => window.removeEventListener('startVoiceRecording', handleEvent as EventListener);
-  }, [canPerformAction, isVoiceOpen]);
+  }, [canPerformAction, isVoiceOpen, subscriptionLoading]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

@@ -358,29 +358,45 @@ const Transactions = () => {
           </Popover>
 
           <Badge
-            variant={selectedFilter === "all" ? "default" : "outline"}
-            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
+              selectedFilter === "all" 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted text-muted-foreground"
+            )}
             onClick={() => setSelectedFilter("all")}
           >
             Все
           </Badge>
           <Badge
-            variant={selectedFilter === "expenses" ? "default" : "outline"}
-            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
+              selectedFilter === "expenses" 
+                ? "bg-rose-500 text-white" 
+                : "bg-muted text-muted-foreground"
+            )}
             onClick={() => setSelectedFilter("expenses")}
           >
             Расходы
           </Badge>
           <Badge
-            variant={selectedFilter === "income" ? "default" : "outline"}
-            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
+              selectedFilter === "income" 
+                ? "bg-emerald-500 text-white" 
+                : "bg-muted text-muted-foreground"
+            )}
             onClick={() => setSelectedFilter("income")}
           >
             Доходы
           </Badge>
           <Badge
-            variant={selectedFilter === "savings" ? "default" : "outline"}
-            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
+              selectedFilter === "savings" 
+                ? "bg-blue-500 text-white" 
+                : "bg-muted text-muted-foreground"
+            )}
             onClick={() => setSelectedFilter("savings")}
           >
             Сбережения

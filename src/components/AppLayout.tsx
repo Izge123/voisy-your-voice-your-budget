@@ -72,32 +72,34 @@ const AppLayout = () => {
 
       {/* Bottom Tab Bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
-        <div className="flex items-center justify-around h-16 px-2">
-          <NavLink to="/app/dashboard" className="flex flex-col items-center justify-center gap-1 py-2 px-3 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
+        <div className="flex items-end justify-around h-16 px-2 pb-2">
+          <NavLink to="/app/dashboard" className="flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
             <Home className="h-6 w-6" />
             <span className="text-xs">Главная</span>
           </NavLink>
 
-          <NavLink to="/app/categories" className="flex flex-col items-center justify-center gap-1 py-2 px-3 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
+          <NavLink to="/app/categories" className="flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
             <Folder className="h-6 w-6" />
             <span className="text-xs">Категории</span>
           </NavLink>
 
           {/* Central AI Chat Button */}
-          <NavLink 
-            to="/app/ai-chat" 
-            className="flex items-center justify-center -mt-6 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-indigo-600 text-white shadow-xl hover:from-primary/90 hover:to-indigo-700 transition-all"
-            activeClassName="ring-2 ring-primary ring-offset-2 ring-offset-background"
-          >
-            <Sparkles className="h-7 w-7" />
-          </NavLink>
+          <div className="flex flex-col items-center -mt-4">
+            <NavLink 
+              to="/app/ai-chat" 
+              className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-primary to-indigo-600 text-white shadow-xl hover:opacity-90 transition-all"
+              activeClassName="ring-2 ring-primary ring-offset-2 ring-offset-background"
+            >
+              <Sparkles className="h-7 w-7" />
+            </NavLink>
+          </div>
 
-          <NavLink to="/app/analytics" className="flex flex-col items-center justify-center gap-1 py-2 px-3 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
+          <NavLink to="/app/analytics" className="flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
             <BarChart3 className="h-6 w-6" />
             <span className="text-xs">Аналитика</span>
           </NavLink>
 
-          <NavLink to="/app/settings" className="flex flex-col items-center justify-center gap-1 py-2 px-3 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
+          <NavLink to="/app/settings" className="flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-colors" activeClassName="text-primary">
             <Settings className="h-6 w-6" />
             <span className="text-xs">Настройки</span>
           </NavLink>

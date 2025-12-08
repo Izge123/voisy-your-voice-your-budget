@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Trash2, AlertTriangle, Smartphone } from "lucide-react";
+import { LogOut, Trash2, AlertTriangle, Smartphone, BookOpen } from "lucide-react";
+import TutorialDrawer from "@/components/TutorialDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,14 @@ const Account = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDrawerOpen, setIsDeleteDrawerOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+
+  const tutorialSteps = [
+    { icon: '📂', title: 'Настройте категории', description: 'Начните с создания категорий расходов и доходов. Добавьте подкатегории — так AI точнее распределит ваши записи.' },
+    { icon: '🎤', title: 'Говорите — AI запишет', description: 'Нажмите микрофон и скажите: «Потратил 2000: 1500 на такси, 500 на кофе». AI создаст две транзакции автоматически!' },
+    { icon: '📊', title: 'Следите за аналитикой', description: 'Смотрите куда уходят деньги. Графики покажут структуру расходов по категориям и динамику по дням.' },
+    { icon: '🤖', title: 'Спросите AI-консультанта', description: 'Задавайте вопросы о финансах. AI проанализирует ваши траты и даст персональные рекомендации.' }
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -105,6 +114,31 @@ const Account = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Tutorial */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BookOpen className="h-5 w-5" />
+            Обучение
+          </CardTitle>
+          <CardDescription>
+            Узнайте, как эффективно использовать Kapitallo
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => setIsTutorialOpen(true)} className="w-full">
+            Посмотреть туториал
+          </Button>
+        </CardContent>
+      </Card>
+
+      <TutorialDrawer 
+        open={isTutorialOpen} 
+        onOpenChange={setIsTutorialOpen}
+        steps={tutorialSteps}
+        onComplete={() => setIsTutorialOpen(false)}
+      />
 
       {/* Sign Out */}
       <Card>

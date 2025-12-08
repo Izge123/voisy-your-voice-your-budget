@@ -421,19 +421,19 @@ const Transactions = () => {
                     return (
                       <div
                         key={transaction.id}
-                        className="group relative flex items-center gap-4 p-4 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
+                        className="group relative flex items-center gap-3 p-3 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
                         style={{ animationDelay: `${index * 30}ms` }}
                       >
                         {/* Icon */}
                         <div 
-                          className="flex items-center justify-center w-12 h-12 rounded-2xl shrink-0 text-2xl"
+                          className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 text-xl"
                           style={{ backgroundColor: `${transaction.category?.color || '#6b7280'}15` }}
                         >
                           {transaction.category?.icon || '💰'}
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                           <p className="text-sm font-semibold font-inter text-foreground truncate">
                             {transaction.description || transaction.category?.name || 'Транзакция'}
                           </p>
@@ -442,16 +442,13 @@ const Transactions = () => {
                           </p>
                         </div>
 
-                        {/* Amount & Time */}
+                        {/* Amount */}
                         <div className="text-right shrink-0">
                           <p className={cn(
-                            "text-base font-bold font-manrope",
+                            "text-sm font-bold font-manrope",
                             isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
                           )}>
                             {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
                           </p>
                         </div>
 
@@ -459,7 +456,7 @@ const Transactions = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
                           onClick={() => handleDelete(transaction.id)}
                           disabled={isDeletingTransaction}
                         >

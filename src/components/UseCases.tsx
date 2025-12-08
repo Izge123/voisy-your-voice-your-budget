@@ -107,13 +107,8 @@ const UseCases = () => {
 
                     {/* Visual */}
                     <div className="hidden md:flex items-center justify-center">
-                      <div className="relative">
-                        <div className="w-64 h-64 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center">
-                          <Icon className="h-32 w-32 text-primary opacity-20" />
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-8xl">{useCase.emoji}</span>
-                        </div>
+                      <div className="w-64 h-64 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-8xl">{useCase.emoji}</span>
                       </div>
                     </div>
                   </div>

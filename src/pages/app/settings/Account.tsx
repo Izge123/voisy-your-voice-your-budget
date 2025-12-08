@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Trash2, AlertTriangle } from "lucide-react";
+import { LogOut, Trash2, AlertTriangle, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,6 +87,24 @@ const Account = () => {
   return (
     <div className="p-4 md:p-6 space-y-6 pb-24">
       <SettingsPageHeader title="Аккаунт" />
+
+      {/* Install App */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Smartphone className="h-5 w-5" />
+            Установка приложения
+          </CardTitle>
+          <CardDescription>
+            Добавьте Kapitallo на главный экран
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => navigate("/install")} className="w-full">
+            Инструкция по установке
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Sign Out */}
       <Card>

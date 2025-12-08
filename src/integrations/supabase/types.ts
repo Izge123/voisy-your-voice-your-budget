@@ -240,6 +240,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: {
           days_remaining: number
+          ends_at: string
           is_active: boolean
           plan: string
           status: string

@@ -7,6 +7,7 @@ interface SubscriptionStatus {
   plan: 'free' | 'pro';
   daysRemaining: number;
   isActive: boolean;
+  endsAt: Date | null;
 }
 
 export function useSubscription() {
@@ -34,6 +35,7 @@ export function useSubscription() {
             plan: data[0].plan as SubscriptionStatus['plan'],
             daysRemaining: data[0].days_remaining,
             isActive: data[0].is_active,
+            endsAt: data[0].ends_at ? new Date(data[0].ends_at) : null,
           });
         }
       } catch (err) {
@@ -44,6 +46,7 @@ export function useSubscription() {
           plan: 'free',
           daysRemaining: 0,
           isActive: false,
+          endsAt: null,
         });
       } finally {
         setLoading(false);

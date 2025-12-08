@@ -1,23 +1,52 @@
 import { Check, X, AlertTriangle } from "lucide-react";
+
 const ComparisonTable = () => {
   const features = [{
-    name: "Ввод данных",
-    voisy: {
-      text: "Голосом (3 сек)",
+    name: "Ввод расходов",
+    kapitallo: {
+      text: "Голосом за 3 сек",
       icon: "check"
     },
     banks: {
-      text: "Авто (только карты)",
+      text: "Только карты",
       icon: "warning"
     },
     excel: {
-      text: "Руками (долго)",
+      text: "Руками, долго",
       icon: "cross"
     }
   }, {
-    name: "Наличные",
-    voisy: {
-      text: "Да",
+    name: "AI-категоризация",
+    kapitallo: {
+      text: "Автоматическая",
+      icon: "check"
+    },
+    banks: {
+      text: "По MCC-кодам",
+      icon: "warning"
+    },
+    excel: {
+      text: "Ручная",
+      icon: "cross"
+    }
+  }, {
+    name: "Сплит-транзакции",
+    kapitallo: {
+      text: "«Чек = такси + кофе»",
+      icon: "check"
+    },
+    banks: {
+      text: "Одна запись",
+      icon: "cross"
+    },
+    excel: {
+      text: "Руками",
+      icon: "cross"
+    }
+  }, {
+    name: "Учёт сбережений",
+    kapitallo: {
+      text: "Отдельный тип",
       icon: "check"
     },
     banks: {
@@ -25,27 +54,13 @@ const ComparisonTable = () => {
       icon: "cross"
     },
     excel: {
-      text: "Да",
-      icon: "check"
-    }
-  }, {
-    name: "Сплит чеков (AI)",
-    voisy: {
-      text: "Да",
-      icon: "check"
-    },
-    banks: {
-      text: "Базовая",
+      text: "Сложно",
       icon: "warning"
-    },
-    excel: {
-      text: "Нет",
-      icon: "cross"
     }
   }, {
-    name: "Советы",
-    voisy: {
-      text: "AI-аналитик",
+    name: "Финансовые советы",
+    kapitallo: {
+      text: "Персональный AI",
       icon: "check"
     },
     banks: {
@@ -55,6 +70,20 @@ const ComparisonTable = () => {
     excel: {
       text: "Нет",
       icon: "cross"
+    }
+  }, {
+    name: "Свои категории",
+    kapitallo: {
+      text: "Группы + подкатегории",
+      icon: "check"
+    },
+    banks: {
+      text: "Фиксированные",
+      icon: "warning"
+    },
+    excel: {
+      text: "Сложно настроить",
+      icon: "warning"
     }
   }];
   const getIcon = (type: string) => {
@@ -72,9 +101,9 @@ const ComparisonTable = () => {
   return <section className="w-full py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">Почему Kapitallo лучше Excel?</h2>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">Kapitallo vs традиционные методы</h2>
         <p className="text-center text-muted-foreground font-inter mb-12 md:mb-16 max-w-2xl mx-auto">
-          Сравните сами: старые методы vs умный финансовый помощник
+          Почему пользователи выбирают голосовой учёт вместо привычных инструментов
         </p>
 
         {/* Comparison Table */}
@@ -106,8 +135,8 @@ const ComparisonTable = () => {
                 </div>
                 <div className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-secondary/5">
                   <div className="flex items-center gap-2">
-                    {getIcon(feature.voisy.icon)}
-                    <span className="text-sm md:text-base font-medium font-inter text-foreground">{feature.voisy.text}</span>
+                    {getIcon(feature.kapitallo.icon)}
+                    <span className="text-sm md:text-base font-medium font-inter text-foreground">{feature.kapitallo.text}</span>
                   </div>
                 </div>
                 <div className="p-4 md:p-6">

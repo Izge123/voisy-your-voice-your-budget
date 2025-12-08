@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Crown, Check, Clock, Loader2 } from "lucide-react";
 import SettingsPageHeader from "@/components/SettingsPageHeader";
 import { useSubscription } from "@/hooks/use-subscription";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 const SubscriptionSettings = () => {
   const { subscription, loading } = useSubscription();
@@ -16,22 +18,32 @@ const SubscriptionSettings = () => {
   ];
 
   const getStatusDisplay = () => {
-    if (!subscription) return { label: "Загрузка...", color: "text-muted-foreground" };
+    if (!subscription) return { label: "Загрузка...", subtitle: "", color: "text-muted-foreground" };
+    
+    const formatEndDate = (date: Date | null) => {
+      if (!date) return "";
+      return `до ${format(date, "d MMMM yyyy", { locale: ru })}`;
+    };
     
     switch (subscription.status) {
       case 'trial':
         return { 
-          label: `Пробный период (${subscription.daysRemaining} дн. осталось)`, 
+          label: "Пробный период", 
+          subtitle: formatEndDate(subscription.endsAt),
           color: "text-amber-600" 
         };
       case 'active':
-        return { label: "Kapitallo PRO", color: "text-secondary" };
+        return { 
+          label: "Kapitallo PRO", 
+          subtitle: formatEndDate(subscription.endsAt),
+          color: "text-secondary" 
+        };
       case 'expired':
-        return { label: "Истёк", color: "text-destructive" };
+        return { label: "Истёк", subtitle: "", color: "text-destructive" };
       case 'cancelled':
-        return { label: "Отменена", color: "text-muted-foreground" };
+        return { label: "Отменена", subtitle: "", color: "text-muted-foreground" };
       default:
-        return { label: "Free", color: "text-foreground" };
+        return { label: "Free", subtitle: "", color: "text-foreground" };
     }
   };
 
@@ -68,6 +80,11 @@ const SubscriptionSettings = () => {
               <p className={`font-semibold ${statusDisplay.color}`}>
                 {statusDisplay.label}
               </p>
+              {statusDisplay.subtitle && (
+                <p className="text-sm text-muted-foreground">
+                  {statusDisplay.subtitle}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>

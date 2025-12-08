@@ -1,8 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search, Plus, CalendarIcon, Trash2, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Plus, CalendarIcon, Trash2, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -303,24 +302,18 @@ const Transactions = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-6">
       {/* HEADER */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center justify-between p-4 md:p-6">
+        {/* First Line: Title + Calendar */}
+        <div className="flex items-center justify-between p-4 md:p-6 pb-3">
           <h1 className="text-2xl font-bold font-manrope text-foreground">История</h1>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* FILTER BAR */}
-        <div className="flex items-center gap-2 px-4 pb-4 overflow-x-auto scrollbar-hide">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="rounded-full gap-1.5 whitespace-nowrap text-sm px-3 h-8">
-                <CalendarIcon className="h-3.5 w-3.5" />
+              <Button variant="outline" className="rounded-full gap-1.5 whitespace-nowrap text-sm px-3 h-9">
+                <CalendarIcon className="h-4 w-4" />
                 <span className="capitalize">{format(new Date(selectedYear, selectedMonth), 'LLL yyyy', { locale: ru })}</span>
                 <ChevronDown className="h-3.5 w-3.5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-3" align="start">
+            <PopoverContent className="w-auto p-3" align="end">
               <div className="flex items-center justify-between gap-4 mb-3">
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
                   <ChevronLeft className="h-4 w-4" />
@@ -356,51 +349,38 @@ const Transactions = () => {
               </div>
             </PopoverContent>
           </Popover>
+        </div>
 
-          <Badge
-            className={cn(
-              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
-              selectedFilter === "all" 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-muted text-muted-foreground"
-            )}
-            onClick={() => setSelectedFilter("all")}
-          >
-            Все
-          </Badge>
-          <Badge
-            className={cn(
-              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
-              selectedFilter === "expenses" 
-                ? "bg-rose-500 text-white" 
-                : "bg-muted text-muted-foreground"
-            )}
-            onClick={() => setSelectedFilter("expenses")}
-          >
-            Расходы
-          </Badge>
-          <Badge
-            className={cn(
-              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
-              selectedFilter === "income" 
-                ? "bg-emerald-500 text-white" 
-                : "bg-muted text-muted-foreground"
-            )}
-            onClick={() => setSelectedFilter("income")}
-          >
-            Доходы
-          </Badge>
-          <Badge
-            className={cn(
-              "rounded-full px-3 py-1.5 text-xs cursor-pointer border-0",
-              selectedFilter === "savings" 
-                ? "bg-blue-500 text-white" 
-                : "bg-muted text-muted-foreground"
-            )}
-            onClick={() => setSelectedFilter("savings")}
-          >
-            Сбережения
-          </Badge>
+        {/* Second Line: Filter Tabs */}
+        <div className="px-4 pb-4">
+          <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 h-10 bg-muted/50">
+              <TabsTrigger 
+                value="all"
+                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+              >
+                Все
+              </TabsTrigger>
+              <TabsTrigger 
+                value="expenses"
+                className="data-[state=active]:bg-rose-500/10 data-[state=active]:text-rose-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+              >
+                Расходы
+              </TabsTrigger>
+              <TabsTrigger 
+                value="income"
+                className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+              >
+                Доходы
+              </TabsTrigger>
+              <TabsTrigger 
+                value="savings"
+                className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+              >
+                Сбережения
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </header>
 

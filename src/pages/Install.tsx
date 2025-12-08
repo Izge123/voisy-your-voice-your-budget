@@ -59,7 +59,7 @@ const Install = () => {
       {/* Header */}
       <header className="sticky top-0 bg-background/95 border-b border-border z-10">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/" className="p-2 -ml-2 hover:bg-accent rounded-lg">
+          <Link to="/app/settings/account" className="p-2 -ml-2 hover:bg-accent rounded-lg">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="font-bold text-lg">Установка Kapitallo</h1>

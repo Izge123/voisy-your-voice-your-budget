@@ -421,46 +421,44 @@ const Transactions = () => {
                     return (
                       <div
                         key={transaction.id}
-                        className="flex items-center gap-3 p-3 bg-card rounded-2xl border border-border transition-all duration-200 animate-fade-in"
+                        className="flex items-center gap-2 p-2.5 bg-card rounded-xl border border-border transition-all duration-200 animate-fade-in"
                         style={{ animationDelay: `${index * 30}ms` }}
                       >
                         {/* Icon */}
                         <div 
-                          className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 text-xl"
+                          className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 text-lg"
                           style={{ backgroundColor: `${transaction.category?.color || '#6b7280'}15` }}
                         >
                           {transaction.category?.icon || '💰'}
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 min-w-0 overflow-hidden">
+                        <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold font-inter text-foreground truncate">
                             {transaction.description || transaction.category?.name || 'Транзакция'}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
-                            {transaction.category?.name || 'Без категории'} • {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
+                            {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
                           </p>
                         </div>
 
                         {/* Amount */}
-                        <div className="text-right shrink-0">
-                          <p className={cn(
-                            "text-sm font-bold font-manrope",
-                            isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
-                          )}>
-                            {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
-                          </p>
-                        </div>
+                        <p className={cn(
+                          "text-sm font-bold font-manrope shrink-0",
+                          isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
+                        )}>
+                          {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
+                        </p>
 
-                        {/* Delete Button - always visible for mobile */}
+                        {/* Delete Button */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="shrink-0 h-8 w-8"
+                          className="shrink-0 h-7 w-7"
                           onClick={() => handleDelete(transaction.id)}
                           disabled={isDeletingTransaction}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     );

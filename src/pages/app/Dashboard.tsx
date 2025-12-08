@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +20,6 @@ import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading } = useTransactions(10);
@@ -43,39 +42,39 @@ const Dashboard = () => {
     setIsVoiceOpen(true);
   };
 
-  // Обработка location.state для автоматического запуска голосового ввода
-  const lastHandledTimestamp = useRef<number>(0);
+  // Обработка запроса голосового ввода через sessionStorage + event
+  const lastProcessedClickId = useRef<string | null>(null);
   
   useEffect(() => {
-    const state = location.state as { startVoice?: boolean; timestamp?: number } | null;
+    const openVoice = (clickId: string) => {
+      if (clickId === lastProcessedClickId.current || isVoiceOpen) return;
+      
+      lastProcessedClickId.current = clickId;
+      sessionStorage.removeItem('voiceStartRequest'); // Удаляем сразу!
+      
+      if (!canPerformAction) {
+        setShowPaywall(true);
+      } else {
+        setIsVoiceOpen(true);
+      }
+    };
     
-    // Проверяем что есть флаг startVoice и timestamp отличается от последнего обработанного
-    if (state?.startVoice && state?.timestamp && state.timestamp !== lastHandledTimestamp.current && !isVoiceOpen) {
-      lastHandledTimestamp.current = state.timestamp;
-      
-      // Очищаем state сразу чтобы не сработало повторно
-      navigate(location.pathname, { replace: true, state: {} });
-      
-      // Открываем с небольшой задержкой для стабильности
-      setTimeout(() => {
-        if (!canPerformAction) {
-          setShowPaywall(true);
-        } else {
-          setIsVoiceOpen(true);
-        }
-      }, 150);
+    // Проверяем при монтировании (навигация с другой страницы)
+    const clickId = sessionStorage.getItem('voiceStartRequest');
+    if (clickId) {
+      openVoice(clickId);
     }
-  }, [location.state, location.pathname, navigate, canPerformAction, isVoiceOpen]);
-  
-  // Сброс флага при закрытии drawer
-  useEffect(() => {
-    if (!isVoiceOpen) {
-      const timeout = setTimeout(() => {
-        lastHandledTimestamp.current = 0;
-      }, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [isVoiceOpen]);
+    
+    // Слушаем событие (когда уже на dashboard)
+    const handleEvent = (e: CustomEvent<string>) => {
+      if (e.detail) {
+        openVoice(e.detail);
+      }
+    };
+    
+    window.addEventListener('startVoiceRecording', handleEvent as EventListener);
+    return () => window.removeEventListener('startVoiceRecording', handleEvent as EventListener);
+  }, [canPerformAction, isVoiceOpen]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

@@ -13,14 +13,17 @@ const AppLayout = () => {
   // Защита от повторных кликов по микрофону
   const handleMicClick = useCallback(() => {
     if (isNavigatingRef.current) return;
-    
     isNavigatingRef.current = true;
     
-    // Если уже на dashboard — просто передаём state
+    // Генерируем уникальный ID для этого клика
+    const clickId = Date.now().toString();
+    sessionStorage.setItem('voiceStartRequest', clickId);
+    
     if (location.pathname === '/app/dashboard') {
-      navigate('/app/dashboard', { state: { startVoice: true, timestamp: Date.now() }, replace: true });
+      // Уже на dashboard — диспатчим событие
+      window.dispatchEvent(new CustomEvent('startVoiceRecording', { detail: clickId }));
     } else {
-      navigate('/app/dashboard', { state: { startVoice: true, timestamp: Date.now() } });
+      navigate('/app/dashboard');
     }
     
     // Сброс через 1 секунду

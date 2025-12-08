@@ -77,42 +77,45 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   // Refs для управления автостартом
   const hasAutoStarted = useRef(false);
   const autoStartTimer = useRef<NodeJS.Timeout | null>(null);
+  const prevOpen = useRef(false);
+  const isSaving = useRef(false);
   
   // Единый useEffect для управления жизненным циклом
   useEffect(() => {
-    if (open) {
-      // Сброс состояния при ОТКРЫТИИ
+    // Запускаем логику только если open ИЗМЕНИЛСЯ
+    if (open && !prevOpen.current) {
+      // Открытие: сброс состояния
       setStatus('idle');
       setTranscript('');
       setParsedTransactions([]);
       setErrorMessage('');
       hasAutoStarted.current = false;
+      isSaving.current = false;
       
       // Очищаем предыдущий таймер
       if (autoStartTimer.current) {
         clearTimeout(autoStartTimer.current);
       }
       
-      // Автостарт с одним таймером
+      // Автостарт с таймером
       autoStartTimer.current = setTimeout(() => {
         if (isMountedRef.current && !hasAutoStarted.current) {
           hasAutoStarted.current = true;
           handleStart();
         }
       }, 400);
-    } else {
-      // Полный сброс при закрытии
+    } else if (!open && prevOpen.current) {
+      // Закрытие: полный сброс
       if (autoStartTimer.current) {
         clearTimeout(autoStartTimer.current);
         autoStartTimer.current = null;
       }
       reset();
       hasAutoStarted.current = false;
-      setStatus('idle');
-      setTranscript('');
-      setParsedTransactions([]);
-      setErrorMessage('');
+      isSaving.current = false;
     }
+    
+    prevOpen.current = open;
     
     return () => {
       if (autoStartTimer.current) {
@@ -120,7 +123,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
         autoStartTimer.current = null;
       }
     };
-  }, [open]); // Только open в зависимостях!
+  }, [open]);
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
     if (!user || !isMountedRef.current) return;
@@ -174,7 +177,8 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
   };
 
   const handleConfirm = async () => {
-    if (!user) return;
+    if (!user || isSaving.current) return;
+    isSaving.current = true;
 
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
@@ -195,6 +199,8 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
       setParsedTransactions([]);
     } catch (error) {
       console.error('Error saving transactions:', error);
+    } finally {
+      isSaving.current = false;
     }
   };
 

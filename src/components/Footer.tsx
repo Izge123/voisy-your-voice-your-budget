@@ -32,9 +32,7 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <a href="mailto:hello@kapitallo.com" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
-                hello@kapitallo.com
-              </a>
+              <a href="mailto:hello@kapitallo.com" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">info@kapitallo.com</a>
             </div>
           </div>
 

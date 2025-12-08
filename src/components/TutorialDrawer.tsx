@@ -25,9 +25,9 @@ const TutorialDrawer = ({ open, onOpenChange, steps, onComplete }: TutorialDrawe
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85dvh]">
         <DrawerHeader className="text-center pb-2">
-          <DrawerTitle className="text-xl">Быстрый старт 🚀</DrawerTitle>
+          <DrawerTitle className="text-xl">Добро пожаловать! 🎉</DrawerTitle>
           <DrawerDescription>
-            4 шага к управлению финансами голосом
+            4 шага к эффективному управлению финансами
           </DrawerDescription>
         </DrawerHeader>
 

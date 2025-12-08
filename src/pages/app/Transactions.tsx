@@ -421,7 +421,7 @@ const Transactions = () => {
                     return (
                       <div
                         key={transaction.id}
-                        className="group relative flex items-center gap-3 p-3 bg-card rounded-2xl border border-border hover:shadow-md transition-all duration-200 animate-fade-in"
+                        className="flex items-center gap-3 p-3 bg-card rounded-2xl border border-border transition-all duration-200 animate-fade-in"
                         style={{ animationDelay: `${index * 30}ms` }}
                       >
                         {/* Icon */}
@@ -452,11 +452,11 @@ const Transactions = () => {
                           </p>
                         </div>
 
-                        {/* Delete Button (on hover) */}
+                        {/* Delete Button - always visible for mobile */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                          className="shrink-0 h-8 w-8"
                           onClick={() => handleDelete(transaction.id)}
                           disabled={isDeletingTransaction}
                         >

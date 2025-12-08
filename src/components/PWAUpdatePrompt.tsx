@@ -2,6 +2,9 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Check for updates every 60 seconds
+const UPDATE_CHECK_INTERVAL = 60 * 1000;
+
 export const PWAUpdatePrompt = () => {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -9,10 +12,20 @@ export const PWAUpdatePrompt = () => {
   } = useRegisterSW({
     onRegistered(r) {
       console.log('SW Registered:', r);
+      
+      // Periodic update check for iOS Safari
+      if (r) {
+        setInterval(() => {
+          console.log('Checking for SW updates...');
+          r.update();
+        }, UPDATE_CHECK_INTERVAL);
+      }
     },
     onRegisterError(error) {
       console.log('SW registration error', error);
     },
+    // Immediate reload on update when skipWaiting is enabled
+    immediate: true,
   });
 
   const handleUpdate = () => {

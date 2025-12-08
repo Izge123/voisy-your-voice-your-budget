@@ -44,13 +44,21 @@ const Header = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
+          {/* Mobile Button + Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            <Button 
+              size="sm" 
+              className="rounded-full bg-primary hover:bg-primary/90 font-inter text-xs px-3" 
+              onClick={() => window.location.href = '/auth?tab=register'}
+            >
+              Начать бесплатно
+            </Button>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <div className="flex flex-col gap-8 mt-8">
                 {/* Mobile Logo */}
@@ -90,6 +98,7 @@ const Header = () => {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </div>
     </header>;

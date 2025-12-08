@@ -32,13 +32,13 @@ const Hero = () => {
             </Button>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground font-inter mb-6 md:mb-8 justify-center lg:justify-start">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-xs sm:text-sm text-muted-foreground font-inter mb-6 md:mb-8 justify-center lg:justify-start">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-3 w-3 sm:h-4 sm:w-4 fill-secondary text-secondary" />
                 ))}
               </div>
-              <span>Уже 1000+ пользователей навели порядок в финансах</span>
+              <span className="text-center">Уже 1000+ пользователей навели порядок в финансах</span>
             </div>
 
             {/* Arrow pointing to phone - only on desktop */}

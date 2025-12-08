@@ -59,13 +59,10 @@ const HowItWorks = () => {
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   {/* Step Number */}
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="mb-6">
                     <span className="text-sm font-bold font-manrope text-primary">
                       Шаг {index + 1}
                     </span>
-                    <div className={`flex items-center justify-center w-12 h-12 rounded-full ${step.bgColor}`}>
-                      <span className="text-2xl">{step.emoji}</span>
-                    </div>
                   </div>
 
                   {/* Icon */}

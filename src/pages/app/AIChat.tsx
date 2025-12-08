@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { Trash2, Mic, Send, Sparkles, Lock, Crown } from "lucide-react";
+import { Trash2, Send, Sparkles, Lock, Crown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/use-profile";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -16,6 +18,8 @@ interface Message {
   content: string;
   timestamp: Date;
 }
+
+const CHAT_URL = "https://xnkbciknqvnmienxiwdg.supabase.co/functions/v1/ai-chat";
 
 const AIChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -26,30 +30,14 @@ const AIChat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { subscription, canPerformAction } = useSubscription();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { profile } = useProfile();
 
   const suggestedQuestions = [
     "Как мне сэкономить?",
-    "Проанализируй мои траты за неделю",
+    "Проанализируй мои траты за месяц",
     "Сколько я могу тратить в день?"
   ];
-
-  // Mock AI responses
-  const getAIResponse = (userMessage: string): string => {
-    const responses: { [key: string]: string } = {
-      "как мне сэкономить": "На основе ваших трат вижу, что больше всего уходит на кафе и доставку еды. Попробуйте готовить дома чаще — это может сэкономить до $320 в месяц. Также рекомендую установить лимит в $15 на день для развлечений.",
-      "проанализируй": "За последнюю неделю вы потратили $1,240. Основные категории: Продукты (35%), Транспорт (28%), Кафе (22%). Это на 15% больше, чем в прошлую неделю. Рекомендую сократить походы в кафе.",
-      "сколько могу тратить": "Исходя из вашего бюджета $12,450 и средних расходов $2,450/месяц, вы можете тратить примерно $80 в день. Сейчас вы тратите в среднем $45/день, так что у вас есть запас!",
-    };
-
-    const lowercaseMessage = userMessage.toLowerCase();
-    for (const key in responses) {
-      if (lowercaseMessage.includes(key)) {
-        return responses[key];
-      }
-    }
-
-    return "Спасибо за вопрос! Я проанализирую ваши данные и подготовлю ответ. Могу помочь вам с анализом расходов, советами по экономии и планированием бюджета.";
-  };
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -65,10 +53,15 @@ const AIChat = () => {
   }, [messages, isTyping]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isTyping) return;
     
     if (!canPerformAction) {
       setShowPaywall(true);
+      return;
+    }
+
+    if (!user) {
+      toast.error("Необходимо авторизоваться");
       return;
     }
 
@@ -80,21 +73,136 @@ const AIChat = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getAIResponse(inputValue),
-        timestamp: new Date()
-      };
+    try {
+      // Prepare messages for API (without id and timestamp)
+      const apiMessages = [...messages, userMessage].map(m => ({
+        role: m.role,
+        content: m.content
+      }));
 
-      setMessages(prev => [...prev, aiMessage]);
+      const response = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: apiMessages,
+          userId: user.id
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast.error("Слишком много запросов. Попробуйте позже.");
+          setIsTyping(false);
+          return;
+        }
+        if (response.status === 402) {
+          toast.error("Недостаточно средств. Пополните баланс Lovable AI.");
+          setIsTyping(false);
+          return;
+        }
+        throw new Error("Failed to get AI response");
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let assistantContent = "";
+      let streamDone = false;
+
+      // Create initial assistant message
+      const assistantMessageId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: assistantMessageId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date()
+      }]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        // Process line-by-line
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              // Update the last assistant message
+              setMessages(prev => 
+                prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: assistantContent } : m
+                )
+              );
+            }
+          } catch {
+            // Incomplete JSON, put it back
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => 
+                prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: assistantContent } : m
+                )
+              );
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Ошибка при отправке сообщения");
+      // Remove the empty assistant message if error occurred
+      setMessages(prev => prev.filter(m => m.content !== ""));
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleSuggestedQuestion = (question: string) => {
@@ -180,8 +288,17 @@ const AIChat = () => {
                 Kapitallo Assistant
               </h1>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="text-xs text-muted-foreground font-inter">Online</span>
+                {isTyping ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                    <span className="text-xs text-primary font-inter">Печатает...</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-secondary" />
+                    <span className="text-xs text-muted-foreground font-inter">Online</span>
+                  </>
+                )}
               </div>
           </div>
         </div>
@@ -190,6 +307,7 @@ const AIChat = () => {
           size="icon"
           className="rounded-full"
           onClick={handleClearChat}
+          disabled={messages.length === 0}
         >
           <Trash2 className="h-5 w-5 text-muted-foreground" />
         </Button>
@@ -205,10 +323,10 @@ const AIChat = () => {
             </div>
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold font-manrope text-foreground">
-                Привет! Я ваш финансовый помощник
+                Привет{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}! 👋
               </h2>
               <p className="text-muted-foreground font-inter max-w-md">
-                Могу помочь проанализировать траты, дать советы по экономии и ответить на вопросы о вашем бюджете.
+                Я ваш персональный финансовый помощник. Могу проанализировать ваши траты, дать советы по экономии и ответить на вопросы о бюджете.
               </p>
             </div>
 
@@ -261,46 +379,30 @@ const AIChat = () => {
                   )}
                 >
                   <p className="text-sm font-inter leading-relaxed whitespace-pre-wrap">
-                    {message.content}
+                    {message.content || (message.role === "assistant" && isTyping ? "..." : "")}
                   </p>
-                  <span
-                    className={cn(
-                      "text-xs mt-2 block",
-                      message.role === "user" ? "text-white/70" : "text-muted-foreground"
-                    )}
-                  >
-                    {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                  {message.content && (
+                    <span
+                      className={cn(
+                        "text-xs mt-2 block",
+                        message.role === "user" ? "text-white/70" : "text-muted-foreground"
+                      )}
+                    >
+                      {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                 </div>
 
                 {message.role === "user" && (
                   <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" />
+                    <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                      А
+                      {profile?.full_name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
-
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="flex gap-3 animate-fade-in">
-                <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-indigo-600 text-white">
-                    <Sparkles className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-sm">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </ScrollArea>
@@ -308,14 +410,6 @@ const AIChat = () => {
       {/* INPUT AREA */}
       <div className="p-4 md:p-6 border-t border-border bg-card">
         <div className="max-w-4xl mx-auto flex items-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0 rounded-full"
-          >
-            <Mic className="h-5 w-5 text-muted-foreground" />
-          </Button>
-
           <div className="flex-1 relative">
             <Input
               ref={inputRef}
@@ -324,6 +418,7 @@ const AIChat = () => {
               onKeyPress={handleKeyPress}
               placeholder="Напишите сообщение..."
               className="pr-12 h-12 rounded-2xl bg-background border-2 focus-visible:ring-0 focus-visible:border-primary"
+              disabled={isTyping}
             />
           </div>
 
@@ -333,7 +428,11 @@ const AIChat = () => {
             size="icon"
             className="shrink-0 rounded-full w-12 h-12"
           >
-            <Send className="h-5 w-5" />
+            {isTyping ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Send className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>

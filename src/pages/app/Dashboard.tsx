@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
+import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +21,7 @@ import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
+  const { balance, income, expenses, savingsAmount, remainder, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading } = useTransactions(10);
   const { profile, loading: profileLoading } = useProfile();
   const { notifications: recentNotifications } = useNotifications(5);
@@ -192,85 +192,57 @@ const Dashboard = () => {
               )}
             </h2>
 
-            {/* Stats - Compact for mobile */}
+            {/* Stats - 2x2 Grid */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3">
-              {/* Mobile: Income and Expenses in one row */}
-              <div className="flex items-center gap-4 mb-3 md:hidden">
-                <div className="flex items-start gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/20">
-                    <TrendingUp className="h-4 w-4 text-secondary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs text-white/60 font-inter">Доходы</p>
-                    <p className="text-sm font-bold font-manrope text-secondary">
-                      {profileLoading ? "..." : `+${formatCurrency(income, currency)}`}
-                    </p>
-                  </div>
-                </div>
-                <div className="w-px h-10 bg-white/20"></div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-500/20">
-                    <TrendingDown className="h-4 w-4 text-rose-300" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-white/60 font-inter">Расходы</p>
-                    <p className="text-sm font-bold font-manrope text-rose-300">
-                      {profileLoading ? "..." : `-${formatCurrency(expenses, currency)}`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile: Savings centered below */}
-              <div className="flex items-center justify-center gap-2 pt-3 border-t border-white/20 md:hidden">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-400/20">
-                  <PiggyBank className="h-4 w-4 text-amber-300" />
-                </div>
-                <div>
-                  <p className="text-xs text-white/60 font-inter">Остаток</p>
-                  <p className="text-sm font-bold font-manrope text-amber-300">
-                    {profileLoading ? "..." : formatCurrency(savings, currency)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Desktop: 3 columns grid */}
-              <div className="hidden md:grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Доходы */}
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary/20">
-                    <TrendingUp className="h-5 w-5 text-secondary" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-secondary/20">
+                    <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-secondary" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/60 font-inter mb-1">Доходы</p>
-                    <p className="text-lg font-bold font-manrope text-secondary">
+                    <p className="text-xs text-white/60 font-inter">Доходы</p>
+                    <p className="text-sm md:text-base font-bold font-manrope text-secondary">
                       {profileLoading ? "..." : `+${formatCurrency(income, currency)}`}
                     </p>
                   </div>
                 </div>
 
                 {/* Расходы */}
-                <div className="flex flex-col items-center gap-2 text-center border-x border-white/20">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-500/20">
-                    <TrendingDown className="h-5 w-5 text-rose-300" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-rose-500/20">
+                    <TrendingDown className="h-4 w-4 md:h-5 md:w-5 text-rose-300" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/60 font-inter mb-1">Расходы</p>
-                    <p className="text-lg font-bold font-manrope text-rose-300">
+                    <p className="text-xs text-white/60 font-inter">Расходы</p>
+                    <p className="text-sm md:text-base font-bold font-manrope text-rose-300">
                       {profileLoading ? "..." : `-${formatCurrency(expenses, currency)}`}
                     </p>
                   </div>
                 </div>
 
-                {/* Экономия */}
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-400/20">
-                    <PiggyBank className="h-5 w-5 text-amber-300" />
+                {/* Сбережения */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-400/20">
+                    <PiggyBank className="h-4 w-4 md:h-5 md:w-5 text-blue-300" />
                   </div>
                   <div>
-                    <p className="text-xs text-white/60 font-inter mb-1">Остаток</p>
-                    <p className="text-lg font-bold font-manrope text-amber-300">
-                      {profileLoading ? "..." : formatCurrency(savings, currency)}
+                    <p className="text-xs text-white/60 font-inter">Сбережения</p>
+                    <p className="text-sm md:text-base font-bold font-manrope text-blue-300">
+                      {profileLoading ? "..." : formatCurrency(savingsAmount, currency)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Остаток */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-400/20">
+                    <Wallet className="h-4 w-4 md:h-5 md:w-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60 font-inter">Остаток</p>
+                    <p className="text-sm md:text-base font-bold font-manrope text-amber-300">
+                      {profileLoading ? "..." : formatCurrency(remainder, currency)}
                     </p>
                   </div>
                 </div>

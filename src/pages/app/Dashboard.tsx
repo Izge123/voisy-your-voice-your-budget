@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +20,7 @@ import { SubscriptionPaywall } from "@/components/SubscriptionPaywall";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const { user } = useAuth();
   const { balance, income, expenses, savings, isLoading: balanceLoading } = useBalance();
   const { transactions, isLoading: transactionsLoading } = useTransactions(10);
@@ -43,19 +43,18 @@ const Dashboard = () => {
     setIsVoiceOpen(true);
   };
 
-  // Обработка URL параметра для автоматического запуска голосового ввода
-  // Используем ref чтобы избежать повторных срабатываний
-  const hasHandledStartVoice = useRef(false);
+  // Обработка location.state для автоматического запуска голосового ввода
+  const lastHandledTimestamp = useRef<number>(0);
   
   useEffect(() => {
-    const shouldStartVoice = searchParams.get('startVoice') === 'true';
+    const state = location.state as { startVoice?: boolean; timestamp?: number } | null;
     
-    // Проверяем что ещё не обработали и параметр присутствует
-    if (shouldStartVoice && !hasHandledStartVoice.current && !isVoiceOpen) {
-      hasHandledStartVoice.current = true;
+    // Проверяем что есть флаг startVoice и timestamp отличается от последнего обработанного
+    if (state?.startVoice && state?.timestamp && state.timestamp !== lastHandledTimestamp.current && !isVoiceOpen) {
+      lastHandledTimestamp.current = state.timestamp;
       
-      // Очищаем параметр сразу
-      setSearchParams({}, { replace: true });
+      // Очищаем state сразу чтобы не сработало повторно
+      navigate(location.pathname, { replace: true, state: {} });
       
       // Открываем с небольшой задержкой для стабильности
       setTimeout(() => {
@@ -64,14 +63,19 @@ const Dashboard = () => {
         } else {
           setIsVoiceOpen(true);
         }
-      }, 100);
+      }, 150);
     }
-    
-    // Сбрасываем флаг когда параметр убран
-    if (!shouldStartVoice) {
-      hasHandledStartVoice.current = false;
+  }, [location.state, location.pathname, navigate, canPerformAction, isVoiceOpen]);
+  
+  // Сброс флага при закрытии drawer
+  useEffect(() => {
+    if (!isVoiceOpen) {
+      const timeout = setTimeout(() => {
+        lastHandledTimestamp.current = 0;
+      }, 500);
+      return () => clearTimeout(timeout);
     }
-  }, [searchParams, setSearchParams, canPerformAction, isVoiceOpen]);
+  }, [isVoiceOpen]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

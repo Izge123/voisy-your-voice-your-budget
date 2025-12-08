@@ -74,44 +74,44 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
     }
   });
 
-  // Ref для предотвращения повторного автостарта
+  // Refs для управления автостартом
   const hasAutoStarted = useRef(false);
   const autoStartTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Сброс состояния при закрытии - выполняется первым
+  // Единый useEffect для управления жизненным циклом
   useEffect(() => {
-    if (!open) {
-      // Очищаем таймер автостарта
+    if (open) {
+      // Сброс состояния при ОТКРЫТИИ
+      setStatus('idle');
+      setTranscript('');
+      setParsedTransactions([]);
+      setErrorMessage('');
+      hasAutoStarted.current = false;
+      
+      // Очищаем предыдущий таймер
+      if (autoStartTimer.current) {
+        clearTimeout(autoStartTimer.current);
+      }
+      
+      // Автостарт с одним таймером
+      autoStartTimer.current = setTimeout(() => {
+        if (isMountedRef.current && !hasAutoStarted.current) {
+          hasAutoStarted.current = true;
+          handleStart();
+        }
+      }, 400);
+    } else {
+      // Полный сброс при закрытии
       if (autoStartTimer.current) {
         clearTimeout(autoStartTimer.current);
         autoStartTimer.current = null;
       }
-      
-      reset(); // Принудительный сброс таймера и записи
+      reset();
       hasAutoStarted.current = false;
       setStatus('idle');
       setTranscript('');
       setParsedTransactions([]);
       setErrorMessage('');
-    }
-  }, [open, reset]);
-  
-  // Автоматический старт записи при открытии
-  useEffect(() => {
-    if (open && status === 'idle' && !hasAutoStarted.current && !isRecording) {
-      hasAutoStarted.current = true;
-      
-      // Очищаем предыдущий таймер если есть
-      if (autoStartTimer.current) {
-        clearTimeout(autoStartTimer.current);
-      }
-      
-      // Небольшая задержка чтобы UI успел отрисоваться
-      autoStartTimer.current = setTimeout(() => {
-        if (isMountedRef.current && open) {
-          handleStart();
-        }
-      }, 350);
     }
     
     return () => {
@@ -120,7 +120,7 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
         autoStartTimer.current = null;
       }
     };
-  }, [open, status, isRecording]);
+  }, [open]); // Только open в зависимостях!
 
   async function handleRecordingComplete(audioBlob: Blob, audioBase64: string) {
     if (!user || !isMountedRef.current) return;

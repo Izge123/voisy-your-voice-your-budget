@@ -133,7 +133,7 @@ const Dashboard = () => {
               </div>
             </PopoverContent>
           </Popover>
-          <Link to="/app/settings">
+          <Link to="/app/settings" className="hidden md:block">
             <Button variant="ghost" size="icon" className="rounded-full">
               <Settings className="h-5 w-5 text-muted-foreground" />
             </Button>

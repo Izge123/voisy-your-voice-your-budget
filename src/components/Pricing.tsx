@@ -1,41 +1,37 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 const Pricing = () => {
-  const [isYearly, setIsYearly] = useState(false);
-
   const plans = [
     {
-      name: "Start",
+      name: "Триал",
       price: 0,
       period: "мес",
-      description: "Попробуй бесплатно",
+      description: "Попробуй все возможности",
       features: [
-        "15 голосовых вводов/мес",
-        "Ручной ввод безлимитно",
-        "Базовая аналитика",
-        "Стандартные категории"
+        "30 дней полного доступа",
+        "Голосовой ввод безлимитно",
+        "AI-категоризация и сплит",
+        "Персональный AI-ассистент"
       ],
-      cta: "Начать сейчас",
+      cta: "Начать триал",
       variant: "outline" as const,
       popular: false
     },
     {
       name: "Kapitallo PRO",
-      price: isYearly ? 3.99 : 4.99,
+      price: 4.99,
       period: "мес",
-      originalPrice: isYearly ? 4.99 : null,
-      description: "Полный контроль",
+      description: "После триала",
       features: [
-        "Безлимитный голос",
+        "Безлимитный голосовой ввод",
         "Умный сплит чеков",
-        "Свои категории",
-        "AI-ассистент",
-        "Экспорт в CSV",
-        "Приоритетная поддержка"
+        "Свои категории и подкатегории",
+        "AI-финансовый консультант",
+        "Детальная аналитика",
+        "Учёт сбережений"
       ],
-      cta: "Попробовать PRO",
+      cta: "Подключить PRO",
       variant: "default" as const,
       popular: true
     }
@@ -48,43 +44,16 @@ const Pricing = () => {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-manrope text-center text-foreground mb-4">
           Простые и честные цены
         </h2>
-        <p className="text-center text-muted-foreground font-inter mb-8 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground font-inter mb-12 max-w-2xl mx-auto">
           Начни бесплатно. Апгрейдь, когда будешь готов.
         </p>
-
-        {/* Toggle */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <span className={`text-sm font-medium font-inter ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
-            Месяц
-          </span>
-          <button
-            onClick={() => setIsYearly(!isYearly)}
-            className={`relative w-14 h-7 rounded-full transition-colors ${
-              isYearly ? "bg-primary" : "bg-muted"
-            }`}
-          >
-            <div
-              className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform ${
-                isYearly ? "translate-x-7" : "translate-x-0"
-              }`}
-            />
-          </button>
-          <div className="flex items-center gap-2">
-            <span className={`text-sm font-medium font-inter ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
-              Год
-            </span>
-            <span className="px-2 py-1 rounded-full bg-secondary/20 text-secondary text-xs font-semibold">
-              -20%
-            </span>
-          </div>
-        </div>
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto mb-8">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-card rounded-3xl p-8 shadow-lg border transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+              className={`relative bg-card rounded-3xl p-8 shadow-lg border transition-all duration-300 ${
                 plan.popular
                   ? "border-primary bg-gradient-to-br from-primary/5 to-secondary/5"
                   : "border-border"
@@ -93,7 +62,7 @@ const Pricing = () => {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <div className="px-4 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold font-inter shadow-lg">
-                    Popular
+                    Рекомендуем
                   </div>
                 </div>
               )}
@@ -107,11 +76,6 @@ const Pricing = () => {
                   {plan.description}
                 </p>
                 <div className="flex items-baseline justify-center gap-2">
-                  {plan.originalPrice && (
-                    <span className="text-2xl font-bold text-muted-foreground line-through">
-                      ${plan.originalPrice}
-                    </span>
-                  )}
                   <span className="text-5xl font-extrabold font-manrope text-foreground">
                     ${plan.price}
                   </span>

@@ -354,28 +354,28 @@ const Transactions = () => {
         {/* Second Line: Filter Tabs */}
         <div className="px-4 pb-4">
           <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 h-10 bg-muted/50">
+            <TabsList className="grid w-full grid-cols-4 h-10 bg-muted/50 p-1 gap-1">
               <TabsTrigger 
                 value="all"
-                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:shadow-none font-semibold text-xs"
               >
                 Все
               </TabsTrigger>
               <TabsTrigger 
                 value="expenses"
-                className="data-[state=active]:bg-rose-500/10 data-[state=active]:text-rose-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+                className="data-[state=active]:bg-rose-500/10 data-[state=active]:text-rose-600 data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:shadow-none font-semibold text-xs"
               >
                 Расходы
               </TabsTrigger>
               <TabsTrigger 
                 value="income"
-                className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+                className="data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-600 data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:shadow-none font-semibold text-xs"
               >
                 Доходы
               </TabsTrigger>
               <TabsTrigger 
                 value="savings"
-                className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 data-[state=active]:shadow-none font-semibold text-sm rounded-lg"
+                className="data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 data-[state=inactive]:bg-transparent data-[state=inactive]:shadow-none data-[state=active]:shadow-none font-semibold text-xs"
               >
                 Сбережения
               </TabsTrigger>

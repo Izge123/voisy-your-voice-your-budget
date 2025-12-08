@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Settings, Mic, TrendingUp, TrendingDown, BarChart3, Bell, Loader2, PiggyBank, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,21 +44,34 @@ const Dashboard = () => {
   };
 
   // Обработка URL параметра для автоматического запуска голосового ввода
+  // Используем ref чтобы избежать повторных срабатываний
+  const hasHandledStartVoice = useRef(false);
+  
   useEffect(() => {
     const shouldStartVoice = searchParams.get('startVoice') === 'true';
     
-    if (shouldStartVoice) {
-      // Сначала очищаем параметр чтобы избежать повторных срабатываний
+    // Проверяем что ещё не обработали и параметр присутствует
+    if (shouldStartVoice && !hasHandledStartVoice.current && !isVoiceOpen) {
+      hasHandledStartVoice.current = true;
+      
+      // Очищаем параметр сразу
       setSearchParams({}, { replace: true });
       
-      // Проверяем подписку перед открытием
-      if (!canPerformAction) {
-        setShowPaywall(true);
-      } else {
-        setIsVoiceOpen(true);
-      }
+      // Открываем с небольшой задержкой для стабильности
+      setTimeout(() => {
+        if (!canPerformAction) {
+          setShowPaywall(true);
+        } else {
+          setIsVoiceOpen(true);
+        }
+      }, 100);
     }
-  }, [searchParams, setSearchParams, canPerformAction]);
+    
+    // Сбрасываем флаг когда параметр убран
+    if (!shouldStartVoice) {
+      hasHandledStartVoice.current = false;
+    }
+  }, [searchParams, setSearchParams, canPerformAction, isVoiceOpen]);
 
   const userName = user?.user_metadata?.full_name || "Пользователь";
   const userInitial = userName.charAt(0).toUpperCase();

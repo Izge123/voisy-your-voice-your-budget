@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingDown, TrendingUp, Wallet, CalendarIcon } from "lucide-react";
+import { TrendingDown, TrendingUp, Wallet, CalendarIcon, PiggyBank } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -74,12 +74,17 @@ const Analytics = () => {
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const savings = income - expenses;
+    const savingsAmount = filteredTransactions
+      .filter(t => t.type === 'savings')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const remainder = income - expenses;
 
     return [
       { label: "Доходы", value: formatCurrency(income, currency), icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
       { label: "Расходы", value: formatCurrency(expenses, currency), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
-      { label: "Остаток", value: formatCurrency(savings, currency), icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
+      { label: "Сбережения", value: formatCurrency(savingsAmount, currency), icon: PiggyBank, color: "text-blue-600", bg: "bg-blue-500/10" },
+      { label: "Остаток", value: formatCurrency(remainder, currency), icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
     ];
   }, [filteredTransactions, currency]);
 

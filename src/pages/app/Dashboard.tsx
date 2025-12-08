@@ -307,6 +307,12 @@ const Dashboard = () => {
               Аналитика
             </Button>
           </Link>
+          <Link to="/app/transactions">
+            <Button variant="outline" className="rounded-full gap-2 whitespace-nowrap font-inter">
+              <Clock className="h-4 w-4" />
+              История
+            </Button>
+          </Link>
         </div>
 
         {/* RECENT TRANSACTIONS */}

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, Plus, Filter, Calendar as CalendarIcon, Trash2, ChevronDown, Loader2 } from "lucide-react";
+import { Search, Plus, CalendarIcon, Trash2, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,28 @@ const Transactions = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [comment, setComment] = useState("");
   const [showPaywall, setShowPaywall] = useState(false);
+  
+  // Month filter state
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
+  const handlePrevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedMonth(11);
+      setSelectedYear(prev => prev - 1);
+    } else {
+      setSelectedMonth(prev => prev - 1);
+    }
+  };
+  
+  const handleNextMonth = () => {
+    if (selectedMonth === 11) {
+      setSelectedMonth(0);
+      setSelectedYear(prev => prev + 1);
+    } else {
+      setSelectedMonth(prev => prev + 1);
+    }
+  };
 
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { 
@@ -58,15 +80,24 @@ const Transactions = () => {
     }));
   }, [categories, transactionType]);
 
-  // Group transactions by date
+  // Group transactions by date with month and type filter
   const transactionGroups = useMemo(() => {
+    // First filter by selected month/year
+    const monthFiltered = transactions.filter(t => {
+      if (!t.date) return false;
+      const tDate = new Date(t.date);
+      return tDate.getMonth() === selectedMonth && tDate.getFullYear() === selectedYear;
+    });
+    
+    // Then filter by type
     const filtered = selectedFilter === 'all' 
-      ? transactions 
-      : transactions.filter(t => 
-          selectedFilter === 'expenses' 
-            ? t.category?.type === 'expense' 
-            : t.category?.type === 'income'
-        );
+      ? monthFiltered 
+      : monthFiltered.filter(t => {
+          if (selectedFilter === 'expenses') return t.type === 'expense';
+          if (selectedFilter === 'income') return t.type === 'income';
+          if (selectedFilter === 'savings') return t.type === 'savings';
+          return true;
+        });
 
     const grouped = filtered.reduce((acc, transaction) => {
       if (!transaction.date) return acc;
@@ -97,7 +128,7 @@ const Transactions = () => {
           new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
         )
       }));
-  }, [transactions, selectedFilter]);
+  }, [transactions, selectedFilter, selectedMonth, selectedYear]);
 
   const handleSave = () => {
     if (!user || !amount || !selectedCategory) return;
@@ -283,48 +314,77 @@ const Transactions = () => {
         <div className="flex items-center gap-2 px-4 pb-4 overflow-x-auto scrollbar-hide">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="rounded-full gap-2 whitespace-nowrap">
-                <CalendarIcon className="h-4 w-4" />
-                Декабрь 2024
-                <ChevronDown className="h-4 w-4" />
+              <Button variant="outline" className="rounded-full gap-1.5 whitespace-nowrap text-sm px-3 h-8">
+                <CalendarIcon className="h-3.5 w-3.5" />
+                <span className="capitalize">{format(new Date(selectedYear, selectedMonth), 'LLL yyyy', { locale: ru })}</span>
+                <ChevronDown className="h-3.5 w-3.5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(newDate) => newDate && setDate(newDate)}
-                initialFocus
-                className="pointer-events-auto"
-              />
+            <PopoverContent className="w-auto p-3" align="start">
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="font-semibold capitalize text-sm">
+                  {format(new Date(selectedYear, selectedMonth), 'LLLL yyyy', { locale: ru })}
+                </span>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 12 }, (_, i) => (
+                  <Button
+                    key={i}
+                    variant={selectedMonth === i && selectedYear === new Date().getFullYear() ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs capitalize"
+                    onClick={() => setSelectedMonth(i)}
+                  >
+                    {format(new Date(2024, i), 'LLL', { locale: ru })}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedYear(prev => prev - 1)}>
+                  {selectedYear - 1}
+                </Button>
+                <span className="font-bold text-sm">{selectedYear}</span>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedYear(prev => prev + 1)}>
+                  {selectedYear + 1}
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
 
           <Badge
             variant={selectedFilter === "all" ? "default" : "outline"}
-            className="rounded-full px-4 py-2 cursor-pointer hover:bg-primary/90"
+            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
             onClick={() => setSelectedFilter("all")}
           >
             Все
           </Badge>
           <Badge
             variant={selectedFilter === "expenses" ? "default" : "outline"}
-            className="rounded-full px-4 py-2 cursor-pointer hover:bg-primary/90"
+            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
             onClick={() => setSelectedFilter("expenses")}
           >
             Расходы
           </Badge>
           <Badge
             variant={selectedFilter === "income" ? "default" : "outline"}
-            className="rounded-full px-4 py-2 cursor-pointer hover:bg-primary/90"
+            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
             onClick={() => setSelectedFilter("income")}
           >
             Доходы
           </Badge>
-
-          <Button variant="outline" size="icon" className="rounded-full shrink-0 ml-auto">
-            <Filter className="h-4 w-4" />
-          </Button>
+          <Badge
+            variant={selectedFilter === "savings" ? "default" : "outline"}
+            className="rounded-full px-3 py-1.5 text-xs cursor-pointer hover:bg-primary/90"
+            onClick={() => setSelectedFilter("savings")}
+          >
+            Сбережения
+          </Badge>
         </div>
       </header>
 
@@ -353,7 +413,9 @@ const Transactions = () => {
                 {/* Transactions */}
                 <div className="space-y-2">
                   {group.transactions.map((transaction, index) => {
-                    const isExpense = transaction.category?.type === 'expense';
+                    const type = transaction.type;
+                    const isExpense = type === 'expense';
+                    const isSavings = type === 'savings';
                     const amount = transaction.amount;
 
                     return (
@@ -384,9 +446,9 @@ const Transactions = () => {
                         <div className="text-right shrink-0">
                           <p className={cn(
                             "text-base font-bold font-manrope",
-                            isExpense ? "text-rose-600" : "text-secondary"
+                            isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
                           )}>
-                            {isExpense ? '-' : '+'}{formatCurrency(amount, currency)}
+                            {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}

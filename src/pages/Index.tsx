@@ -15,16 +15,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Hero />
-      <ProblemSolution />
-      <KillerFeature />
-      <HowItWorks />
-      <AIConsultant />
-      <UseCases />
-      <Security />
-      <ComparisonTable />
-      <Pricing />
-      <FAQ />
+      <main>
+        <Hero />
+        <ProblemSolution />
+        <section id="features" aria-label="Возможности Kapitallo">
+          <KillerFeature />
+          <HowItWorks />
+          <AIConsultant />
+        </section>
+        <UseCases />
+        <Security />
+        <ComparisonTable />
+        <Pricing />
+        <FAQ />
+      </main>
       <Footer />
     </div>
   );

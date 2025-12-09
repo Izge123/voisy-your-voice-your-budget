@@ -1,12 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <title>Kapitallo - Учёт финансов голосом с AI</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="canonical" href="https://kapitallo.com/" />
+    
+    <!-- Primary Meta Tags -->
     <meta name="description" content="Учёт финансов голосом. Просто скажи — AI запишет. Kapitallo распознает траты и разделит чек на категории." />
     <meta name="author" content="Kapitallo" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="yandex" content="index, follow" />
+    <meta name="keywords" content="учёт финансов, личные финансы, бюджет, голосовой ввод, AI, искусственный интеллект, трекер расходов, контроль расходов, финансовый помощник, сплит транзакции" />
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4F46E5" />
@@ -16,18 +23,122 @@
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <meta property="og:title" content="Kapitallo - Учёт финансов голосом с AI" />
-    <meta property="og:description" content="Просто скажи — AI запишет. Учёт финансов голосом." />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://kapitallo.com/" />
+    <meta property="og:title" content="Kapitallo - Учёт финансов голосом с AI" />
+    <meta property="og:description" content="Просто скажи — AI запишет. Учёт финансов голосом с автоматической категоризацией." />
+    <meta property="og:image" content="https://kapitallo.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Kapitallo" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Kapitallo" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@kapitallo" />
+    <meta name="twitter:title" content="Kapitallo - Учёт финансов голосом с AI" />
+    <meta name="twitter:description" content="Просто скажи — AI запишет. Учёт финансов голосом." />
+    <meta name="twitter:image" content="https://kapitallo.com/og-image.png" />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Kapitallo",
+      "description": "Учёт финансов голосом. Просто скажи — AI запишет и категоризирует траты.",
+      "url": "https://kapitallo.com",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web, iOS, Android (PWA)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "30-дневный бесплатный период",
+        "priceValidUntil": "2026-12-31"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Kapitallo"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Kapitallo",
+      "url": "https://kapitallo.com",
+      "logo": "https://kapitallo.com/kapitallo-logo.svg",
+      "description": "Умный учёт финансов с голосовым вводом и AI",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "hello@kapitallo.com",
+        "contactType": "customer service"
+      },
+      "sameAs": [
+        "https://t.me/kapitallo",
+        "https://twitter.com/kapitallo",
+        "https://instagram.com/kapitallo"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Сколько длится пробный период Kapitallo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "30 дней полного доступа ко всем функциям без привязки карты. Включает голосовой ввод, сплит-транзакции, AI-консультант и аналитику."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Что такое сплит-транзакции?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Когда говоришь «потратил 5000: 3000 на такси, 2000 на кофе» — AI автоматически создаёт две отдельные транзакции по категориям."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Что умеет AI-консультант?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Анализирует твои траты, даёт персональные советы по бюджету, отвечает на вопросы о финансах. Адаптируется под твой уровень финансовой грамотности."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Какие валюты поддерживает Kapitallo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kapitallo поддерживает 14 валют СНГ: рубль, тенге, сум, гривна, лари и другие. Конвертация происходит автоматически."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Безопасно ли использовать Kapitallo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Мы не храним банковские доступы, только обезличенные записи транзакций. Все данные шифруются по протоколу AES-256 и передаются через защищенное соединение SSL/TLS."
+          }
+        }
+      ]
+    }
+    </script>
 
     <!-- Instant Splash Screen Styles -->
     <style>
@@ -100,7 +211,7 @@
     <!-- Instant Splash Screen (shows before React loads) -->
     <div id="splash-screen">
       <div class="splash-icon">
-        <img src="/kapitallo-logo.svg" alt="Kapitallo" />
+        <img src="/kapitallo-logo.svg" alt="Kapitallo - Учёт финансов голосом" />
       </div>
       <div class="splash-title">Kapitallo</div>
       <div class="splash-subtitle">Учёт финансов голосом</div>

@@ -28,6 +28,15 @@ import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { SplashScreen } from "./components/SplashScreen";
 import { ScrollToTop } from "./components/ScrollToTop";
 
+// Admin imports
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import AdminAuth from "./pages/admin/AdminAuth";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminSubscriptions from "./pages/admin/Subscriptions";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -66,6 +75,26 @@ const App = () => {
                 <Route path="settings/ai-profile" element={<AIProfileSettings />} />
                 <Route path="settings/notifications" element={<NotificationsSettings />} />
               </Route>
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <AdminAuthProvider>
+                  <AdminAuth />
+                </AdminAuthProvider>
+              } />
+              <Route path="/admin/*" element={
+                <AdminAuthProvider>
+                  <Routes>
+                    <Route element={<AdminProtectedRoute />}>
+                      <Route element={<AdminLayout />}>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="users" element={<AdminUsers />} />
+                        <Route path="subscriptions" element={<AdminSubscriptions />} />
+                      </Route>
+                    </Route>
+                  </Routes>
+                </AdminAuthProvider>
+              } />
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

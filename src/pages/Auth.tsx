@@ -268,20 +268,28 @@ const Auth = () => {
                         Забыли пароль?
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="max-w-sm sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle className="font-manrope">Восстановление пароля</DialogTitle>
-                        <DialogDescription className="font-inter">
+                        <DialogTitle className="font-manrope text-xl">Восстановление пароля</DialogTitle>
+                        <DialogDescription className="font-inter text-sm">
                           Введите ваш email, и мы отправим вам ссылку для сброса пароля
                         </DialogDescription>
                       </DialogHeader>
-                      <form onSubmit={handleResetPassword} className="space-y-4">
+                      <form onSubmit={handleResetPassword} className="space-y-4 mt-2">
                         <div className="space-y-2">
                           <Label htmlFor="reset-email" className="font-inter">Email</Label>
-                          <Input id="reset-email" type="email" placeholder="your@email.com" className="font-inter" value={resetEmail} onChange={e => setResetEmail(e.target.value)} disabled={isLoading} />
+                          <Input 
+                            id="reset-email" 
+                            type="email" 
+                            placeholder="your@email.com" 
+                            className="font-inter h-12" 
+                            value={resetEmail} 
+                            onChange={e => setResetEmail(e.target.value)} 
+                            disabled={isLoading} 
+                          />
                           {errors.resetEmail && <p className="text-sm text-destructive font-inter">{errors.resetEmail}</p>}
                         </div>
-                        <Button type="submit" className="w-full rounded-full font-inter" disabled={isLoading}>
+                        <Button type="submit" className="w-full rounded-full font-inter h-12" disabled={isLoading}>
                           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Отправить ссылку"}
                         </Button>
                       </form>

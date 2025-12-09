@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Install from "./pages/Install";
+import Offer from "./pages/Offer";
+import Privacy from "./pages/Privacy";
 import AppLayout from "./components/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import Transactions from "./pages/app/Transactions";
@@ -58,6 +60,8 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/install" element={<Install />} />
+              <Route path="/offer" element={<Offer />} />
+              <Route path="/privacy" element={<Privacy />} />
               
               {/* Protected App Routes */}
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

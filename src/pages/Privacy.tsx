@@ -169,7 +169,7 @@ const Privacy = () => {
               <li><strong>Отзыв согласия</strong> — прекратить использование Сервиса в любой момент</li>
             </ul>
             <p className="text-foreground/80">
-              9.2. Для реализации прав обратитесь: <a href="mailto:hello@kapitallo.com" className="text-primary hover:underline">hello@kapitallo.com</a>
+              9.2. Для реализации прав обратитесь: <a href="mailto:hello@kapitallo.com" className="text-primary hover:underline">info@kapitallo.com</a>
             </p>
           </section>
 

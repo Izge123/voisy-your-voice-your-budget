@@ -1,10 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
 const Privacy = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
@@ -94,7 +92,7 @@ const Privacy = () => {
               5.1. Для работы AI-консультанта и голосового ввода мы используем:
             </p>
             <ul className="list-disc pl-6 text-foreground/80 mb-4 space-y-2">
-              <li><strong>Lovable AI (Google Gemini)</strong> — для анализа транзакций и финансовых консультаций</li>
+              <li><strong>Lovable AI (Google Gemini)</strong>Google Gemini — для анализа транзакций и финансовых консультаций</li>
               <li><strong>OpenAI Whisper</strong> — для распознавания голоса</li>
             </ul>
             <p className="text-foreground/80 mb-4">
@@ -200,8 +198,6 @@ const Privacy = () => {
           </section>
         </article>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Privacy;

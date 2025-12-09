@@ -28,6 +28,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { IOSInstallOverlay } from "./components/IOSInstallOverlay";
+import { AndroidInstallOverlay } from "./components/AndroidInstallOverlay";
 import { SplashScreen } from "./components/SplashScreen";
 import { ScrollToTop } from "./components/ScrollToTop";
 
@@ -105,7 +106,8 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <PWAInstallPrompt />
-            <IOSInstallOverlay />
+              <IOSInstallOverlay />
+              <AndroidInstallOverlay />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

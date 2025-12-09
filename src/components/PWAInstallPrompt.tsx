@@ -173,47 +173,48 @@ export const PWAInstallPrompt = () => {
     );
   }
 
-  // Android/Desktop - native install prompt
-  return (
-    <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-card border border-border rounded-2xl p-4 shadow-xl z-50 animate-in slide-in-from-bottom-4">
-      <button 
-        onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1 text-muted-foreground hover:text-foreground"
-      >
-        <X className="w-4 h-4" />
-      </button>
-
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
-          <img src="/kapitallo-logo.png" alt="Kapitallo" className="w-full h-full object-contain" />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-sm">Установите Kapitallo</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Быстрый доступ с главного экрана
-          </p>
+  // Android/Desktop install prompt - improved version
+  if (deferredPrompt && !isIOS) {
+    // Check if overlay was already shown
+    const overlayWasSeen = typeof window !== 'undefined' && localStorage.getItem('android-install-overlay-seen');
+    
+    // Don't show banner if overlay hasn't been shown yet (overlay will handle it)
+    if (!overlayWasSeen) return null;
+    
+    return (
+      <div className="fixed bottom-4 left-4 right-4 bg-gradient-to-r from-primary/10 to-emerald-500/10 border-2 border-primary/20 rounded-2xl shadow-2xl p-4 z-50 animate-fade-in backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0">
+            <img 
+              src="/kapitallo-logo.svg" 
+              alt="Kapitallo" 
+              className="w-10 h-10"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-foreground text-base">Установите Kapitallo</h3>
+            <p className="text-sm text-muted-foreground">Бесплатно — займёт 5 секунд!</p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleInstall}
+              className="animate-pulse font-semibold"
+              style={{ animationDuration: '2s' }}
+            >
+              Установить
+            </Button>
+            <button
+              onClick={handleDismiss}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Позже
+            </button>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      <div className="mt-3 flex gap-2">
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="flex-1 gap-2"
-          onClick={handleInstall}
-        >
-          <Download className="w-4 h-4" />
-          Установить
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleDismiss}
-        >
-          Позже
-        </Button>
-      </div>
-    </div>
-  );
+  return null;
 };

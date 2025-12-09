@@ -183,12 +183,12 @@ const Dashboard = () => {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl"></div>
           
           <div className="relative z-10">
-            <p className="text-xs text-white/70 font-inter mb-1 capitalize">Баланс за {currentMonthYear}</p>
+            <p className="text-xs text-white/70 font-inter mb-1 capitalize">Доступно за {currentMonthYear}</p>
             <h2 className="text-3xl md:text-5xl font-extrabold font-manrope text-white mb-3 md:mb-6">
               {balanceLoading || profileLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
-                formatCurrency(balance, currency)
+                formatCurrency(remainder, currency)
               )}
             </h2>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -357,7 +357,14 @@ const Auth = () => {
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground font-inter mt-6">
-          Нажимая кнопку, вы принимаете наши условия использования
+          Нажимая кнопку, вы принимаете{" "}
+          <Link to="/offer" className="text-primary hover:underline">
+            условия использования
+          </Link>{" "}
+          и{" "}
+          <Link to="/privacy" className="text-primary hover:underline">
+            политику конфиденциальности
+          </Link>
         </p>
       </div>
     </div>;

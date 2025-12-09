@@ -30,8 +30,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Redirect authenticated users to dashboard
-        if (session?.user && window.location.pathname === "/auth") {
+        // Handle password recovery event - redirect to password reset form
+        if (event === 'PASSWORD_RECOVERY') {
+          setTimeout(() => navigate("/auth?type=recovery"), 0);
+          return;
+        }
+
+        // Redirect authenticated users to dashboard (except on recovery page)
+        if (session?.user && window.location.pathname === "/auth" && !window.location.search.includes('type=recovery')) {
           setTimeout(() => navigate("/app/dashboard"), 0);
         }
       }
@@ -86,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?reset=true`,
+      redirectTo: `${window.location.origin}/auth?type=recovery`,
     });
 
     return { error };

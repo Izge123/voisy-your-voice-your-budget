@@ -4,6 +4,9 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
+User-agent: Yandexbot
+Allow: /
+
 User-agent: Twitterbot
 Allow: /
 
@@ -12,3 +15,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://kapitallo.com/sitemap.xml
+
+# Block private areas
+Disallow: /app/
+Disallow: /admin/

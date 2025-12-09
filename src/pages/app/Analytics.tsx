@@ -78,13 +78,13 @@ const Analytics = () => {
       .filter(t => t.type === 'savings')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const remainder = income - expenses;
+    const remainder = income - expenses - savingsAmount; // Доступно = доходы - расходы - сбережения
 
     return [
       { label: "Доходы", value: formatCurrency(income, currency), icon: TrendingUp, color: "text-secondary", bg: "bg-secondary/10" },
       { label: "Расходы", value: formatCurrency(expenses, currency), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-500/10" },
       { label: "Сбережения", value: formatCurrency(savingsAmount, currency), icon: PiggyBank, color: "text-blue-600", bg: "bg-blue-500/10" },
-      { label: "Остаток", value: formatCurrency(remainder, currency), icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
+      { label: "Доступно", value: formatCurrency(remainder, currency), icon: Wallet, color: "text-primary", bg: "bg-primary/10" },
     ];
   }, [filteredTransactions, currency]);
 

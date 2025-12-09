@@ -193,7 +193,7 @@ const Privacy = () => {
           <section className="mb-8">
             <h2 className="text-xl font-semibold font-manrope mb-4">12. Контактная информация</h2>
             <p className="text-foreground/80">
-              По вопросам, связанным с обработкой персональных данных, обращайтесь: <a href="mailto:hello@kapitallo.com" className="text-primary hover:underline">hello@kapitallo.com</a>
+              По вопросам, связанным с обработкой персональных данных, обращайтесь: <a href="mailto:info@kapitallo.com" className="text-primary hover:underline">info@kapitallo.com</a>
             </p>
           </section>
         </article>

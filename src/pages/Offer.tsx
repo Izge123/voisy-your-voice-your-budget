@@ -1,10 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
 const Offer = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
@@ -160,13 +158,11 @@ const Offer = () => {
           <section className="mb-8">
             <h2 className="text-xl font-semibold font-manrope mb-4">9. Контактная информация</h2>
             <p className="text-foreground/80">
-              По всем вопросам, связанным с настоящей Офертой, обращайтесь: <a href="mailto:hello@kapitallo.com" className="text-primary hover:underline">hello@kapitallo.com</a>
+              По всем вопросам, связанным с настоящей Офертой, обращайтесь: <a href="mailto:hello@kapitallo.com" className="text-primary hover:underline">info@kapitallo.com</a>
             </p>
           </section>
         </article>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Offer;

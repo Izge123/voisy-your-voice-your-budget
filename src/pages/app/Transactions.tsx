@@ -417,7 +417,7 @@ const Transactions = () => {
                     return (
                       <div
                         key={transaction.id}
-                        className="flex items-center gap-2 p-2.5 bg-card rounded-xl border border-border transition-all duration-200 animate-fade-in"
+                        className="flex items-center gap-2 p-2.5 bg-card rounded-xl border border-border transition-all duration-200 animate-fade-in overflow-hidden"
                         style={{ animationDelay: `${index * 30}ms` }}
                       >
                         {/* Icon */}
@@ -429,7 +429,7 @@ const Transactions = () => {
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                           <p className="text-sm font-semibold font-inter text-foreground truncate">
                             {transaction.description || transaction.category?.name || 'Транзакция'}
                           </p>

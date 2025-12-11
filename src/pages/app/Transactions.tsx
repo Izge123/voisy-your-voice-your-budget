@@ -428,9 +428,9 @@ const Transactions = () => {
                             {transaction.category?.icon || '💰'}
                           </div>
 
-                          {/* Info - with min-w-0 to allow truncation */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold font-inter text-foreground truncate">
+                          {/* Info - with min-w-0 and max-w to force truncation */}
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="text-sm font-semibold font-inter text-foreground truncate max-w-[180px]">
                               {transaction.description || transaction.category?.name || 'Транзакция'}
                             </p>
                             <p className="text-xs text-muted-foreground">

@@ -1,20 +1,24 @@
 import { Mail } from "lucide-react";
 import logo from "@/assets/kapitallo-logo.svg";
-
 const Footer = () => {
-  const links = [
-    { label: "Возможности", href: "#features" },
-    { label: "Тарифы", href: "#pricing" },
-    { label: "FAQ", href: "#faq" }
-  ];
-
-  const legal = [
-    { label: "Оферта", href: "/offer" },
-    { label: "Политика конфиденциальности", href: "/privacy" }
-  ];
-
-  return (
-    <footer role="contentinfo" className="w-full py-12 md:py-16 bg-muted/30 border-t border-border">
+  const links = [{
+    label: "Возможности",
+    href: "#features"
+  }, {
+    label: "Тарифы",
+    href: "#pricing"
+  }, {
+    label: "FAQ",
+    href: "#faq"
+  }];
+  const legal = [{
+    label: "Оферта",
+    href: "/offer"
+  }, {
+    label: "Политика конфиденциальности",
+    href: "/privacy"
+  }];
+  return <footer role="contentinfo" className="w-full py-12 md:py-16 bg-muted/30 border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Logo & Description */}
@@ -27,12 +31,7 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <a 
-                href="mailto:hello@kapitallo.com" 
-                className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-              >
-                hello@kapitallo.com
-              </a>
+              <a href="mailto:hello@kapitallo.com" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">info@kapitallo.com</a>
             </div>
           </div>
 
@@ -40,16 +39,11 @@ const Footer = () => {
           <nav aria-label="Навигация по сайту">
             <h3 className="text-sm font-bold font-manrope text-foreground mb-4">Навигация</h3>
             <ul className="space-y-3">
-              {links.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href} 
-                    className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  >
+              {links.map((link, index) => <li key={index}>
+                  <a href={link.href} className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </nav>
 
@@ -57,16 +51,11 @@ const Footer = () => {
           <nav aria-label="Юридические документы">
             <h3 className="text-sm font-bold font-manrope text-foreground mb-4">Документы</h3>
             <ul className="space-y-3">
-              {legal.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href} 
-                    className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  >
+              {legal.map((link, index) => <li key={index}>
+                  <a href={link.href} className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </nav>
         </div>
@@ -84,35 +73,17 @@ const Footer = () => {
           <nav aria-label="Социальные сети">
             <ul className="flex items-center gap-4">
               <li>
-                <a 
-                  href="https://t.me/kapitallo" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  aria-label="Kapitallo в Telegram"
-                >
+                <a href="https://t.me/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors" aria-label="Kapitallo в Telegram">
                   Telegram
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://twitter.com/kapitallo" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  aria-label="Kapitallo в Twitter"
-                >
+                <a href="https://twitter.com/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors" aria-label="Kapitallo в Twitter">
                   Twitter
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://instagram.com/kapitallo" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors"
-                  aria-label="Kapitallo в Instagram"
-                >
+                <a href="https://instagram.com/kapitallo" target="_blank" rel="noopener noreferrer" className="text-sm font-inter text-muted-foreground hover:text-primary transition-colors" aria-label="Kapitallo в Instagram">
                   Instagram
                 </a>
               </li>
@@ -120,8 +91,6 @@ const Footer = () => {
           </nav>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;

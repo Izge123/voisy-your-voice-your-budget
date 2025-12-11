@@ -105,27 +105,12 @@ const Auth = () => {
       return;
     }
     setIsLoading(true);
-    const {
-      error
-    } = await signUp(registerData.email, registerData.password, registerData.fullName);
-    
-    if (!error && promoCode.trim()) {
-      // Apply promo code after successful registration
-      try {
-        const { data, error: promoError } = await supabase.functions.invoke('apply-promo-code', {
-          body: { promo_code: promoCode.trim() }
-        });
-        if (promoError) {
-          console.error('Promo code error:', promoError);
-        } else if (data?.valid) {
-          console.log('Promo code applied:', data);
-        } else if (data?.error) {
-          setErrors({ promoCode: data.error });
-        }
-      } catch (err) {
-        console.error('Failed to apply promo code:', err);
-      }
-    }
+    const { error } = await signUp(
+      registerData.email, 
+      registerData.password, 
+      registerData.fullName,
+      promoCode.trim() || undefined
+    );
     
     setIsLoading(false);
     if (!error) {

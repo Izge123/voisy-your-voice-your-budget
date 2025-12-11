@@ -23,7 +23,12 @@ interface ParsedTransaction {
   description: string;
 }
 
-const getTypeBadge = (type: string) => {
+const getTypeBadge = (type: string, amount: number) => {
+  // Отрицательные сбережения = изъятие
+  if (type === 'savings' && amount < 0) {
+    return { variant: 'destructive' as const, label: 'Изъятие из сбережений' };
+  }
+  
   switch (type) {
     case 'expense':
       return { variant: 'destructive' as const, label: 'Расход' };
@@ -275,30 +280,35 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
                 Найдено транзакций: {parsedTransactions.length}
               </p>
               <div className="space-y-2">
-                {parsedTransactions.map((tx, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">{tx.description}</p>
-                        <Badge variant={getTypeBadge(tx.type).variant}>
-                          {getTypeBadge(tx.type).label}
-                        </Badge>
+                {parsedTransactions.map((tx, index) => {
+                  const isNegativeSavings = tx.type === 'savings' && tx.amount < 0;
+                  const displayAmount = Math.abs(tx.amount);
+                  
+                  return (
+                    <Card key={index} className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">{tx.description}</p>
+                          <Badge variant={getTypeBadge(tx.type, tx.amount).variant}>
+                            {getTypeBadge(tx.type, tx.amount).label}
+                          </Badge>
+                        </div>
+                        <p className={cn(
+                          "text-lg font-bold font-manrope",
+                          tx.type === 'expense' || isNegativeSavings ? 'text-rose-600' : 
+                          tx.type === 'savings' ? 'text-blue-600' : 'text-secondary'
+                        )}>
+                          {tx.type === 'expense' || isNegativeSavings ? '-' : '+'}{formatCurrency(displayAmount, currency)}
+                        </p>
                       </div>
-                      <p className={cn(
-                        "text-lg font-bold font-manrope",
-                        tx.type === 'expense' ? 'text-rose-600' : 
-                        tx.type === 'savings' ? 'text-blue-600' : 'text-secondary'
-                      )}>
-                        {tx.type === 'expense' ? '-' : '+'}{formatCurrency(tx.amount, currency)}
-                      </p>
-                    </div>
-                    {!tx.category_id && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        ⚠️ Категория не найдена
-                      </p>
-                    )}
-                  </Card>
-                ))}
+                      {!tx.category_id && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          ⚠️ Категория не найдена
+                        </p>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
 

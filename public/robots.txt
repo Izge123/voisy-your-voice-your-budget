@@ -16,9 +16,9 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://kapitallo.com/sitemap.xml
-
 # Block private areas
 Disallow: /app/
 Disallow: /admin/
+
+# Sitemap
+Sitemap: https://kapitallo.com/sitemap.xml

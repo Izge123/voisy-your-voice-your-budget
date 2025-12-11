@@ -39,6 +39,7 @@ import AdminAuth from "./pages/admin/AdminAuth";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
+import AdminBloggers from "./pages/admin/Bloggers";
 import AdminSubscriptions from "./pages/admin/Subscriptions";
 
 const queryClient = new QueryClient();
@@ -95,6 +96,7 @@ const App = () => {
                       <Route element={<AdminLayout />}>
                         <Route path="dashboard" element={<AdminDashboard />} />
                         <Route path="users" element={<AdminUsers />} />
+                        <Route path="bloggers" element={<AdminBloggers />} />
                         <Route path="subscriptions" element={<AdminSubscriptions />} />
                       </Route>
                     </Route>

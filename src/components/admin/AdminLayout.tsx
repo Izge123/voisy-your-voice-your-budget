@@ -7,7 +7,8 @@ import {
   LogOut,
   Shield,
   Menu,
-  X
+  X,
+  Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { to: "/admin/dashboard", label: "Дашборд", icon: LayoutDashboard },
   { to: "/admin/users", label: "Пользователи", icon: Users },
+  { to: "/admin/bloggers", label: "Блогеры", icon: Megaphone },
   { to: "/admin/subscriptions", label: "Подписки", icon: CreditCard },
 ];
 

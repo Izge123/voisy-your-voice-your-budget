@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +50,7 @@ const Auth = () => {
     email: "",
     password: ""
   });
+  const [promoCode, setPromoCode] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -107,6 +108,25 @@ const Auth = () => {
     const {
       error
     } = await signUp(registerData.email, registerData.password, registerData.fullName);
+    
+    if (!error && promoCode.trim()) {
+      // Apply promo code after successful registration
+      try {
+        const { data, error: promoError } = await supabase.functions.invoke('apply-promo-code', {
+          body: { promo_code: promoCode.trim() }
+        });
+        if (promoError) {
+          console.error('Promo code error:', promoError);
+        } else if (data?.valid) {
+          console.log('Promo code applied:', data);
+        } else if (data?.error) {
+          setErrors({ promoCode: data.error });
+        }
+      } catch (err) {
+        console.error('Failed to apply promo code:', err);
+      }
+    }
+    
     setIsLoading(false);
     if (!error) {
       navigate("/app/dashboard");
@@ -348,6 +368,23 @@ const Auth = () => {
                     </button>
                   </div>
                   {errors.password && <p className="text-sm text-destructive font-inter">{errors.password}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="register-promo" className="font-inter">Промокод (если есть)</Label>
+                  <div className="relative">
+                    <Ticket className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Input 
+                      id="register-promo" 
+                      type="text" 
+                      placeholder="PROMO2024" 
+                      className="pl-10 font-inter uppercase" 
+                      value={promoCode} 
+                      onChange={e => setPromoCode(e.target.value.toUpperCase())} 
+                      disabled={isLoading} 
+                    />
+                  </div>
+                  {errors.promoCode && <p className="text-sm text-destructive font-inter">{errors.promoCode}</p>}
                 </div>
 
                 <Button type="submit" className="w-full rounded-full font-inter mt-6" disabled={isLoading}>

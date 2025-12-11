@@ -9,7 +9,8 @@ import {
   TrendingUp, 
   TrendingDown,
   DollarSign,
-  UserPlus
+  UserPlus,
+  Ticket
 } from "lucide-react";
 
 const StatCard = ({ 
@@ -127,7 +128,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* New Users Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard 
           title="Новых сегодня" 
           value={stats?.newUsersToday || 0}
@@ -145,6 +146,13 @@ const AdminDashboard = () => {
           value={stats?.newUsersThisMonth || 0}
           icon={UserPlus}
           color="text-blue-400"
+        />
+        <StatCard 
+          title="По промокодам" 
+          value={stats?.promoCodeUsers || 0}
+          icon={Ticket}
+          subtitle="Регистраций через блогеров"
+          color="text-purple-400"
         />
       </div>
     </div>

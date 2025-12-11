@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      bloggers: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          promo_code: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          promo_code: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          promo_code?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -108,6 +129,8 @@ export type Database = {
           life_tags: string[] | null
           monthly_budget: number | null
           planning_horizon: string | null
+          promo_code_used: string | null
+          referred_by_blogger_id: string | null
           target_amount: number | null
         }
         Insert: {
@@ -123,6 +146,8 @@ export type Database = {
           life_tags?: string[] | null
           monthly_budget?: number | null
           planning_horizon?: string | null
+          promo_code_used?: string | null
+          referred_by_blogger_id?: string | null
           target_amount?: number | null
         }
         Update: {
@@ -138,9 +163,19 @@ export type Database = {
           life_tags?: string[] | null
           monthly_budget?: number | null
           planning_horizon?: string | null
+          promo_code_used?: string | null
+          referred_by_blogger_id?: string | null
           target_amount?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_blogger_id_fkey"
+            columns: ["referred_by_blogger_id"]
+            isOneToOne: false
+            referencedRelation: "bloggers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {

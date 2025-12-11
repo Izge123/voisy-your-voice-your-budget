@@ -34,6 +34,14 @@ const AdminUsers = () => {
   const { data: users, isLoading } = useAdminUsers();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [promoFilter, setPromoFilter] = useState<string>("all");
+
+  // Get unique promo codes from users
+  const uniquePromoCodes = users
+    ?.map(user => user.promo_code_used)
+    .filter((code): code is string => !!code)
+    .filter((code, index, arr) => arr.indexOf(code) === index)
+    .sort() || [];
 
   const filteredUsers = users?.filter(user => {
     const matchesSearch = 
@@ -44,7 +52,12 @@ const AdminUsers = () => {
       statusFilter === "all" || 
       user.subscription?.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const matchesPromo = 
+      promoFilter === "all" ||
+      (promoFilter === "none" && !user.promo_code_used) ||
+      user.promo_code_used === promoFilter;
+
+    return matchesSearch && matchesStatus && matchesPromo;
   });
 
   if (isLoading) {
@@ -85,6 +98,20 @@ const AdminUsers = () => {
             className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
           />
         </div>
+        <Select value={promoFilter} onValueChange={setPromoFilter}>
+          <SelectTrigger className="w-full sm:w-48 bg-slate-800 border-slate-700 text-white">
+            <SelectValue placeholder="Промокод" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all" className="text-white">Все промокоды</SelectItem>
+            <SelectItem value="none" className="text-white">Без промокода</SelectItem>
+            {uniquePromoCodes.map(code => (
+              <SelectItem key={code} value={code} className="text-white font-mono">
+                {code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-48 bg-slate-800 border-slate-700 text-white">
             <SelectValue placeholder="Статус" />

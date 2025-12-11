@@ -13,6 +13,7 @@ interface AdminStats {
   newUsersToday: number;
   newUsersThisWeek: number;
   newUsersThisMonth: number;
+  promoCodeUsers: number;
 }
 
 interface UserWithSubscription {
@@ -21,6 +22,7 @@ interface UserWithSubscription {
   full_name: string | null;
   avatar_url: string | null;
   created_at: string | null;
+  promo_code_used: string | null;
   subscription: {
     status: string;
     plan: string;
@@ -57,7 +59,7 @@ export function useAdminStats() {
       // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, created_at');
+        .select('id, created_at, promo_code_used');
 
       if (profilesError) throw profilesError;
 
@@ -69,6 +71,7 @@ export function useAdminStats() {
       if (subsError) throw subsError;
 
       const totalUsers = profiles?.length || 0;
+      const promoCodeUsers = profiles?.filter(p => p.promo_code_used).length || 0;
       const trialUsers = subscriptions?.filter(s => s.status === 'trial').length || 0;
       const proUsers = subscriptions?.filter(s => s.status === 'active').length || 0;
       const expiredUsers = subscriptions?.filter(s => s.status === 'expired').length || 0;
@@ -115,6 +118,7 @@ export function useAdminStats() {
         newUsersToday,
         newUsersThisWeek,
         newUsersThisMonth,
+        promoCodeUsers,
       };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -128,7 +132,7 @@ export function useAdminUsers() {
       // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, avatar_url, created_at')
+        .select('id, email, full_name, avatar_url, created_at, promo_code_used')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;

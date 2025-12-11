@@ -111,6 +111,7 @@ const AdminUsers = () => {
                   <TableHead className="text-slate-400">Пользователь</TableHead>
                   <TableHead className="text-slate-400">Email</TableHead>
                   <TableHead className="text-slate-400">Дата регистрации</TableHead>
+                  <TableHead className="text-slate-400">Промокод</TableHead>
                   <TableHead className="text-slate-400">Статус</TableHead>
                   <TableHead className="text-slate-400">Окончание</TableHead>
                 </TableRow>
@@ -138,6 +139,13 @@ const AdminUsers = () => {
                         : "—"
                       }
                     </TableCell>
+                    <TableCell className="text-slate-300">
+                      {user.promo_code_used ? (
+                        <Badge variant="outline" className="font-mono text-purple-400 border-purple-400/50">
+                          {user.promo_code_used}
+                        </Badge>
+                      ) : "—"}
+                    </TableCell>
                     <TableCell>
                       {user.subscription ? (
                         <Badge variant={statusLabels[user.subscription.status]?.variant || "outline"}>
@@ -159,7 +167,7 @@ const AdminUsers = () => {
                 ))}
                 {filteredUsers?.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-slate-400 py-8">
+                    <TableCell colSpan={6} className="text-center text-slate-400 py-8">
                       Пользователи не найдены
                     </TableCell>
                   </TableRow>

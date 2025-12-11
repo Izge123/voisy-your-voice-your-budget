@@ -414,50 +414,50 @@ const Transactions = () => {
                     const isSavings = type === 'savings';
                     const amount = transaction.amount;
 
-                    return (
-                      <div
-                        key={transaction.id}
-                        className="flex items-center gap-2 p-2.5 bg-card rounded-xl border border-border transition-all duration-200 animate-fade-in overflow-hidden"
-                        style={{ animationDelay: `${index * 30}ms` }}
-                      >
-                        {/* Icon */}
-                        <div 
-                          className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 text-lg"
-                          style={{ backgroundColor: `${transaction.category?.color || '#6b7280'}15` }}
+                      return (
+                        <div
+                          key={transaction.id}
+                          className="flex items-center gap-2 p-2.5 bg-card rounded-xl border border-border transition-all duration-200 animate-fade-in"
+                          style={{ animationDelay: `${index * 30}ms` }}
                         >
-                          {transaction.category?.icon || '💰'}
-                        </div>
+                          {/* Icon */}
+                          <div 
+                            className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 text-lg"
+                            style={{ backgroundColor: `${transaction.category?.color || '#6b7280'}15` }}
+                          >
+                            {transaction.category?.icon || '💰'}
+                          </div>
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0 overflow-hidden">
-                          <p className="text-sm font-semibold font-inter text-foreground truncate">
-                            {transaction.description || transaction.category?.name || 'Транзакция'}
+                          {/* Info - with min-w-0 to allow truncation */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold font-inter text-foreground truncate">
+                              {transaction.description || transaction.category?.name || 'Транзакция'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
+                            </p>
+                          </div>
+
+                          {/* Amount - shrink-0 keeps it fixed, whitespace-nowrap prevents wrapping */}
+                          <p className={cn(
+                            "text-sm font-bold font-manrope shrink-0 whitespace-nowrap",
+                            isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
+                          )}>
+                            {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {transaction.created_at ? format(new Date(transaction.created_at), 'HH:mm', { locale: ru }) : ''}
-                          </p>
+
+                          {/* Delete Button */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0 h-7 w-7"
+                            onClick={() => handleDelete(transaction.id)}
+                            disabled={isDeletingTransaction}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
                         </div>
-
-                        {/* Amount */}
-                        <p className={cn(
-                          "text-sm font-bold font-manrope shrink-0",
-                          isExpense ? "text-rose-600" : isSavings ? "text-blue-600" : "text-secondary"
-                        )}>
-                          {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}
-                        </p>
-
-                        {/* Delete Button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="shrink-0 h-7 w-7"
-                          onClick={() => handleDelete(transaction.id)}
-                          disabled={isDeletingTransaction}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
-                      </div>
-                    );
+                      );
                   })}
                 </div>
               </div>

@@ -357,7 +357,7 @@ const Dashboard = () => {
 
                     {/* Amount */}
                     <p className={cn(
-                      "text-sm font-bold font-manrope",
+                      "text-sm font-bold font-manrope shrink-0 whitespace-nowrap",
                       isExpense ? 'text-rose-600' : isSavings ? 'text-blue-600' : 'text-secondary'
                     )}>
                       {isExpense ? '-' : isSavings ? '' : '+'}{formatCurrency(amount, currency)}

@@ -16,6 +16,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const PRODUCTION_URL = 'https://kapitallo.com';
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -63,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${PRODUCTION_URL}/`;
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -92,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?type=recovery`,
+      redirectTo: `${PRODUCTION_URL}/auth?type=recovery`,
     });
 
     return { error };

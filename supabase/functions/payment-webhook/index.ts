@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
 };
 
 serve(async (req) => {
@@ -13,6 +13,25 @@ serve(async (req) => {
   }
 
   try {
+    // Verify webhook secret for authentication
+    const webhookSecret = Deno.env.get('PAYMENT_WEBHOOK_SECRET');
+    if (!webhookSecret) {
+      console.error('PAYMENT_WEBHOOK_SECRET not configured');
+      return new Response(
+        JSON.stringify({ error: 'Webhook not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const providedSecret = req.headers.get('x-webhook-secret');
+    if (!providedSecret || providedSecret !== webhookSecret) {
+      console.error('Invalid or missing webhook secret');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -42,7 +61,7 @@ serve(async (req) => {
         plan: plan || 'pro',
         subscription_started_at: new Date().toISOString(),
         subscription_ends_at: subscriptionEndDate.toISOString(),
-        payment_provider: 'manual', // Will be replaced with actual provider
+        payment_provider: 'manual',
         payment_id: payment_id || null,
         updated_at: new Date().toISOString()
       })

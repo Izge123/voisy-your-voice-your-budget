@@ -77,6 +77,28 @@ serve(async (req) => {
 
     console.log('Subscription activated for user:', user_id);
 
+    // Send Telegram notification about new subscription
+    try {
+      const telegramResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/telegram-notify`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+          },
+          body: JSON.stringify({
+            type: 'subscription',
+            data: { user_id, plan: plan || 'pro', duration_months: duration_months || 1 }
+          })
+        }
+      );
+      console.log('Telegram notification sent:', await telegramResponse.json());
+    } catch (telegramError) {
+      console.error('Failed to send Telegram notification:', telegramError);
+      // Don't fail the webhook if Telegram notification fails
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

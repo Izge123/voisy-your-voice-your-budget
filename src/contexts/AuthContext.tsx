@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, fullName: string, promoCode?: string) => {
     const redirectUrl = `${PRODUCTION_URL}/`;
 
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -78,6 +78,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       },
     });
+
+    // Send Telegram notification about new user registration
+    if (!error && data.user) {
+      try {
+        await supabase.functions.invoke('telegram-notify', {
+          body: {
+            type: 'new_user',
+            data: {
+              email,
+              full_name: fullName,
+              promo_code: promoCode?.trim().toUpperCase() || null,
+            }
+          }
+        });
+      } catch (telegramError) {
+        console.error('Failed to send Telegram notification:', telegramError);
+        // Don't fail signup if Telegram notification fails
+      }
+    }
 
     return { error };
   };

@@ -217,12 +217,9 @@ const Auth = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
-      {/* Decorative blobs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
-
-      {/* Email Confirmation Dialog - вынесен за пределы контейнера для корректного центрирования */}
+  return (
+    <>
+      {/* Email Confirmation Dialog - полностью вне основного контейнера */}
       <Dialog open={showEmailConfirmationDialog} onOpenChange={setShowEmailConfirmationDialog}>
         <DialogContent className="max-w-sm sm:max-w-md">
           <div className="flex flex-col items-center text-center py-4">
@@ -264,7 +261,12 @@ const Auth = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+        {/* Decorative blobs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+
+        <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8 animate-fade-in">
           <img src="/kapitallo-logo.svg" alt="Kapitallo" className="h-10 w-10" />
@@ -441,6 +443,8 @@ const Auth = () => {
           </Link>
         </p>
       </div>
-    </div>;
+      </div>
+    </>
+  );
 };
 export default Auth;

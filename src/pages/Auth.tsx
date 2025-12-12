@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2, Ticket } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, Loader2, Ticket, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,6 +62,8 @@ const Auth = () => {
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [showEmailConfirmationDialog, setShowEmailConfirmationDialog] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   useEffect(() => {
     if (user && !isRecovery) {
       navigate("/app/dashboard");
@@ -114,7 +116,8 @@ const Auth = () => {
     
     setIsLoading(false);
     if (!error) {
-      navigate("/app/dashboard");
+      setRegisteredEmail(registerData.email);
+      setShowEmailConfirmationDialog(true);
     }
   };
   const handleGoogleSignIn = async () => {
@@ -227,6 +230,48 @@ const Auth = () => {
         </div>
 
         {/* Auth Card */}
+        {/* Email Confirmation Dialog */}
+        <Dialog open={showEmailConfirmationDialog} onOpenChange={setShowEmailConfirmationDialog}>
+          <DialogContent className="max-w-sm sm:max-w-md">
+            <div className="flex flex-col items-center text-center py-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Mail className="w-8 h-8 text-primary" />
+              </div>
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="font-manrope text-xl">Проверьте вашу почту!</DialogTitle>
+                <DialogDescription className="font-inter text-sm space-y-3">
+                  <p>
+                    Мы отправили письмо на{" "}
+                    <span className="font-semibold text-foreground">{registeredEmail}</span>
+                  </p>
+                  <p>Перейдите по ссылке в письме для активации аккаунта.</p>
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="mt-6 space-y-2 text-sm text-muted-foreground font-inter w-full">
+                <div className="flex items-start gap-2 text-left bg-muted/50 rounded-lg p-3">
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+                  <span>Не видите письмо? Проверьте папку «Спам»</span>
+                </div>
+                <div className="flex items-start gap-2 text-left bg-muted/50 rounded-lg p-3">
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+                  <span>Письмо может прийти в течение 1-2 минут</span>
+                </div>
+              </div>
+
+              <Button 
+                className="w-full rounded-full font-inter mt-6" 
+                onClick={() => {
+                  setShowEmailConfirmationDialog(false);
+                  setActiveTab("login");
+                }}
+              >
+                Понятно, перейти ко входу
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-border/50 p-8 animate-fade-in" style={{
         animationDelay: '100ms'
       }}>

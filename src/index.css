@@ -146,13 +146,12 @@ All colors MUST be HSL.
 
 /* iOS Performance Optimizations */
 @layer base {
-  /* GPU acceleration for animated elements */
+  /* GPU acceleration for animated elements - using will-change to avoid transform conflicts */
   .animate-in,
   [class*="animate-"],
   .transition-all,
   .transition-transform {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    will-change: transform, opacity;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }

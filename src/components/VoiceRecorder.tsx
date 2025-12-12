@@ -284,6 +284,12 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
                   const isNegativeSavings = tx.type === 'savings' && tx.amount < 0;
                   const displayAmount = Math.abs(tx.amount);
                   
+                  // Находим категорию и родительскую категорию
+                  const category = categories.find(cat => cat.id === tx.category_id);
+                  const parentCategory = category?.parent_id 
+                    ? categories.find(cat => cat.id === category.parent_id) 
+                    : null;
+                  
                   return (
                     <Card key={index} className="p-4">
                       <div className="flex items-start justify-between">
@@ -301,7 +307,19 @@ export const VoiceRecorder = ({ open, onOpenChange }: VoiceRecorderProps) => {
                           {tx.type === 'expense' || isNegativeSavings ? '-' : '+'}{formatCurrency(displayAmount, currency)}
                         </p>
                       </div>
-                      {!tx.category_id && (
+                      {category ? (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {parentCategory ? (
+                            <>
+                              {parentCategory.icon} {parentCategory.name} → {category.icon} {category.name}
+                            </>
+                          ) : (
+                            <>
+                              {category.icon} {category.name}
+                            </>
+                          )}
+                        </p>
+                      ) : (
                         <p className="text-xs text-muted-foreground mt-2">
                           ⚠️ Категория не найдена
                         </p>
